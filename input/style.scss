@@ -1,0 +1,24 @@
+@use "@vistta/css/vars" as *;
+
+.input:root {
+  position: relative;
+  padding: 0;
+
+  &[data-icon] {
+    padding-left: calc(use("icon-size") + use("unit-4"));
+
+    &::before {
+      position: absolute;
+      top: 50%;
+      left: use("unit-2");
+      transform: translateY(-50%);
+    }
+  }
+
+  & > input {
+    padding-left: 0;
+    width: 100%;
+    background: none;
+    border: none;
+  }
+}

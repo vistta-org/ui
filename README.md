@@ -1,4 +1,4 @@
-# **[Project Name]**
+# **VISTTA JS Component Library**
 
 [Project Name] description
 
@@ -7,16 +7,14 @@
 ### **Install**
 
 ```sh
-npm install @vistta/
+npm install @vistta/components
 ```
 
 ### **Usage**
 
-Usage
-
-## **API**
-
-API
+```jsx demo
+<Button label="label" />
+```
 
 ## **License**
 
