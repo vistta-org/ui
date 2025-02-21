@@ -1,6 +1,6 @@
 {
   "name": "@vistta/components",
-  "version": "0.1.0-snapshot.1",
+  "version": "0.1.0",
   "description": "Vistta JS Component Library",
   "main": "index.js",
   "style": "index.scss",
@@ -14,7 +14,7 @@
   },
   "author": "Tiago Terenas Almeida",
   "license": "CC BY-NC-ND 4.0 DEED",
-  "dependencies": {
+  "peerDependencies": {
     "@vistta/js": "*"
   }
 }
