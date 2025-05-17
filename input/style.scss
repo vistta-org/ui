@@ -4,6 +4,10 @@
   position: relative;
   padding: 0;
 
+  &:has(> label) {
+    margin-top: var(--unit-2);
+  }
+
   &[data-icon] {
     padding-left: calc(use("icon-size") + use("unit-4"));
 
@@ -15,10 +19,61 @@
     }
   }
 
-  & > input {
-    padding-left: 0;
+  & > input, & > textarea, & > select, & > div[contentEditable] {
+    min-height: 100%;
     width: 100%;
+    padding: var(--unit-2) var(--unit-4);
     background: none;
+    outline: none;
     border: none;
+  }
+
+  & > select {
+    width: calc(100% - var(--unit-1));
+    margin-right: var(--unit-1);
+    padding-right: var(--unit-5);
+  }
+
+  & > label {
+    position: absolute;
+    top: var(--unit-1);
+    left: var(--unit-2);
+    padding: 0 var(--unit-2);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    transition: top var(--duration), font-size var(--duration);
+    backdrop-filter: blur(10px);
+  }
+
+  &:has(> input:focus, > input:not(:placeholder-shown), >select > option:checked:not(:first-child)) > label {
+    top: -38%;
+    font-size: 0.75em;
+  }
+
+  & > div[contentEditable] {
+    white-space: pre-wrap; // without this all spaces are nonbreaking spaces instead of normal spaces, which causes issues on the backend
+    overflow-x: scroll;
+    overflow-y: hidden;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+
+    word-break: break-all !important;
+
+    &:empty:after {
+      position: absolute;
+      content: attr(placeholder);
+      -webkit-text-security: none;
+      color: rgb(117, 117, 117);
+      transition: color var(--transition);
+      direction: inherit !important;
+      line-height: inherit !important;
+      pointer-events: none !important;
+      text-orientation: inherit !important;
+      writing-mode: inherit !important;
+      display: block;
+    }
   }
 }
