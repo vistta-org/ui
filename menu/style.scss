@@ -1,0 +1,41 @@
+div:scope {
+  position: relative;
+  display: flex;
+  gap: var(--unit-2);
+  align-items: stretch !important;
+  flex-flow: row nowrap;
+  border: none !important;
+  border-radius: var(--border-radius) !important;
+
+  &.group\:vertical {
+    flex-flow: column nowrap;
+  }
+
+  &:has(.dropdown) > *:nth-last-child(2) {
+    border-top-right-radius: var(--border-radius) !important;
+    border-bottom-right-radius: var(--border-radius) !important;
+    border-right: none !important;
+  }
+
+  .hidden {
+    position: fixed !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: calc(var(--z-index-max) * -1) !important;
+    display: block !important;
+  }
+}
+
+.dropdown:scope {
+  position: fixed;
+  max-width: 400px;
+  top: calc(anchor(bottom) + var(--unit-h));
+  padding: 0;
+  justify-self: anchor-center;
+  z-index: var(--z-index-max);
+  display: flex;
+  flex-flow: column nowrap;
+  border: none;
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+}
