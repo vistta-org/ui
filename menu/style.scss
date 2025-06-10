@@ -35,7 +35,7 @@ div:scope {
   z-index: var(--z-index-max);
   display: flex;
   flex-flow: column nowrap;
-  border: none;
+  border: none !important;
+  border-radius: var(--border-radius) !important;
   box-shadow: var(--box-shadow);
-  border-radius: var(--border-radius);
 }

@@ -68,12 +68,8 @@ class Menu extends Component {
             aria-label={this.name}
             variant={this.variant}
             onClick={() => (this.show = !this.show)}
-            {...Object.assign({ icon: "\ue313" }, this.dropdown || {}, {
-              style: Object.assign(this.style || {}, {
-                "anchor-name": this.anchorId,
-              }),
-            })}
-          ></Button>
+            {...adjustDropdownProps(this.dropdown, this.anchorId)}
+          />
           <Popover
             className={"dropdown group:vertical"}
             open={this.show}
@@ -149,3 +145,18 @@ class Menu extends Component {
 }
 
 export default Menu;
+
+function adjustDropdownProps(
+  { ...dropdown }: Omit<Button, "onClick" | "render" | "getClassName"> = {},
+  anchorId: string
+) {
+  if (dropdown.icon === undefined)
+    dropdown.icon = dropdown.label
+      ? { code: "\ue313", position: "right" }
+      : "\ue313";
+  if (!dropdown.label) dropdown.action = true;
+  dropdown.style = Object.assign(dropdown.style || {}, {
+    "anchor-name": anchorId,
+  });
+  return dropdown;
+}

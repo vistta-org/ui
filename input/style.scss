@@ -1,6 +1,6 @@
-@use "@vistta/css/vars" as *;
+// @use "@vistta/css/vars" as *;
 
-.input:root {
+.input:scope {
   position: relative;
   padding: 0;
 
@@ -9,23 +9,31 @@
   }
 
   &[data-icon] {
-    padding-left: calc(use("icon-size") + use("unit-4"));
+    padding-left: calc(var("--icon-size") + var("--unit-4"));
 
     &::before {
       position: absolute;
       top: 50%;
-      left: use("unit-2");
+      left: var("--unit-2");
       transform: translateY(-50%);
     }
   }
 
-  & > input, & > textarea, & > select, & > div[contentEditable] {
+  & > input,
+  & > textarea,
+  & > select,
+  & > div[contentEditable] {
     min-height: 100%;
     width: 100%;
     padding: var(--unit-2) var(--unit-4);
     background: none;
     outline: none;
     border: none;
+  }
+
+  & > textarea {
+    resize: none;
+    field-sizing: content;
   }
 
   & > select {
@@ -42,11 +50,18 @@
     display: flex;
     align-items: center;
     pointer-events: none;
-    transition: top var(--duration), font-size var(--duration);
+    transition:
+      top var(--duration),
+      font-size var(--duration);
     backdrop-filter: blur(10px);
   }
 
-  &:has(> input:focus, > input:not(:placeholder-shown), >select > option:checked:not(:first-child)) > label {
+  &:has(
+      > input:focus,
+      > input:not(:placeholder-shown),
+      > select > option:checked:not(:first-child)
+    )
+    > label {
     top: -38%;
     font-size: 0.75em;
   }
