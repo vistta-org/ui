@@ -1,10 +1,14 @@
 {
-  "name": "@vistta/components",
+  "name": "@vistta/ui",
   "version": "0.1.0",
-  "description": "Vistta JS Component Library",
-  "main": "index.js",
+  "description": "Vistta UI Library for Vistta JS",
+  "main": "index.ts",
   "style": "index.scss",
   "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./css": "./index.scss"
+  },
   "repository": {
     "type": "git",
     "url": "https://git.vistta.org/vistta/css.git"
@@ -14,6 +18,9 @@
   },
   "author": "Tiago Terenas Almeida",
   "license": "CC BY-NC-ND 4.0 DEED",
+  "dependencies": {
+    "@vistta/css": "*"
+  },
   "peerDependencies": {
     "@vistta/js": "*"
   }

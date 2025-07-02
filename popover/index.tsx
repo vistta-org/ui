@@ -21,15 +21,8 @@ class Popover extends Component {
     if (this.open) setTimeout(() => this.node.showPopover(), 0);
   }
 
-  onUpdate(previous: Record<string, any>) {
-    if (this.open && !previous.open) {
-      this.node.showPopover();
-    } else if (!this.open && previous.open) {
-      this.node.hidePopover();
-    }
-  }
-
   render() {
+    if (!this.open) return null;
     return (
       <dialog
         ref={this.register.bind(this)}

@@ -1,11 +1,20 @@
 import { Component, Ref } from "@vistta/js";
-import { getTooltipLabel, type Tooltip } from "../utils";
+import {
+  getAnchorId,
+  getIconCode,
+  getTooltipLabel,
+  type Anchor,
+  type Icon,
+  type Tooltip,
+} from "../utils";
 
-type ButtonTypeVariants = "raw" | "outline" | "default";
+type ButtonTypeVariants = "default" | "soft" | "raw" | "outline";
 type ButtonStyleVariants =
   | "primary"
   | "secondary"
   | "tertiary"
+  | "light"
+  | "dark"
   | "info"
   | "success"
   | "warning"
@@ -19,26 +28,30 @@ export type ButtonVariants =
 class Button extends Component {
   id?: string;
   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void) | null;
-  anchor?: string;
+  anchor?: Anchor;
   className?: string;
   variant?: ButtonVariants;
   action?: boolean;
   active?: boolean;
-  icon?: string | { code: string; position: "left" | "right" };
+  icon?: Icon;
   label?: string;
   name?: string;
   tooltip?: Tooltip;
   type?: "button" | "submit" | "reset";
   style?: Record<string, string>;
+  loading?: boolean;
   disabled?: boolean;
   readonly?: boolean;
   onClick?: (event?: MouseEvent) => any;
 
-  getClassName() {
+  #getClassName() {
     const className = this.className?.split(" ") || [];
     if (this.variant) className.push(this.variant);
     if (this.action) className.push("action");
     if (this.active) className.push("active");
+    if (this.loading) className.push("loading");
+    if (typeof this.anchor === "object" && this.anchor.position)
+      className.push(`anchor:${this.anchor.position.replace(" ", ":")}`);
     if (typeof this.tooltip === "object" && this.tooltip.position)
       className.push(`tooltip:${this.tooltip.position}`);
     if (typeof this.icon === "object" && this.icon.position)
@@ -51,9 +64,9 @@ class Button extends Component {
       <button
         ref={this.ref}
         id={this.id}
-        anchor={this.anchor}
-        className={this.getClassName()}
-        data-icon={typeof this.icon === "object" ? this.icon.code : this.icon}
+        anchor={getAnchorId(this.anchor)}
+        className={this.#getClassName()}
+        data-icon={getIconCode(this.icon)}
         aria-label={this.label || this.name}
         name={this.label || this.name}
         data-tooltip={getTooltipLabel(this.tooltip)}

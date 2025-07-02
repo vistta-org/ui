@@ -7,6 +7,7 @@ class Modal extends Component {
   ref?: Ref<HTMLDialogElement> | ((element: HTMLDialogElement) => void) | null;
   className?: string;
   style?: Record<string, string>;
+  open?: boolean;
   onClose?: () => void;
 
   register(element) {
@@ -17,7 +18,9 @@ class Modal extends Component {
         this.ref.node = element;
       }
     }
-    element.open = element.showModal;
+    element.open = () => ((this.open = true), element.showModal());
+    const close = element.close.bind(element);
+    element.close = () => ((this.open = false), close());
     element.addEventListener("close", () => {
       if (this.onClose) this.onClose();
     });
@@ -29,6 +32,7 @@ class Modal extends Component {
   }
 
   render() {
+    if (!this.open) return null;
     return (
       <dialog
         ref={this.register.bind(this)}

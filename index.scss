@@ -1,0 +1,7 @@
+@charset "UTF-8";
+$version: "0.1.0";
+$settings: () !default;
+
+@use "@vistta/css" with (
+  $settings: $settings
+);
