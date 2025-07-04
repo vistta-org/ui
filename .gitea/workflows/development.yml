@@ -35,7 +35,6 @@ jobs:
       - name: Eslint Validation
         working-directory: ./packages/${{ env.module }}
         run: npx eslint .
-        continue-on-error: true
       - name: Typescript Validation
         working-directory: ./packages/${{ env.module }}
         run: npx tsc
@@ -43,7 +42,6 @@ jobs:
       - name: Unit Tests
         working-directory: ./packages/${{ env.module }}
         run: npx vistta test
-        continue-on-error: true
 
   Snapshot:
     needs: Validation
