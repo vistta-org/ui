@@ -31,6 +31,7 @@ class Dropdown extends Component {
   disabled?: boolean;
   readonly?: boolean;
   trigger?: "click" | "hover" = "click";
+  autoClose?: boolean = true;
   position?: CompositePosition;
   items: DropdownItem[];
   private show: boolean = false;
@@ -97,11 +98,12 @@ class Dropdown extends Component {
         {!this.action && this.label}
         <Popover
           className={
-            "dropdown" +
+            "dropdown " +
             (this.position ? ` anchor:${this.position.replace(" ", ":")}` : "")
           }
           open={this.show}
           style={{ "position-anchor": this.id || this.#anchorId }}
+          onOutsideClick={() => this.autoClose && (this.show = false)}
         >
           {this.items?.map((props) =>
             props?.items ? (

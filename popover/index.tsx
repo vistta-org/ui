@@ -7,7 +7,22 @@ class Popover extends Component {
   className?: string;
   open?: boolean;
   style?: Record<string, string>;
+  onOutsideClick?: (event: MouseEvent) => void;
   private node: HTMLDialogElement;
+  private handler: any;
+
+  onConnect() {
+    this.handler = (event) => {
+      if (!this.node || !this.open || this.node.contains(event.target)) return;
+      this.onOutsideClick?.(event);
+    };
+    this.onOutsideClick && document.addEventListener("mousedown", this.handler);
+  }
+
+  onDisconnect() {
+    this.onOutsideClick &&
+      document.removeEventListener("mousedown", this.handler);
+  }
 
   register(element) {
     if (this.ref) {
