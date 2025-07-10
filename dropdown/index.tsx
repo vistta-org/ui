@@ -98,7 +98,7 @@ class Dropdown extends Component {
         {!this.action && this.label}
         <Popover
           className={
-            "dropdown " +
+            "dropdown" +
             (this.position ? ` anchor:${this.position.replace(" ", ":")}` : "")
           }
           open={this.show}
