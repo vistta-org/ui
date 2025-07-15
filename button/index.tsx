@@ -44,7 +44,7 @@ class Button extends Component {
   readonly?: boolean;
   onClick?: (event?: MouseEvent) => any;
 
-  #getClassName() {
+  getClassName() {
     const className = this.className?.split(" ") || [];
     if (this.variant) className.push(this.variant);
     if (this.action) className.push("action");
@@ -65,7 +65,7 @@ class Button extends Component {
         ref={this.ref}
         id={this.id}
         anchor={getAnchorId(this.anchor)}
-        className={this.#getClassName()}
+        className={this.getClassName()}
         data-icon={getIconCode(this.icon)}
         aria-label={this.label || this.name}
         name={this.label || this.name}

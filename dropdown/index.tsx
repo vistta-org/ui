@@ -38,10 +38,10 @@ class Dropdown extends Component {
   #anchorId = `--dropdown-anchor-${anchors++}`;
   #timeout;
 
-  #getClassName() {
+  getClassName() {
     const className = this.className?.split(" ") || [];
     if (this.variant) className.push(this.variant);
-    if (this.action || !this.label) className.push("action");
+    if (this.action) className.push("action");
     if (this.active) className.push("active");
     if (typeof this.anchor === "object" && this.anchor.position)
       className.push(`anchor:${this.anchor.position.replace(" ", ":")}`);
@@ -49,7 +49,7 @@ class Dropdown extends Component {
       className.push(`tooltip:${this.tooltip.position}`);
     if (typeof this.icon === "object" && this.icon.position)
       className.push(`icon:${this.icon.position}`);
-    else if (this.label) className.push(`icon:right`);
+    else if (this.label && !this.action) className.push(`icon:right`);
     return className.join(" ");
   }
 
@@ -59,7 +59,7 @@ class Dropdown extends Component {
         ref={this.ref}
         id={this.id}
         anchor={getAnchorId(this.anchor)}
-        className={this.#getClassName()}
+        className={this.getClassName()}
         data-icon={
           getIconCode(this.icon) ||
           ((this.position as string)?.includes("top") ? "\ue5c7" : "\ue5c5")
