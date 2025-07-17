@@ -1,8 +1,8 @@
 import { Component, Ref } from "@vistta/js";
-import Select from "./select";
-import Rich from "./rich";
-import style from "./style.scss";
 import { getTooltipLabel, type Tooltip } from "../utils";
+import Rich from "./rich";
+import Select from "./select";
+import style from "./style.scss";
 
 class Input extends Component {
   type:
@@ -26,9 +26,7 @@ class Input extends Component {
     | "checkbox"
     | "search" = "text";
   id?: string;
-  ref?:
-    | Ref<HTMLInputElement | HTMLTextAreaElement>
-    | ((element: HTMLInputElement | HTMLTextAreaElement) => void);
+  ref?: Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void);
   anchor?: string;
   className?: string;
   icon?: string;
@@ -48,8 +46,7 @@ class Input extends Component {
   getClassName() {
     const className = this.className?.split(" ") || [];
     if (this.type !== "checkbox") className.unshift("input");
-    if (typeof this.tooltip === "object" && this.tooltip.position)
-      className.push(`tooltip:${this.tooltip.position}`);
+    if (typeof this.tooltip === "object" && this.tooltip.position) className.push(`tooltip:${this.tooltip.position}`);
     return className.join(" ");
   }
 

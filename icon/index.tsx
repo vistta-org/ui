@@ -12,8 +12,7 @@ class Icon extends Component {
 
   getClassName() {
     const className = this.className?.split(" ") || [];
-    if (typeof this.tooltip === "object" && this.tooltip.position)
-      className.push(`tooltip:${this.tooltip.position}`);
+    if (typeof this.tooltip === "object" && this.tooltip.position) className.push(`tooltip:${this.tooltip.position}`);
     return className.join(" ");
   }
 

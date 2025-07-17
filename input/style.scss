@@ -56,12 +56,7 @@
     backdrop-filter: blur(10px);
   }
 
-  &:has(
-      > input:focus,
-      > input:not(:placeholder-shown),
-      > select > option:checked:not(:first-child)
-    )
-    > label {
+  &:has(> input:focus, > input:not(:placeholder-shown), > select > option:checked:not(:first-child)) > label {
     top: -38%;
     font-size: 0.75em;
   }

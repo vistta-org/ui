@@ -41,10 +41,7 @@ export default class RichToolbar extends Component {
 
   render() {
     const items = [];
-    const options =
-      typeof this.options === "boolean"
-        ? Object.values(FormatOptions)
-        : this.options;
+    const options = typeof this.options === "boolean" ? Object.values(FormatOptions) : this.options;
     for (let i = 0, len = options.length; i < len; i++) {
       switch (options[i]) {
         case FormatOptions.Size:
@@ -60,7 +57,7 @@ export default class RichToolbar extends Component {
               icon: "\ueadd",
               onClick: () => this.onSelect?.(options[i], "decrease"),
               action: true,
-            }
+            },
           );
           break;
         case FormatOptions.Align:
@@ -104,8 +101,6 @@ export default class RichToolbar extends Component {
           break;
       }
     }
-    return (
-      <Menu variant="raw" className="toolbar" items={items as MenuItem[]} />
-    );
+    return <Menu variant="raw" className="toolbar" items={items as MenuItem[]} />;
   }
 }

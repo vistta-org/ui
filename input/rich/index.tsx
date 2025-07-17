@@ -34,10 +34,7 @@ class Rich extends Component {
     fixEmptyParagraphs(element);
     this.onInput?.(event);
     clearTimeout(this.#timer);
-    this.#timer = setTimeout(
-      () => event.target.dispatchEvent(new Event("change")),
-      250
-    );
+    this.#timer = setTimeout(() => event.target.dispatchEvent(new Event("change")), 250);
   }
 
   setElementProperties(element) {
@@ -69,8 +66,7 @@ class Rich extends Component {
     range = restoreSelectionFromMarker(selection, marker, false);
 
     let container: any = range.commonAncestorContainer;
-    if (container.nodeType !== Node.ELEMENT_NODE)
-      container = container.parentElement;
+    if (container.nodeType !== Node.ELEMENT_NODE) container = container.parentElement;
     if (!container) return;
 
     const lines = [];
@@ -121,8 +117,7 @@ class Rich extends Component {
         toggleFormattingByLines(lines, marker, range, "sub");
         break;
       case "align":
-        for (let i = lines.length - 1; i >= 0; i--)
-          lines[i].style.textAlign = arg;
+        for (let i = lines.length - 1; i >= 0; i--) lines[i].style.textAlign = arg;
         break;
       case "size":
         console.log(arg);
@@ -145,12 +140,7 @@ class Rich extends Component {
   render() {
     return (
       <>
-        {this.toolbar && (
-          <Toolbar
-            options={this.toolbar}
-            onSelect={(command, arg) => this.format(command, arg)}
-          />
-        )}
+        {this.toolbar && <Toolbar options={this.toolbar} onSelect={(command, arg) => this.format(command, arg)} />}
         <div
           ref={(e) => this.setElementProperties(e)}
           id={this.id}
@@ -177,12 +167,7 @@ function fixEmptyParagraphs(element) {
   }
 }
 
-function toggleFormattingByLines(
-  lines: HTMLElement[],
-  marker: Marker,
-  range: Range,
-  type: string
-) {
+function toggleFormattingByLines(lines: HTMLElement[], marker: Marker, range: Range, type: string) {
   let fullMatched = "";
   for (let i = lines.length - 1; i >= 0; i--) {
     const elements = lines[i].querySelectorAll(type);
@@ -205,8 +190,7 @@ function toggleFormattingByLines(
         if (before.toString() !== "") wrapRange(before, type);
       }
 
-      while (node.firstChild)
-        node.parentNode.insertBefore(node.firstChild, node);
+      while (node.firstChild) node.parentNode.insertBefore(node.firstChild, node);
       node.parentNode.removeChild(node);
     }
   }

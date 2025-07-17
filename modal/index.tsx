@@ -34,13 +34,7 @@ class Modal extends Component {
   render() {
     if (!this.open) return null;
     return (
-      <dialog
-        ref={this.register.bind(this)}
-        id={this.id}
-        className={this.getClassName()}
-        style={this.style}
-        popover="manual"
-      >
+      <dialog ref={this.register.bind(this)} id={this.id} className={this.getClassName()} style={this.style} popover="manual">
         {this.children}
       </dialog>
     );

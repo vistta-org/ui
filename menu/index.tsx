@@ -35,18 +35,14 @@ class Menu extends Component {
 
   #checkOverflow(element) {
     const target = this.type === "horizontal" ? "width" : "height";
-    const space =
-      element.getBoundingClientRect()[target] -
-      (this.dropdownRef.node?.getBoundingClientRect()[target] || 0);
-    const gap =
-      parseFloat(window.getComputedStyle(element).getPropertyValue("gap")) || 0;
+    const space = element.getBoundingClientRect()[target] - (this.dropdownRef.node?.getBoundingClientRect()[target] || 0);
+    const gap = parseFloat(window.getComputedStyle(element).getPropertyValue("gap")) || 0;
 
     let acc = -gap;
     let i = 0;
     const len = this.itemRefs.length;
     while (i < len) {
-      acc +=
-        (this.itemRefs[i] as HTMLElement).getBoundingClientRect()[target] + gap;
+      acc += (this.itemRefs[i] as HTMLElement).getBoundingClientRect()[target] + gap;
       if (acc > space) break;
       i++;
     }
@@ -56,8 +52,7 @@ class Menu extends Component {
   #getClassName() {
     const className = this.className?.split(" ") || [];
     className.unshift("menu");
-    if (this.group)
-      className.unshift(this.type === "vertical" ? "group:vertical" : "group");
+    if (this.group) className.unshift(this.type === "vertical" ? "group:vertical" : "group");
     else if (this.type === "vertical") className.push("vertical");
     if (this.align) className.push("align:" + this.align);
     return className.join(" ");
@@ -78,11 +73,7 @@ class Menu extends Component {
           items ? (
             <Dropdown
               ref={(e) => (this.itemRefs[index] = e)}
-              className={
-                (typeof this.visible === "number" && index + 1 > this.visible
-                  ? "hidden "
-                  : "") + (className || "")
-              }
+              className={(typeof this.visible === "number" && index + 1 > this.visible ? "hidden " : "") + (className || "")}
               variant={this.variant}
               items={items}
               {...props}
@@ -90,15 +81,11 @@ class Menu extends Component {
           ) : (
             <Button
               ref={(e) => (this.itemRefs[index] = e)}
-              className={
-                (typeof this.visible === "number" && index + 1 > this.visible
-                  ? "hidden "
-                  : "") + (className || "")
-              }
+              className={(typeof this.visible === "number" && index + 1 > this.visible ? "hidden " : "") + (className || "")}
               variant={this.variant}
               {...props}
             />
-          )
+          ),
         )}
         {(this.visible as any) < this.items.length && (
           <Dropdown
@@ -116,10 +103,7 @@ class Menu extends Component {
 export default Menu;
 
 function assignDropdownProps(dropdown: Omit<Dropdown, "ref" | "items">) {
-  const props = Object.assign(
-    {},
-    dropdown || ({} as Omit<Dropdown, "ref" | "items">)
-  );
+  const props = Object.assign({}, dropdown || ({} as Omit<Dropdown, "ref" | "items">));
   if (props.className) props.className = "dropdown-button " + props.className;
   return props;
 }

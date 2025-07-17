@@ -20,8 +20,7 @@ class Popover extends Component {
   }
 
   onDisconnect() {
-    this.onOutsideClick &&
-      document.removeEventListener("mousedown", this.handler);
+    this.onOutsideClick && document.removeEventListener("mousedown", this.handler);
   }
 
   register(element) {
@@ -39,14 +38,7 @@ class Popover extends Component {
   render() {
     if (!this.open) return null;
     return (
-      <dialog
-        ref={this.register.bind(this)}
-        id={this.id}
-        anchor={this.anchor}
-        className={this.className}
-        style={this.style}
-        popover="manual"
-      >
+      <dialog ref={this.register.bind(this)} id={this.id} anchor={this.anchor} className={this.className} style={this.style} popover="manual">
         {this.children}
       </dialog>
     );

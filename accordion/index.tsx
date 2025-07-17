@@ -50,39 +50,23 @@ class Accordion extends Component {
 
   render() {
     return (
-      <div
-        ref={this.ref}
-        id={this.id}
-        className={this.getClassName()}
-        style={this.style}
-        {...style}
-      >
+      <div ref={this.ref} id={this.id} className={this.getClassName()} style={this.style} {...style}>
         {this.sections.map(
           ({ key, title, content, active }) =>
             key &&
             title &&
             content && (
               <div key={key} className="section">
-                <div
-                  className="header container p:2 border:bottom"
-                  onClick={() => this.toggleSection(key)}
-                >
-                  {this.iconPosition === "left" && (
-                    <span data-icon={active ? this.closeIcon : this.openIcon} />
-                  )}
+                <div className="header container p:2 border:bottom" onClick={() => this.toggleSection(key)}>
+                  {this.iconPosition === "left" && <span data-icon={active ? this.closeIcon : this.openIcon} />}
                   {title}
                   {(!this.iconPosition || this.iconPosition === "right") && (
-                    <span
-                      className="ml:auto"
-                      data-icon={active ? this.closeIcon : this.openIcon}
-                    />
+                    <span className="ml:auto" data-icon={active ? this.closeIcon : this.openIcon} />
                   )}
                 </div>
-                {active && (
-                  <div className="content container p:2">{content}</div>
-                )}
+                {active && <div className="content container p:2">{content}</div>}
               </div>
-            )
+            ),
         )}
       </div>
     );
