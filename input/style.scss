@@ -9,12 +9,12 @@
   }
 
   &[data-icon] {
-    padding-left: calc(var("--icon-size") + var("--unit-4"));
+    padding-left: calc(var(--icon-size) + var(--unit-2));
 
     &::before {
       position: absolute;
       top: 50%;
-      left: var("--unit-2");
+      left: var(--unit-3);
       transform: translateY(-50%);
     }
   }

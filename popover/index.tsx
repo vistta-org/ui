@@ -1,9 +1,10 @@
 import { Component, Ref } from "@vistta/js";
+import { getAnchorId, type Anchor } from "../utils";
 
 class Popover extends Component {
   id?: string;
   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void) | null;
-  anchor?: string;
+  anchor?: Anchor;
   className?: string;
   open?: boolean;
   style?: Record<string, string>;
@@ -35,10 +36,24 @@ class Popover extends Component {
     if (this.open) setTimeout(() => this.node.showPopover(), 0);
   }
 
+  getClassName() {
+    const className = this.className?.split(" ") || [];
+    if (typeof this.anchor === "object" && this.anchor.position)
+      className.push(`anchor:${this.anchor.position.replace(" ", ":")}`);
+    return className.join(" ");
+  }
+
   render() {
     if (!this.open) return null;
     return (
-      <dialog ref={this.register.bind(this)} id={this.id} anchor={this.anchor} className={this.className} style={this.style} popover="manual">
+      <dialog
+        ref={this.register.bind(this)}
+        id={this.id}
+        anchor={getAnchorId(this.anchor)}
+        className={this.getClassName()}
+        style={this.style}
+        popover="manual"
+      >
         {this.children}
       </dialog>
     );
