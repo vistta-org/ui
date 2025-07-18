@@ -63,7 +63,7 @@ class Dropdown extends Component {
         name={this.label || this.name}
         data-tooltip={getTooltipLabel(this.tooltip)}
         type={"button" as const}
-        onClick={this.trigger === "click" ? (e) => (e.preventDefault(), (this.show = !this.show)) : null}
+        onClick={this.trigger === "click" ? (e) => (this.show = !this.show) : null}
         onMouseEnter={
           this.trigger === "hover"
             ? () => {
