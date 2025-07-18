@@ -17,11 +17,11 @@ class Popover extends Component {
       if (!this.node || !this.open || this.node.contains(event.target)) return;
       this.onOutsideClick?.(event);
     };
-    this.onOutsideClick && document.addEventListener("mousedown", this.handler);
+    this.onOutsideClick && document.addEventListener("click", this.handler);
   }
 
   onDisconnect() {
-    this.onOutsideClick && document.removeEventListener("mousedown", this.handler);
+    this.onOutsideClick && document.removeEventListener("click", this.handler);
   }
 
   register(element) {

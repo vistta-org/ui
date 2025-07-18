@@ -1,7 +1,15 @@
 import { Component, Ref } from "@vistta/js";
 import Button, { type ButtonVariants } from "../button";
 import Popover from "../popover";
-import { getAnchorId, getIconCode, getTooltipLabel, type Anchor, type CompositePosition, type Icon, type Tooltip } from "../utils";
+import {
+  getAnchorId,
+  getIconCode,
+  getTooltipLabel,
+  type Anchor,
+  type CompositePosition,
+  type Icon,
+  type Tooltip,
+} from "../utils";
 import style from "./style.scss";
 
 let anchors = 0;
@@ -35,7 +43,8 @@ class Dropdown extends Component {
     if (this.variant) className.push(this.variant);
     if (this.action) className.push("action");
     if (this.active) className.push("active");
-    if (typeof this.anchor === "object" && this.anchor.position) className.push(`anchor:${this.anchor.position.replace(" ", ":")}`);
+    if (typeof this.anchor === "object" && this.anchor.position)
+      className.push(`anchor:${this.anchor.position.replace(" ", ":")}`);
     if (typeof this.tooltip === "object" && this.tooltip.position) className.push(`tooltip:${this.tooltip.position}`);
     if (typeof this.icon === "object" && this.icon.position) className.push(`icon:${this.icon.position}`);
     else if (this.label && !this.action) className.push(`icon:right`);
@@ -54,7 +63,7 @@ class Dropdown extends Component {
         name={this.label || this.name}
         data-tooltip={getTooltipLabel(this.tooltip)}
         type={"button" as const}
-        onClick={this.trigger === "click" ? (e) => (e.stopPropagation(), (this.show = !this.show)) : null}
+        onClick={this.trigger === "click" ? (e) => (e.preventDefault(), (this.show = !this.show)) : null}
         onMouseEnter={
           this.trigger === "hover"
             ? () => {
@@ -85,7 +94,11 @@ class Dropdown extends Component {
           onOutsideClick={() => this.autoClose && (this.show = false)}
         >
           {this.items?.map((props) =>
-            props?.items ? <Dropdown variant={this.variant} items={[]} {...props} /> : <Button variant={this.variant} {...props} />,
+            props?.items ? (
+              <Dropdown variant={this.variant} items={[]} {...props} />
+            ) : (
+              <Button variant={this.variant} {...props} />
+            ),
           )}
         </Popover>
       </button>
