@@ -34,6 +34,7 @@ class Dropdown extends Component {
   autoClose?: boolean = true;
   position?: CompositePosition;
   items: DropdownItem[];
+  onClick?: (e: MouseEvent) => void;
   private show: boolean = false;
   #anchorId = `--dropdown-anchor-${anchors++}`;
   #timeout;
@@ -63,7 +64,7 @@ class Dropdown extends Component {
         name={this.label || this.name}
         data-tooltip={getTooltipLabel(this.tooltip)}
         type={"button" as const}
-        onClick={this.trigger === "click" ? (e) => (this.show = !this.show) : null}
+        onClick={this.trigger === "click" ? (e) => (this.onClick?.(e), (this.show = !this.show)) : this.onClick}
         onMouseEnter={
           this.trigger === "hover"
             ? () => {
