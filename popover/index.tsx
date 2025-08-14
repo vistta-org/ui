@@ -25,13 +25,6 @@ class Popover extends Component {
   }
 
   register(element) {
-    if (this.ref) {
-      if (typeof this.ref === "function") {
-        this.ref(element);
-      } else {
-        this.ref.node = element;
-      }
-    }
     this.node = element as HTMLDialogElement;
     if (this.open) setTimeout(() => this.node.showPopover(), 0);
   }
@@ -47,7 +40,7 @@ class Popover extends Component {
     if (!this.open) return null;
     return (
       <dialog
-        ref={this.register.bind(this)}
+        ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
         anchor={getAnchorId(this.anchor)}
         className={this.getClassName()}

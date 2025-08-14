@@ -23,17 +23,14 @@ class Menu extends Component {
   private itemRefs: HTMLElement[] = [];
   private dropdownRef = new Ref<HTMLButtonElement>();
 
-  #register(element) {
+  register(element) {
     if (this.visible === "auto") {
-      new ResizeObserver(() => this.#checkOverflow(element)).observe(element);
-      setTimeout(() => this.#checkOverflow(element), 100);
+      new ResizeObserver(() => this.checkOverflow(element)).observe(element);
+      setTimeout(() => this.checkOverflow(element), 100);
     }
-    if (!this.ref) return;
-    if (typeof this.ref === "function") this.ref(element);
-    else if (this.ref instanceof Ref) this.ref.node = element;
   }
 
-  #checkOverflow(element) {
+  checkOverflow(element) {
     const target = this.type === "horizontal" ? "width" : "height";
     const space = element.getBoundingClientRect()[target] - (this.dropdownRef.node?.getBoundingClientRect()[target] || 0);
     const gap = parseFloat(window.getComputedStyle(element).getPropertyValue("gap")) || 0;
@@ -49,7 +46,7 @@ class Menu extends Component {
     this.visible = this.minVisible > i ? this.minVisible : i;
   }
 
-  #getClassName() {
+  getClassName() {
     const className = this.className?.split(" ") || [];
     className.unshift("menu");
     if (this.group) className.unshift(this.type === "vertical" ? "group:vertical" : "group");
@@ -61,10 +58,10 @@ class Menu extends Component {
   render() {
     return (
       <div
-        ref={(e) => this.#register(e)}
+        ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
         anchor={this.anchor}
-        className={this.#getClassName()}
+        className={this.getClassName()}
         style={this.style}
         aria-label={this.name}
         {...style}

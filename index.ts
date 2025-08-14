@@ -3,6 +3,8 @@ export type * from "./accordion";
 export { default as Accordion } from "./accordion";
 export type * from "./button";
 export { default as Button } from "./button";
+export type * from "./calendar";
+export { default as Calendar } from "./calendar";
 export type * from "./dropdown";
 export { default as Dropdown } from "./dropdown";
 export type * from "./icon";
