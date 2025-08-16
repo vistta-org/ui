@@ -1,24 +1,15 @@
 import { Component, Ref } from "@vistta/js";
 import Button, { type ButtonVariants } from "../button";
 import Popover from "../popover";
-import {
-  getAnchorId,
-  getIconCode,
-  getTooltipLabel,
-  type Anchor,
-  type CompositePosition,
-  type Icon,
-  type Tooltip,
-} from "../utils";
+import { getIconCode, getTooltipLabel, type Icon, type Position, type Tooltip } from "../utils";
 import style from "./style.scss";
 
-let anchors = 0;
 export type DropdownItem = Omit<Button, "ref"> & { items?: DropdownItem[] };
 
 class Dropdown extends Component {
   id?: string;
-  ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void) | null;
-  anchor?: Anchor;
+  ref: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void) | null = new Ref<HTMLButtonElement>();
+  anchor?: any;
   className?: string;
   variant?: ButtonVariants;
   action?: boolean;
@@ -32,11 +23,10 @@ class Dropdown extends Component {
   readonly?: boolean;
   trigger?: "click" | "hover" = "click";
   autoClose?: boolean = true;
-  position?: CompositePosition;
+  position?: Omit<Position, "center"> = "bottom";
   items: DropdownItem[];
   onClick?: (e: MouseEvent) => void;
   private show: boolean = false;
-  #anchorId = `--dropdown-anchor-${anchors++}`;
   #timeout;
 
   getClassName() {
@@ -44,8 +34,6 @@ class Dropdown extends Component {
     if (this.variant) className.push(this.variant);
     if (this.action) className.push("action");
     if (this.active) className.push("active");
-    if (typeof this.anchor === "object" && this.anchor.position)
-      className.push(`anchor:${this.anchor.position.replace(" ", ":")}`);
     if (typeof this.tooltip === "object" && this.tooltip.position) className.push(`tooltip:${this.tooltip.position}`);
     if (typeof this.icon === "object" && this.icon.position) className.push(`icon:${this.icon.position}`);
     else if (this.label && !this.action) className.push(`icon:right`);
@@ -57,7 +45,7 @@ class Dropdown extends Component {
       <button
         ref={this.ref}
         id={this.id}
-        anchor={getAnchorId(this.anchor)}
+        anchor={this.anchor}
         className={this.getClassName()}
         data-icon={getIconCode(this.icon) || ((this.position as string)?.includes("top") ? "\ue5c7" : "\ue5c5")}
         aria-label={this.label || this.name}
@@ -73,26 +61,21 @@ class Dropdown extends Component {
               }
             : null
         }
-        onMouseLeave={
-          this.trigger === "hover"
-            ? () => {
-                this.#timeout = setTimeout(() => (this.show = false), 100);
-              }
-            : null
-        }
+        onMouseLeave={this.trigger === "hover" ? () => (this.#timeout = setTimeout(() => (this.show = false), 100)) : null}
         disabled={this.disabled}
         readonly={this.readonly}
-        style={Object.assign(this.style || {}, {
-          "anchor-name": this.id || this.#anchorId,
-        })}
+        style={this.style}
         {...style}
       >
         {!this.action && this.label}
         <Popover
-          className={"dropdown" + (this.position ? ` anchor:${this.position.replace(" ", ":")}` : "")}
+          className="dropdown"
+          anchor={{ target: this.ref, position: this.position }}
           open={this.show}
-          style={{ "position-anchor": this.id || this.#anchorId }}
           onOutsideClick={() => this.autoClose && (this.show = false)}
+          style={{
+            transform: this.position === "left" || this.position === "right" ? "translateY(-50%)" : "translateX(-50%)",
+          }}
         >
           {this.items?.map((props) =>
             props?.items ? (

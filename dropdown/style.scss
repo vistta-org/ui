@@ -1,9 +1,7 @@
 button:scope .dropdown {
   position: fixed;
   max-width: 400px;
-  top: calc(anchor(bottom) + var(--unit-h));
   padding: 0;
-  justify-self: anchor-center;
   z-index: var(--z-index-max);
   display: none;
   flex-flow: column nowrap;

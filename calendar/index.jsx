@@ -34,7 +34,7 @@ export default class Calendar extends Component {
    * Calendar view type
    * @type {CalendarType}
    */
-  type = "day";
+  type = "month";
 
   /**
    * Starting day of the week

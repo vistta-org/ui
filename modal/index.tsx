@@ -9,7 +9,8 @@ class Modal extends Component {
   onClose?: () => void;
 
   register(element) {
-    element.open = () => ((this.open = true), element.showModal());
+    if (this.open) requestAnimationFrame(() => element.showModal());
+    element.show = () => ((this.open = false), element.showModal());
     const close = element.close.bind(element);
     element.close = () => ((this.open = false), close());
     element.addEventListener("close", () => {
@@ -30,7 +31,6 @@ class Modal extends Component {
         id={this.id}
         className={this.getClassName()}
         style={this.style}
-        popover="manual"
       >
         {this.children}
       </dialog>
