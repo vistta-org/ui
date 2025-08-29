@@ -25,7 +25,14 @@ class Select extends Component {
       }
     }
     return (
-      <select ref={this.ref} id={this.id} name={this.name} aria-label={this.label} onChange={this.onChange} onInput={this.onInput}>
+      <select
+        ref={this.ref}
+        id={this.id}
+        name={this.name}
+        aria-label={this.label}
+        onChange={this.onChange}
+        onInput={this.onInput}
+      >
         {children}
       </select>
     );

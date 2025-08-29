@@ -19,7 +19,8 @@
   "author": "Tiago Terenas Almeida",
   "license": "CC BY-NC-ND 4.0 DEED",
   "dependencies": {
-    "@vistta/css": "latest"
+    "@vistta/css": "latest",
+    "@vistta/utils": "latest"
   },
   "peerDependencies": {
     "@vistta/js": "*"
