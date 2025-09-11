@@ -31,7 +31,7 @@ export default class Calendar extends Component {
    * Custom classes for the calendar component
    * @type {string}
    */
-  className;
+  class;
 
   /**
    * Calendar view type
@@ -60,10 +60,10 @@ export default class Calendar extends Component {
 
   /**
    * Whether to show navigation buttons
-   * @type {boolean}
-   * @default false
+   * @type {"all" | "gesture" | "none"}
+   * @default "all"
    */
-  navigation;
+  controls = "all";
 
   /**
    * Callback function when a click happens on the calendar
@@ -77,8 +77,8 @@ export default class Calendar extends Component {
     element.select = this.select.bind(this);
   }
 
-  getClassName() {
-    return "calendar container" + (this.className ? ` ${this.className}` : "");
+  getClass() {
+    return "calendar container" + (this.class ? ` ${this.class}` : "");
   }
 
   onScrollEnd(event) {
@@ -86,8 +86,8 @@ export default class Calendar extends Component {
     if (element.scrollLeft === element.clientWidth) return;
     this.date =
       element.scrollLeft + element.clientWidth >= element.scrollWidth - 1
-        ? next(this.date, this.type)
-        : previous(this.date, this.type);
+        ? new DateTime(this.date).next(this.type)
+        : new DateTime(this.date).previous(this.type);
     this.snapToCenter(element, false);
   }
 
@@ -114,26 +114,29 @@ export default class Calendar extends Component {
 
   render() {
     return (
-      <div ref={Ref.forward(this.ref, this.register.bind(this))} id={this.id} className={this.getClassName()} {...style}>
-        <div className="header row:auto container">
-          <div className="col:12 container gap:4">
-            <h5 className={"col text:center" + (this.navigation ? " pt:2" : "")}>
+      <div ref={Ref.forward(this.ref, this.register.bind(this))} id={this.id} class={this.getClass()} {...style}>
+        <div class="header row:auto container">
+          <div class="col:12 container gap:4">
+            {this.controls === "all" && (
+              <Button variant="raw" class="col:auto" action icon="\ue5cb" onClick={this.previous.bind(this)} />
+            )}
+            <h5 class={"col text:center" + (this.controls === "all" ? " pt:2" : "")}>
               {formatDate(this.date, {
+                locales: "en-US",
                 month: "long",
                 year: "numeric",
               })}
             </h5>
-            {this.navigation && (
+            {this.controls === "all" && (
               <>
-                <Button variant="raw" className="col:auto" action icon="\ue5cb" onClick={this.previous.bind(this)} />
                 <Button
                   variant="raw"
-                  className="col:auto"
+                  class="col:auto"
                   action
                   icon="\ue935"
                   onClick={this.select.bind(this, new DateTime())}
                 />
-                <Button variant="raw" className="col:auto" action icon="\ue5cc" onClick={this.next.bind(this)} />
+                <Button variant="raw" class="col:auto" action icon="\ue5cc" onClick={this.next.bind(this)} />
               </>
             )}
           </div>
@@ -141,28 +144,30 @@ export default class Calendar extends Component {
         </div>
         <div
           ref={Ref.forward(this.#body, this.snapToCenter.bind(this))}
-          className={`body ${this.type} row`}
-          onScrollEnd={this.onScrollEnd.bind(this)}
+          class={`body ${this.type} row`}
+          onWheel={this.controls === "none" ? (e) => e.preventDefault() : undefined}
+          onTouchMove={this.controls === "none" ? (e) => e.preventDefault() : undefined}
+          onScrollEnd={this.controls !== "none" && this.onScrollEnd.bind(this)}
         >
           <CalendarView
-            className={`previous container`}
+            class={`previous container`}
             type={this.type}
-            date={previous(this.date, this.type)}
+            date={new DateTime(this.date).previous(this.type)}
             events={this.events}
             starting={this.starting}
           />
           <CalendarView
-            className={`current container`}
+            class={`current container`}
             type={this.type}
-            date={this.date}
+            date={new DateTime(this.date)}
             events={this.events}
             starting={this.starting}
             onClick={this.onClick}
           />
           <CalendarView
-            className={`next container`}
+            class={`next container`}
             type={this.type}
-            date={next(this.date, this.type)}
+            date={new DateTime(this.date).next(this.type)}
             events={this.events}
             starting={this.starting}
           />
@@ -178,23 +183,14 @@ function renderHeader(starting) {
   for (let i = 0; i < 7; i++) {
     const date = DEFAULT_DATE.clone();
     date.day += (i + weekStartIndex) % 7;
-    header.push(<div className="col">{date.format({ weekday: "short" })}</div>);
+    header.push(
+      <div class="col">
+        {date.format({
+          locales: "en-US",
+          weekday: "short",
+        })}
+      </div>,
+    );
   }
   return header;
-}
-
-function next(date, type) {
-  date = new DateTime(date);
-  if (type === "day") date.day += 1;
-  else if (type === "week") date.day += 7;
-  else if (type === "month") date.month += 1;
-  return date;
-}
-
-function previous(date, type) {
-  date = new DateTime(date);
-  if (type === "day") date.day -= 1;
-  else if (type === "week") date.day -= 7;
-  else if (type === "month") date.month -= 1;
-  return date;
 }

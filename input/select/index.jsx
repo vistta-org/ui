@@ -2,7 +2,7 @@ import { Component } from "@vistta/js";
 
 class Select extends Component {
   render() {
-    const children = [<option className="hidden" />];
+    const children = [<option class="hidden" />];
     for (let i = 0; i < this.options.length; i++) {
       const option = this.options[i];
       switch (typeof option) {

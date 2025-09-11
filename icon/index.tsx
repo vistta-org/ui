@@ -5,15 +5,15 @@ class Icon extends Component {
   id?: string;
   ref?: Ref<HTMLElement> | ((element: HTMLElement) => void) | null;
   anchor?: string;
-  className?: string;
+  class?: string;
   code?: string;
   tooltip?: Tooltip;
   style?: Record<string, string>;
 
-  getClassName() {
-    const className = this.className?.split(" ") || [];
-    if (typeof this.tooltip === "object" && this.tooltip.position) className.push(`tooltip:${this.tooltip.position}`);
-    return className.join(" ");
+  getClass() {
+    const result = this.class?.split(" ") || [];
+    if (typeof this.tooltip === "object" && this.tooltip.position) result.push(`tooltip:${this.tooltip.position}`);
+    return result.join(" ");
   }
 
   render() {
@@ -22,7 +22,7 @@ class Icon extends Component {
         id={this.id}
         ref={this.ref}
         anchor={this.anchor}
-        className={this.getClassName()}
+        class={this.getClass()}
         data-icon={this.code}
         data-tooltip={getTooltipLabel(this.tooltip)}
         style={this.style}

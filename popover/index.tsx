@@ -4,7 +4,7 @@ class Popover extends Component {
   id?: string;
   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void) | null;
   anchor?: any;
-  className?: string;
+  class?: string;
   open?: boolean;
   style?: Record<string, string>;
   onOutsideClick?: (event: MouseEvent) => void;
@@ -35,7 +35,7 @@ class Popover extends Component {
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
         anchor={this.anchor}
-        className={this.className}
+        class={this.class}
         style={this.style}
         popover="manual"
       >

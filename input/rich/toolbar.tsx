@@ -101,6 +101,6 @@ export default class RichToolbar extends Component {
           break;
       }
     }
-    return <Menu variant="raw" className="toolbar" items={items as MenuItem[]} />;
+    return <Menu variant="raw" class="toolbar" items={items as MenuItem[]} />;
   }
 }

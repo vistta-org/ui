@@ -28,7 +28,7 @@ class Input extends Component {
   id?: string;
   ref?: Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void);
   anchor?: string;
-  className?: string;
+  class?: string;
   icon?: string;
   label?: string;
   name?: string;
@@ -43,11 +43,11 @@ class Input extends Component {
   onChange?: (event?: any) => any;
   onInput?: (event?: InputEvent) => any;
 
-  getClassName() {
-    const className = this.className?.split(" ") || [];
-    if (this.type !== "checkbox") className.unshift("input");
-    if (typeof this.tooltip === "object" && this.tooltip.position) className.push(`tooltip:${this.tooltip.position}`);
-    return className.join(" ");
+  getClass() {
+    const result = this.class?.split(" ") || [];
+    if (this.type !== "checkbox") result.unshift("input");
+    if (typeof this.tooltip === "object" && this.tooltip.position) result.push(`tooltip:${this.tooltip.position}`);
+    return result.join(" ");
   }
 
   getIcon() {
@@ -123,7 +123,7 @@ class Input extends Component {
     return (
       <div
         anchor={this.anchor}
-        className={this.getClassName()}
+        class={this.getClass()}
         data-icon={this.getIcon()}
         data-tooltip={getTooltipLabel(this.tooltip)}
         style={this.style}

@@ -10,7 +10,7 @@ class Dropdown extends Component {
   id?: string;
   ref: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void) | null = new Ref<HTMLButtonElement>();
   anchor?: any;
-  className?: string;
+  class?: string;
   variant?: ButtonVariants;
   action?: boolean;
   active?: boolean;
@@ -22,46 +22,61 @@ class Dropdown extends Component {
   disabled?: boolean;
   readonly?: boolean;
   trigger?: "click" | "hover" = "click";
-  autoClose?: boolean = true;
+  close?: "auto" | ((e: MouseEvent) => boolean) = "auto";
   position?: Omit<Position, "center"> = "bottom";
   items: DropdownItem[];
   onClick?: (e: MouseEvent) => void;
-  private show: boolean = false;
+  onClose?: () => void;
+  onOpen?: () => void;
+  private visible: boolean = false;
+  #button: HTMLButtonElement;
   #timeout;
+  #preventClose;
 
-  getClassName() {
-    const className = this.className?.split(" ") || [];
-    if (this.variant) className.push(this.variant);
-    if (this.action) className.push("action");
-    if (this.active) className.push("active");
-    if (typeof this.tooltip === "object" && this.tooltip.position) className.push(`tooltip:${this.tooltip.position}`);
-    if (typeof this.icon === "object" && this.icon.position) className.push(`icon:${this.icon.position}`);
-    else if (this.label && !this.action) className.push(`icon:right`);
-    return className.join(" ");
+  setVisible(value: boolean) {
+    if (value) this.onOpen?.();
+    else this.onClose?.();
+    this.visible = value;
+  }
+
+  getClass() {
+    const result = this.class?.split(" ") || [];
+    if (this.variant) result.push(this.variant);
+    if (this.action) result.push("action");
+    if (this.active) result.push("active");
+    if (typeof this.tooltip === "object" && this.tooltip.position) result.push(`tooltip:${this.tooltip.position}`);
+    if (typeof this.icon === "object" && this.icon.position) result.push(`icon:${this.icon.position}`);
+    else if (this.label && !this.action) result.push(`icon:right`);
+    return result.join(" ");
   }
 
   render() {
     return (
       <button
-        ref={this.ref}
+        ref={Ref.forward(this.ref, (e) => (this.#button = e))}
         id={this.id}
         anchor={this.anchor}
-        className={this.getClassName()}
+        class={this.getClass()}
         data-icon={getIconCode(this.icon) || ((this.position as string)?.includes("top") ? "\ue5c7" : "\ue5c5")}
         aria-label={this.label || this.name}
         name={this.label || this.name}
         data-tooltip={getTooltipLabel(this.tooltip)}
         type={"button" as const}
-        onClick={this.trigger === "click" ? (e) => (this.onClick?.(e), (this.show = !this.show)) : this.onClick}
+        onClick={(e) => {
+          this.onClick?.(e);
+          if (this.trigger === "click" && !this.#preventClose && !e.defaultPrevented) this.setVisible(!this.visible);
+        }}
         onMouseEnter={
           this.trigger === "hover"
             ? () => {
-                this.show = true;
+                this.visible = true;
                 clearTimeout(this.#timeout);
               }
             : null
         }
-        onMouseLeave={this.trigger === "hover" ? () => (this.#timeout = setTimeout(() => (this.show = false), 100)) : null}
+        onMouseLeave={
+          this.trigger === "hover" ? () => (this.#timeout = setTimeout(() => this.setVisible(false), 100)) : null
+        }
         disabled={this.disabled}
         readonly={this.readonly}
         style={this.style}
@@ -69,17 +84,24 @@ class Dropdown extends Component {
       >
         {!this.action && this.label}
         <Popover
-          className="dropdown"
-          anchor={{ target: this.ref, position: this.position }}
-          open={this.show}
-          onOutsideClick={() => this.autoClose && (this.show = false)}
+          class="dropdown"
+          anchor={{ target: this.#button, position: this.position }}
+          open={this.visible}
+          onOutsideClick={(e) =>
+            typeof this.close === "function" ? this.close(e) : this.close === "auto" && this.setVisible(false)
+          }
           style={{
             transform: this.position === "left" || this.position === "right" ? "translateY(-50%)" : "translateX(-50%)",
           }}
         >
           {this.items?.map((props) =>
             props?.items ? (
-              <Dropdown variant={this.variant} items={[]} {...props} />
+              <Dropdown
+                onOpen={() => (this.#preventClose = true)}
+                onClose={() => (this.#preventClose = false)}
+                variant={this.variant}
+                {...props}
+              />
             ) : (
               <Button variant={this.variant} {...props} />
             ),

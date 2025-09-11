@@ -3,7 +3,7 @@ import { Component, Ref } from "@vistta/js";
 class Modal extends Component {
   id?: string;
   ref?: Ref<HTMLDialogElement> | ((element: HTMLDialogElement) => void) | null;
-  className?: string;
+  class?: string;
   style?: Record<string, string>;
   open?: boolean;
   onClose?: () => void;
@@ -18,18 +18,13 @@ class Modal extends Component {
     });
   }
 
-  getClassName() {
-    const className = ["modal", ...(this.className?.split(" ") || [])];
-    return className.join(" ");
-  }
-
   render() {
     if (!this.open) return null;
     return (
       <dialog
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
-        className={this.getClassName()}
+        class={["modal", ...(this.class?.split(" ") || [])].join(" ")}
         style={this.style}
       >
         {this.children}

@@ -4,12 +4,13 @@ import { WEEKDAY_TO_INDEX } from "./utils";
 
 export default class CalendarView extends Component {
   container = new Ref();
-  className;
+  class;
   type;
   date;
   events;
   starting;
   onClick;
+  #eventIndex = {};
 
   clickHandler(e) {
     if (!this.onClick) return;
@@ -19,8 +20,9 @@ export default class CalendarView extends Component {
       if (current.data) Object.assign(data, current.data);
       current = current.parentElement;
     }
-    if (data.hour) data.date = new Date(data.date.getFullYear(), data.date.getMonth(), data.date.getDate(), data.hour);
-    e.data = { date: data.date, event: this.events?.[data.event] };
+    data.date = new Date(data.date);
+    if (data.hour) data.date.setHours(data.hour, 0, 0, 0);
+    e.data = { date: data.date?.toString(), event: this.events?.[data.event] };
     this.onClick(e);
   }
 
@@ -29,7 +31,7 @@ export default class CalendarView extends Component {
     const weekStartIndex = WEEKDAY_TO_INDEX[this.starting] ?? 1;
     if (this.type === "day")
       body.push(
-        <div ref={regisertOnElement({ date: this.date.date })} className="day">
+        <div ref={insertOnElement({ date: this.date.date })} class="day">
           {this.renderDay(this.date)}
         </div>,
       );
@@ -39,7 +41,7 @@ export default class CalendarView extends Component {
         const day = this.date.clone();
         day.day += delta + i;
         body.push(
-          <div ref={regisertOnElement({ date: day.date })} className="day">
+          <div ref={insertOnElement({ date: day.date })} class="day">
             {this.renderDay(day)}
           </div>,
         );
@@ -49,7 +51,7 @@ export default class CalendarView extends Component {
       for (let i = 0, len = new DateTime([this.date.year, this.date.month, 1]).weekday - weekStartIndex; i < len; i++) {
         const day = new DateTime([this.date.year, this.date.month - 1, lastDayFromPreviousMonth - len + 1 + i]);
         body.push(
-          <div ref={regisertOnElement({ date: day.date })} className="day disabled">
+          <div ref={insertOnElement({ date: day.date })} class="day disabled">
             {this.renderDay(day)}
           </div>,
         );
@@ -57,7 +59,7 @@ export default class CalendarView extends Component {
       for (let i = 1; i <= new DateTime([this.date.year, this.date.month + 1, 0]).day; i++) {
         const day = new DateTime([this.date.year, this.date.month, i]);
         body.push(
-          <div ref={regisertOnElement({ date: day.date })} className="day">
+          <div ref={insertOnElement({ date: day.date })} class="day">
             {this.renderDay(day)}
           </div>,
         );
@@ -65,14 +67,14 @@ export default class CalendarView extends Component {
       for (let i = 1, len = 42 - body.length; i <= len; i++) {
         const day = new DateTime([this.date.year, this.date.month + 1, i]);
         body.push(
-          <div ref={regisertOnElement({ date: day.date })} className="day disabled">
+          <div ref={insertOnElement({ date: day.date })} class="day disabled">
             {this.renderDay(day)}
           </div>,
         );
       }
     }
     return (
-      <div ref={this.container} className={this.className} onClick={this.clickHandler}>
+      <div ref={this.container} class={this.class} onClick={this.clickHandler}>
         {body}
       </div>
     );
@@ -80,7 +82,9 @@ export default class CalendarView extends Component {
 
   renderDay(date) {
     const day = [
-      <div className="mb:2">{this.type === "day" ? date.format({ weekday: "long", day: "numeric" }) : date.day}</div>,
+      <div class="mb:2">
+        {this.type === "day" ? date.format({ weekday: "long", day: "numeric", locales: "en-US" }) : date.day}
+      </div>,
     ];
     const dayEvents = [];
     const startOfDay = new DateTime([date.year, date.month, date.day]).time;
@@ -91,26 +95,32 @@ export default class CalendarView extends Component {
       event.start = new DateTime(event.start);
       event.end = new DateTime(event.end);
       if (event.start.time > endOfDay || event.end.time < startOfDay) continue;
-      insertSorted(dayEvents, event, (a, b) => a.start.time - b.start.time);
+      if (this.type === "month") {
+        if (!this.#eventIndex[i]) {
+          const index = insertSorted(dayEvents, event, (a, b) => a.start.time - b?.start?.time || 0);
+          if (event.start.equals(date, { year: true, month: true, day: true })) this.#eventIndex[i] = index;
+        } else dayEvents[this.#eventIndex[i]] = event;
+      } else insertSorted(dayEvents, event, (a, b) => a.start.time - b.start.time);
     }
     for (let i = 0, len = dayEvents.length; i < len; i++) {
       const event = dayEvents[i];
-      day.push(
-        <div
-          ref={regisertOnElement({ event: event.id })}
-          className="event"
-          title={event.title || ""}
-          style={calculateStyle(this.type, date, event, dayEvents, this.starting)}
-        >
-          {this.type !== "month" && <div className="time">{event.start.format({ timeStyle: "short" })}</div>}
-          <div className="title">{event.title}</div>
-          {this.type !== "month" && <div className="location">{event.location}</div>}
-          {this.type !== "month" && <div className="description">{event.description}</div>}
-        </div>,
-      );
+      if (event)
+        day.push(
+          <div
+            ref={insertOnElement({ event: event.id })}
+            class="event"
+            title={event.title || ""}
+            style={calculateStyle(this.type, date, event, dayEvents, this.starting)}
+          >
+            {this.type !== "month" && <div class="time">{event.start.format({ timeStyle: "short" })}</div>}
+            <div class="title">{event.title}</div>
+            {this.type !== "month" && <div class="location">{event.location}</div>}
+            {this.type !== "month" && <div class="description">{event.description}</div>}
+          </div>,
+        );
     }
     if (this.type === "month") return day;
-    for (let i = 0; i < 24; i++) day.push(<div ref={regisertOnElement({ hour: i })} className="hour" data-time={i} />);
+    for (let i = 0; i < 24; i++) day.push(<div ref={insertOnElement({ hour: i })} class="hour" data-time={i} />);
     return day;
   }
 }
@@ -167,6 +177,6 @@ function getTimeWithoutSeconds(date) {
   return date.time - (date.seconds * 1000 + date.milliseconds);
 }
 
-function regisertOnElement(data) {
+function insertOnElement(data) {
   return (e) => (e.data = Object.assign(e.data || {}, data));
 }

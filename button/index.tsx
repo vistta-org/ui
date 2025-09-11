@@ -22,7 +22,7 @@ class Button extends Component {
   id?: string;
   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void) | null;
   anchor?: any;
-  className?: string;
+  class?: string;
   variant?: ButtonVariants;
   action?: boolean;
   active?: boolean;
@@ -37,15 +37,15 @@ class Button extends Component {
   readonly?: boolean;
   onClick?: (event?: MouseEvent) => any;
 
-  getClassName() {
-    const className = this.className?.split(" ") || [];
-    if (this.variant) className.push(this.variant);
-    if (this.action) className.push("action");
-    if (this.active) className.push("active");
-    if (this.loading) className.push("loading");
-    if (typeof this.tooltip === "object" && this.tooltip.position) className.push(`tooltip:${this.tooltip.position}`);
-    if (typeof this.icon === "object" && this.icon.position) className.push(`icon:${this.icon.position}`);
-    return className.join(" ");
+  getClass() {
+    const result = this.class?.split(" ") || [];
+    if (this.variant) result.push(this.variant);
+    if (this.action) result.push("action");
+    if (this.active) result.push("active");
+    if (this.loading) result.push("loading");
+    if (typeof this.tooltip === "object" && this.tooltip.position) result.push(`tooltip:${this.tooltip.position}`);
+    if (typeof this.icon === "object" && this.icon.position) result.push(`icon:${this.icon.position}`);
+    return result.join(" ");
   }
 
   render() {
@@ -53,7 +53,7 @@ class Button extends Component {
       <button
         ref={this.ref}
         id={this.id}
-        className={this.getClassName()}
+        class={this.getClass()}
         data-icon={getIconCode(this.icon)}
         aria-label={this.label || this.name}
         name={this.label || this.name}

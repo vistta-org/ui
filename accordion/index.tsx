@@ -12,7 +12,7 @@ class Accordion extends Component {
   ref?: Ref<HTMLDivElement>;
   id?: string;
   sections: AccordionSection[];
-  className?: string;
+  class?: string;
   style?: Record<string, string>;
   openIcon?: string = "\ue316";
   closeIcon?: string = "\ue313";
@@ -32,10 +32,10 @@ class Accordion extends Component {
     }
   }
 
-  getClassName() {
-    const className = this.className?.split(" ") || [];
-    className.unshift("accordion");
-    return className.join(" ");
+  getClass() {
+    const result = this.class?.split(" ") || [];
+    result.unshift("accordion");
+    return result.join(" ");
   }
 
   toggleSection(key) {
@@ -50,21 +50,21 @@ class Accordion extends Component {
 
   render() {
     return (
-      <div ref={this.ref} id={this.id} className={this.getClassName()} style={this.style} {...style}>
+      <div ref={this.ref} id={this.id} class={this.getClass()} style={this.style} {...style}>
         {this.sections.map(
           ({ key, title, content, active }) =>
             key &&
             title &&
             content && (
-              <div key={key} className="section">
-                <div className="header container p:2 border:bottom" onClick={() => this.toggleSection(key)}>
+              <div key={key} class="section">
+                <div class="header container p:2 border:bottom" onClick={() => this.toggleSection(key)}>
                   {this.iconPosition === "left" && <span data-icon={active ? this.closeIcon : this.openIcon} />}
                   {title}
                   {(!this.iconPosition || this.iconPosition === "right") && (
-                    <span className="ml:auto" data-icon={active ? this.closeIcon : this.openIcon} />
+                    <span class="ml:auto" data-icon={active ? this.closeIcon : this.openIcon} />
                   )}
                 </div>
-                {active && <div className="content container p:2">{content}</div>}
+                {active && <div class="content container p:2">{content}</div>}
               </div>
             ),
         )}
