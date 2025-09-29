@@ -86,4 +86,12 @@
       display: block;
     }
   }
+
+  & > input[type="color"] {
+    width: auto;
+    aspect-ratio: 2;
+    margin: 0 var(--unit-4);
+    padding: var(--unit-o);
+    float: right;
+  }
 }
