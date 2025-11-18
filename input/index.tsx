@@ -2,7 +2,6 @@ import { Component, Ref } from "@vistta/js";
 import { getTooltipLabel, type Tooltip } from "../utils";
 import Rich from "./rich";
 import Select from "./select";
-import style from "./style.scss";
 
 class Input extends Component {
   type:
@@ -121,17 +120,22 @@ class Input extends Component {
 
   render() {
     return (
-      <div
+      <fieldset
         anchor={this.anchor}
         class={this.getClass()}
         data-icon={this.getIcon()}
         data-tooltip={getTooltipLabel(this.tooltip)}
         style={this.style}
-        {...style}
       >
-        {this.label && <label for={this.id}>{this.label}</label>}
-        {this.getInputComponent()}
-      </div>
+        {this.label ? (
+          <label for={this.id}>
+            {this.label}
+            {this.getInputComponent()}
+          </label>
+        ) : (
+          this.getInputComponent()
+        )}
+      </fieldset>
     );
   }
 }
