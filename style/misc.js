@@ -31,7 +31,7 @@ export default (_, result) => {
 
     dialog: {
       inset: "50% auto auto 50%",
-      transform: "translate(-50%, -50%)",
+      translate: "-50% -50%",
       padding: "2rem",
       background: "$back-color",
       border: "none",
