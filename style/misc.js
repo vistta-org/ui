@@ -37,6 +37,7 @@ export default (_, result) => {
       "backdrop-filter": "$blur",
       border: "none",
       "border-radius": "$radius",
+      color: "$fore-color",
       shadow: "$shadow",
     },
 
