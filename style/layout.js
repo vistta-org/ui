@@ -1,5 +1,5 @@
 export default (config, result) => {
-  const baseContainer = "display: flex; width: 100%; flex-flow: row wrap; gap: $size; >*:($gap: $size);";
+  const baseContainer = "display: flex; width: 100%; flex-flow: row wrap; gap: 2rem; >*:($gap: 2rem);";
   result.properties.container = {
     default: baseContainer + " align-content: baseline;",
     start: baseContainer + " place-content: flex-start;",
@@ -21,7 +21,7 @@ export default (config, result) => {
       `flex: none; width: calc(((100% - (${len - 1} * $gap)) / ${len}) * ${i} + ${i - 1} * $gap);`;
 
   result.properties.gap = {
-    default: "gap: $size; >*:($gap: $size)",
+    default: "gap: 2rem; >*:($gap: 2rem)",
     "*": "gap: ${}; >*:($gap: ${})",
   };
 

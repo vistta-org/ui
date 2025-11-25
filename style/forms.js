@@ -27,17 +27,36 @@ export default (_, result) =>
 
     "select, [role='select']": {
       padding: "2rem 4rem",
-      color: "$fore-color",
-      background: "$back-color",
-      border: "$border-size solid $border-color",
-      "border-radius": "$radius",
-      "accent-color": "$primary-color",
+      "line-height": "1.4!",
       cursor: "pointer",
 
-      option: {
+      "&, &::picker(select)": {
+        appearance: "base-select",
         "accent-color": "$primary-color",
         color: "$fore-color",
         background: "$back-color",
+        border: "$border-size solid $border-color",
+        "border-radius": "$radius",
+        "list-style": "none",
+        outline: "none",
+      },
+
+      option: {
+        padding: "2rem 6rem 2rem 4rem",
+        "accent-color": "$primary-color",
+        color: "$fore-color",
+        background: "$back-color",
+        "list-style": "none",
+
+        "&:checked, &:hover, &:focus": {
+          color: "$back-color",
+          background: "$fore-color",
+        },
+
+        "&::checkmark": {
+          position: "absolute",
+          right: "2rem",
+        },
       },
 
       disabled: {
@@ -130,6 +149,11 @@ export default (_, result) =>
       },
     },
 
+    textarea: {
+      resize: "none",
+      "field-sizing": "content",
+    },
+
     fieldset: {
       position: "relative",
       padding: "2rem",
@@ -138,6 +162,8 @@ export default (_, result) =>
       border: "$border-size solid $border-color",
       "border-radius": "$radius",
       "accent-color": "$primary-color",
+      display: "flex",
+      "align-items": "center",
 
       "&:has([type='checkbox'], [type='radio'])": {
         border: "none",
@@ -151,10 +177,15 @@ export default (_, result) =>
         background: "transparent!",
         border: "none!",
         "border-radius": "0!",
+        flex: "1",
       },
 
       "&:focus:not(:disabled, :read-only)": {
         outline: "none",
+      },
+
+      "label:first-child:last-child": {
+        width: "100%",
       },
     },
 
@@ -176,11 +207,8 @@ export default (_, result) =>
         flex: "1",
         height: "100%",
         "margin-left": "2rem",
-        padding: "0",
+        padding: "0 0 0 2rem",
+        "border-left": "$border-size solid $border-color!",
       },
-    },
-
-    textarea: {
-      overflow: "auto",
     },
   });

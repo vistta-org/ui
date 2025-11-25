@@ -27,12 +27,12 @@ import icons from "./MaterialSymbols.ttf";
 
 export default (config, result) => {
   /* Global Vars */
-  result.vars.duration = config.duration ?? "0.5s";
+  result.vars.duration = config.duration ?? "0.35s";
   result.vars.blur = `blur(${config.blur ?? "8px"})`;
 
   /* Animations */
   result.vars["animate-transform"] = "none";
-  result.vars["animate-duration"] = config.animation?.duration ?? config.duration ?? "0.5s";
+  result.vars["animate-duration"] = config.animation?.duration ?? config.duration ?? "0.35s";
   result.vars["animate-range"] = config.animation?.range ?? "contain -5% contain 15%";
   result.animations["animate-property"] = {
     from: {
@@ -57,20 +57,20 @@ export default (config, result) => {
     "fade-in": animate("none"),
     "zoom-in": animate("scale(2)"),
     "zoom-out": animate("scale(0)"),
-    "slide-top": animate("translateY(16rem)"),
-    "slide-right": animate("translateX(-16rem)"),
-    "slide-bottom": animate("translateY(-16rem)"),
-    "slide-left": animate("translateX(16rem)"),
+    "slide-top": animate("translateY(50%)"),
+    "slide-right": animate("translateX(-50%)"),
+    "slide-bottom": animate("translateY(-50%)"),
+    "slide-left": animate("translateX(50%)"),
     "*": animate("${}"),
   };
   result.properties["animate-scroll"] = {
     "fade-in": animate("none", true),
     "zoom-in": animate("scale(2)", true),
     "zoom-out": animate("scale(0)", true),
-    "slide-top": animate("translateY(16rem)", true),
-    "slide-right": animate("translateX(-16rem)", true),
-    "slide-bottom": animate("translateY(-16rem)", true),
-    "slide-left": animate("translateX(16rem)", true),
+    "slide-top": animate("translateY(50%)", true),
+    "slide-right": animate("translateX(-50%)", true),
+    "slide-bottom": animate("translateY(-50%)", true),
+    "slide-left": animate("translateX(50%)", true),
     "*": animate("${}", true),
   };
 
@@ -199,12 +199,11 @@ export default (config, result) => {
   result.vars["icon-font"] = config.icon?.font?.family ?? "Material Symbols";
   const { family: iconFontFamily, ...options } = config.icon?.font || {
     src: `url('${icons}') format('truetype')`,
-    display: "swap",
   };
   result.fonts[iconFontFamily ?? "Material Symbols"] = options;
   result.animations["loading"] = { from: { rotate: "0deg" }, to: { rotate: "360deg" } };
   result.properties["icon"] = {
-    outlined: "before:(font-variation-settings:'FILL' 0)",
+    outlined: "before:(font-variation-settings:'FILL' 0!)",
     right: "before:(float:right)",
     loading:
       "before:(content: ''; display:inline-block; float: left; animation: loading 1s linear infinite; height:$icon-size; width:$icon-size; border-radius:50%; border:.5rem solid currentColor; border-top-color:transparent; border-right-color:transparent)",

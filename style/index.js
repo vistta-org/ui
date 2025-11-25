@@ -21,7 +21,7 @@ import utilities from "./utilities.js";
  * Generate style configuration
  * @param {object} config Style configuration
  * @param {number} [config.layout] Number of layout columns
- * @param {string | [string, string]} [config.size] Base size unit
+ * @param {string} [config.size] Base size unit
  * @param {string} [config.duration] Base duration unit
  * @param {{ height: string }} [config.line] Base line height
  * @param {{ spacing: string }} [config.letter] Base letter spacing
@@ -36,15 +36,8 @@ import utilities from "./utilities.js";
  * @param {Shadow} [config.shadow] Shadow configuration
  */
 export default (config = {}) => {
-  let size = "clamp(4px, .5vw, 5px)";
-  if (typeof config.size === "string") {
-    size = config.size;
-  } else if (Array.isArray(config.size) && config.size.length === 2) {
-    size = `clamp(${config.size[0]}, .5vw, ${config.size[1]})`;
-  }
-
   const result = {
-    vars: { size },
+    vars: { size: config.size || "4px" },
     properties: {},
     fonts: {},
     animations: {},

@@ -37,7 +37,7 @@ export default (_, result) =>
         cursor: "default",
       },
 
-      "&:hover, &:active": {
+      "&:hover, &:active, &[active]": {
         "text-shadow": "0 0 .1rem currentColor",
         "box-shadow": "inset 0 0 60rem -50rem currentColor",
       },

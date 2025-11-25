@@ -1,46 +1,69 @@
 import { Component } from "@vistta/js";
-import { expandStyle, getTooltipLabel, iconToStyle } from "../utils";
+import { expandStyle, getTooltipLabel } from "../utils";
+
+const ICON_POSITION = {
+  left: ["pl:10rem", "before:(position:absolute; left:2rem; top:50%; translate: 0-50%)"],
+  right: ["pr:10rem", "before:(position:absolute; right:2rem; top:50%; translate: 0-50%)"],
+};
 
 /**
- * @typedef {HTMLButtonElement & {
- *   variant?: "primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error",
+ * @extends {Component<{
+ *   id?: string,
+ *   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
+ *   name?: string,
+ *   label?: string,
+ *   anchor?: JSX.Anchor,
+ *   varian?: "basic" | "primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error",
  *   action?: boolean,
- *   raw?: boolean,
+ *   active?: boolean,
  *   icon?: Icon,
+ *   loading?: boolean,
+ *   raw?: boolean,
+ *   style?: JSX.Style;
  *   tooltip?: Tooltip,
- *   loading?: boolean
- * }} ButtonProps
- */
-
-/**
- * @extends {Component<ButtonProps>}
+ *   type?: HTMLButtonElement["type"]
+ *   onClick?: HTMLButtonElement["onclick"]
+ *   onContextMenu?: HTMLButtonElement["oncontextmenu"]
+ *   onDblClick?: HTMLButtonElement["ondblclick"]
+ *   onMouseDown?: HTMLButtonElement["onmousedown"]
+ *   onMouseEnter?: HTMLButtonElement["onmouseenter"]
+ *   onMouseMove?: HTMLButtonElement["onmousemove"]
+ *   onMouseLeave?: HTMLButtonElement["onmouseleave"]
+ *   onMouseOver?: HTMLButtonElement["onmouseover"]
+ *   onMouseOut?: HTMLButtonElement["onmouseout"]
+ *   onMouseUp?: HTMLButtonElement["onmouseup"]
+ * }>}
  */
 class Button extends Component {
-  variant;
-  action;
-  raw;
-  icon;
-  tooltip;
-  loading;
-
   render() {
-    const { label, name, tooltip, type, style, variant, raw, action, loading, icon, children, ...props } = this;
     return (
       <button
-        aria-label={label || name}
-        name={label || name}
-        tooltip={getTooltipLabel(tooltip)}
-        type={type || "button"}
+        id={this.id}
+        ref={this.ref}
+        anchor={this.anchor}
+        aria-label={this.label || this.name}
+        name={this.label || this.name}
+        tooltip={getTooltipLabel(this.tooltip)}
+        type={this.type || "button"}
         style={expandStyle(
-          style,
-          ...variantToStyle(variant, raw),
-          action && "p:2rem!",
-          loading && "icon:loading",
-          ...iconToStyle(icon),
+          this.style,
+          ...variantToStyle(this.variant, this.raw),
+          this.action && "p:2rem!",
+          ...iconToStyle(this.loading ? "loading" : this.icon, this.action),
         )}
-        {...props}
+        onClick={this.onClick}
+        onContextMenu={this.onContextMenu}
+        onDblClick={this.onDblClick}
+        onMouseDown={this.onMouseDown}
+        onMouseEnter={this.onMouseEnter}
+        onMouseMove={this.onMouseMove}
+        onMouseLeave={this.onMouseLeave}
+        onMouseOver={this.onMouseOver}
+        onMouseOut={this.onMouseOut}
+        onMouseUp={this.onMouseUp}
+        active={this.active}
       >
-        {!action && (label || children)}
+        {!this.action && (this.label || this.children)}
       </button>
     );
   }
@@ -51,6 +74,8 @@ export default Button;
 function variantToStyle(variant, raw) {
   if (!variant) return raw ? ["background:none", "color:default"] : [];
   switch (variant) {
+    case "basic":
+      return raw ? ["background:none", "color:default"] : ["background:default", "color:default"];
     case "primary":
       return raw ? ["background:none", "color:primary"] : ["background:primary", "color:primary-contrast"];
     case "secondary":
@@ -72,4 +97,14 @@ function variantToStyle(variant, raw) {
     default:
       return [];
   }
+}
+
+function iconToStyle(icon, action) {
+  if (!icon) return [];
+  if (typeof icon === "object") {
+    if (action) return [`icon:${icon.code}`];
+    if (icon.position) return [`icon:${icon.code}`, ...ICON_POSITION[icon.position]];
+    return [`icon:${icon.code}`, ...ICON_POSITION["left"]];
+  }
+  return action ? [`icon:${icon}`] : [`icon:${icon}`, ...ICON_POSITION["left"]];
 }

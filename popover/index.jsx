@@ -1,18 +1,14 @@
 import { Component, Ref } from "@vistta/js";
 
 /**
- * @typedef {{
+ * @extends {Component<{
  *   id?: string,
  *   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
  *   anchor?: any,
  *   open?: boolean,
  *   style?: JSX.Style;
  *   onOutsideClick?: (event: MouseEvent) => void;
- * }} ButtonProps
- */
-
-/**
- * @extends {Component<ButtonProps>}
+ * }>}
  */
 class Popover extends Component {
   id;

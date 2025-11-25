@@ -6,14 +6,6 @@
  * @typedef {string | { code: string, position: Exclude<HorizontalPosition, "center"> }} Icon
  * @typedef {string | { label: string, position?: Position }} Tooltip
  */
-export const iconToStyle = (icon) => {
-  if (!icon) return [];
-  if (typeof icon === "object") {
-    if (icon.position) return [`icon:${icon.code}`, `icon-position:${icon.position}`];
-    return [`icon:${icon.code}`];
-  }
-  return [`icon:${icon}`];
-};
 export const getIconCode = (icon) => (typeof icon === "object" ? icon.code : icon);
 export const getTooltipLabel = (tooltip) => (typeof tooltip === "object" ? tooltip.label : tooltip);
 

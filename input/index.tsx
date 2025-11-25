@@ -1,5 +1,5 @@
 import { Component, Ref } from "@vistta/js";
-import { getTooltipLabel, type Tooltip } from "../utils";
+import { expandStyle, getTooltipLabel, type Tooltip } from "../utils";
 import Rich from "./rich";
 import Select from "./select";
 
@@ -41,13 +41,6 @@ class Input extends Component {
   readonly?: boolean;
   onChange?: (event?: any) => any;
   onInput?: (event?: InputEvent) => any;
-
-  getClass() {
-    const result = this.class?.split(" ") || [];
-    if (this.type !== "checkbox") result.unshift("input");
-    if (typeof this.tooltip === "object" && this.tooltip.position) result.push(`tooltip:${this.tooltip.position}`);
-    return result.join(" ");
-  }
 
   getIcon() {
     if (this.type === "search") return "\ue8b6";
@@ -122,10 +115,8 @@ class Input extends Component {
     return (
       <fieldset
         anchor={this.anchor}
-        class={this.getClass()}
-        data-icon={this.getIcon()}
-        data-tooltip={getTooltipLabel(this.tooltip)}
-        style={this.style}
+        tooltip={getTooltipLabel(this.tooltip)}
+        style={expandStyle(this.style, this.type === "search" && "icon:e8b6")}
       >
         {this.label ? (
           <label for={this.id}>

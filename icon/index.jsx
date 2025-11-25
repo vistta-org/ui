@@ -2,21 +2,26 @@ import { Component } from "@vistta/js";
 import { expandStyle } from "../utils";
 
 /**
- * @typedef {HTMLSpanElement & {
- *   code: string
- * }} IconProps
- */
-
-/**
- * @extends {Component<ButtonProps>}
+ * @extends {Component<{
+ *   id?: string,
+ *   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
+ *   anchor?: JSX.Anchor,
+ *   code?: string,
+ *   outlined?: boolean,
+ *   style?: JSX.Style;
+ * }>}
  */
 class Icon extends Component {
-  /** @type {string} */
-  code;
-
   render() {
-    const { code, style, ...props } = this;
-    return <span style={expandStyle(style, `icon:${code}`)} {...props} />;
+    if (!this.code) return null;
+    return (
+      <span
+        id={this.id}
+        ref={this.ref}
+        anchor={this.anchor}
+        style={expandStyle(this.style, `icon:${this.code}`, this.outlined && "icon:outlined")}
+      />
+    );
   }
 }
 
