@@ -42,7 +42,7 @@ export default (_, result) =>
       },
 
       option: {
-        padding: "2rem 6rem 2rem 4rem",
+        padding: "2rem 6rem 2rem 2rem",
         "accent-color": "$primary-color",
         color: "$fore-color",
         background: "$back-color",
