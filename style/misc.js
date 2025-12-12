@@ -30,6 +30,10 @@ export default (_, result) => {
     },
 
     dialog: {
+      position: "absolute",
+    },
+
+    "dialog, [popover]": {
       inset: "50% auto auto 50%",
       translate: "-50% -50%",
       padding: "2rem",

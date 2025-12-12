@@ -6,17 +6,12 @@ import { Component, Ref } from "@vistta/js";
  *   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
  *   anchor?: any,
  *   open?: boolean,
+ *   inert?: boolean,
  *   style?: JSX.Style;
  *   onOutsideClick?: (event: MouseEvent) => void;
  * }>}
  */
 class Popover extends Component {
-  id;
-  ref;
-  anchor;
-  open;
-  style;
-  onOutsideClick;
   #node;
   #handler;
 
@@ -39,6 +34,18 @@ class Popover extends Component {
 
   render() {
     if (!this.open) return null;
+    if (this.inert)
+      return (
+        <aside
+          ref={Ref.forward(this.ref, this.register.bind(this))}
+          id={this.id}
+          anchor={this.anchor}
+          style={this.style}
+          popover="manual"
+        >
+          {this.children}
+        </aside>
+      );
     return (
       <dialog
         ref={Ref.forward(this.ref, this.register.bind(this))}

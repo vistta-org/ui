@@ -6,6 +6,7 @@ import { Component, Ref } from "@vistta/js";
  *   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
  *   anchor?: any,
  *   open?: boolean,
+ *   inert?: boolean,
  *   style?: JSX.Style;
  *   onClose?: () => void;
  * }>}
@@ -24,7 +25,13 @@ class Modal extends Component {
   render() {
     if (!this.open) return null;
     return (
-      <dialog ref={Ref.forward(this.ref, this.register.bind(this))} id={this.id} anchor={this.anchor} style={this.style}>
+      <dialog
+        ref={Ref.forward(this.ref, this.register.bind(this))}
+        id={this.id}
+        anchor={this.anchor}
+        inert={this.inert}
+        style={this.style}
+      >
         {this.children}
       </dialog>
     );
