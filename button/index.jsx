@@ -62,6 +62,7 @@ class Button extends Component {
         onMouseOut={this.onMouseOut}
         onMouseUp={this.onMouseUp}
         active={this.active}
+        disabled={this.disabled || this.loading}
       >
         {!this.action && (this.label || this.children)}
       </button>
