@@ -50,6 +50,7 @@ class Button extends Component {
           ...variantToStyle(this.variant, this.raw),
           this.action && "p:2rem!",
           ...iconToStyle(this.loading ? "loading" : this.icon, this.action),
+          this.tooltip?.position && `tooltip:${this.tooltip.position}`,
         )}
         onClick={this.onClick}
         onContextMenu={this.onContextMenu}
