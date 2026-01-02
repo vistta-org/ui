@@ -62,7 +62,7 @@ class Toast extends Component {
             <Button
               raw
               icon="e5cd"
-              style="display:inline; ml:4rem; p:3rem!; float:right; color:inherit!; before:(left:0!)"
+              style="display:inline; ml:4rem; p:0!; float:right; color:inherit!; before:(left:0!)"
               onClick={this.onDismiss}
             />
           )}
