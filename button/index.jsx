@@ -1,38 +1,41 @@
 import { Component } from "@vistta/js";
-import { expandStyle, getTooltipLabel } from "../utils";
+import { assignStyle, getTooltipLabel } from "../utils";
 
 const ICON_POSITION = {
-  left: ["pl:10rem", "before:(position:absolute; left:2rem; top:50%; translate: 0-50%)"],
-  right: ["pr:10rem", "before:(position:absolute; right:2rem; top:50%; translate: 0-50%)"],
+  left: { pl: "10rem", before: { position: "absolute", left: "2rem", top: "50%", translate: "0 -50%" } },
+  right: { pr: "10rem", before: { position: "absolute", right: "2rem", top: "50%", translate: "0 -50%" } },
 };
 
 /**
- * @extends {Component<{
- *   id?: string,
- *   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
- *   name?: string,
- *   label?: string,
- *   anchor?: JSX.Anchor,
- *   varian?: "basic" | "primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error",
- *   action?: boolean,
- *   active?: boolean,
- *   icon?: Icon,
- *   loading?: boolean,
- *   raw?: boolean,
- *   style?: JSX.Style;
- *   tooltip?: Tooltip,
- *   type?: HTMLButtonElement["type"]
- *   onClick?: HTMLButtonElement["onclick"]
- *   onContextMenu?: HTMLButtonElement["oncontextmenu"]
- *   onDblClick?: HTMLButtonElement["ondblclick"]
- *   onMouseDown?: HTMLButtonElement["onmousedown"]
- *   onMouseEnter?: HTMLButtonElement["onmouseenter"]
- *   onMouseMove?: HTMLButtonElement["onmousemove"]
- *   onMouseLeave?: HTMLButtonElement["onmouseleave"]
- *   onMouseOver?: HTMLButtonElement["onmouseover"]
- *   onMouseOut?: HTMLButtonElement["onmouseout"]
- *   onMouseUp?: HTMLButtonElement["onmouseup"]
- * }>}
+ * @typedef {object} ButtonProps
+ * @property {string} [id]
+ * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
+ * @property {string} [name]
+ * @property {string} [label]
+ * @property {JSX.Anchor} [anchor]
+ * @property {"basic" | "primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error"} [variant]
+ * @property {boolean} [action]
+ * @property {boolean} [active]
+ * @property {Icon} [icon]
+ * @property {boolean} [loading]
+ * @property {boolean} [raw]
+ * @property {JSX.Style} [style]
+ * @property {Tooltip} [tooltip]
+ * @property {HTMLButtonElement["type"]} [type]
+ * @property {HTMLButtonElement["onclick"]} [onClick]
+ * @property {HTMLButtonElement["oncontextmenu"]} [onContextMenu]
+ * @property {HTMLButtonElement["ondblclick"]} [onDblClick]
+ * @property {HTMLButtonElement["onmousedown"]} [onMouseDown]
+ * @property {HTMLButtonElement["onmouseenter"]} [onMouseEnter]
+ * @property {HTMLButtonElement["onmousemove"]} [onMouseMove]
+ * @property {HTMLButtonElement["onmouseleave"]} [onMouseLeave]
+ * @property {HTMLButtonElement["onmouseover"]} [onMouseOver]
+ * @property {HTMLButtonElement["onmouseout"]} [onMouseOut]
+ * @property {HTMLButtonElement["onmouseup"]} [onMouseUp]
+ */
+
+/**
+ * @extends {Component<ButtonProps>}
  */
 class Button extends Component {
   render() {
@@ -45,12 +48,14 @@ class Button extends Component {
         name={this.label || this.name}
         tooltip={getTooltipLabel(this.tooltip)}
         type={this.type || "button"}
-        style={expandStyle(
+        style={assignStyle(
+          {
+            p: this.action && "2rem!",
+            tooltip: this.tooltip?.position,
+          },
+          variantToStyle(this.variant, this.raw),
+          iconToStyle(this.loading ? "loading" : this.icon, this.action),
           this.style,
-          ...variantToStyle(this.variant, this.raw),
-          this.action && "p:2rem!",
-          ...iconToStyle(this.loading ? "loading" : this.icon, this.action),
-          this.tooltip?.position && `tooltip:${this.tooltip.position}`,
         )}
         onClick={this.onClick}
         onContextMenu={this.onContextMenu}
@@ -77,36 +82,38 @@ function variantToStyle(variant, raw) {
   if (!variant) return raw ? ["background:none", "color:default"] : [];
   switch (variant) {
     case "basic":
-      return raw ? ["background:none", "color:default"] : ["background:default", "color:default"];
+      return {
+        background: raw ? "none" : "default",
+        color: "default",
+      };
     case "primary":
-      return raw ? ["background:none", "color:primary"] : ["background:primary", "color:primary-contrast"];
+      return raw ? { background: "none", color: "primary" } : { background: "primary", color: "primary-contrast" };
     case "secondary":
-      return raw ? ["background:none", "color:secondary"] : ["background:secondary", "color:secondary-contrast"];
+      return raw ? { background: "none", color: "secondary" } : { background: "secondary", color: "secondary-contrast" };
     case "tertiary":
-      return raw ? ["background:none", "color:tertiary"] : ["background:tertiary", "color:tertiary-contrast"];
+      return raw ? { background: "none", color: "tertiary" } : { background: "tertiary", color: "tertiary-contrast" };
     case "light":
-      return raw ? ["background:none", "color:light"] : ["background:light", "color:dark"];
+      return raw ? { background: "none", color: "light" } : { background: "light", color: "dark" };
     case "dark":
-      return raw ? ["background:none", "color:dark"] : ["background:dark", "color:light"];
+      return raw ? { background: "none", color: "dark" } : { background: "dark", color: "light" };
     case "info":
-      return raw ? ["background:none", "color:info"] : ["background:info", "color:info-contrast"];
+      return raw ? { background: "none", color: "info" } : { background: "info", color: "info-contrast" };
     case "success":
-      return raw ? ["background:none", "color:success"] : ["background:success", "color:success-contrast"];
+      return raw ? { background: "none", color: "success" } : { background: "success", color: "success-contrast" };
     case "warning":
-      return raw ? ["background:none", "color:warning"] : ["background:warning", "color:warning-contrast"];
+      return raw ? { background: "none", color: "warning" } : { background: "warning", color: "warning-contrast" };
     case "error":
-      return raw ? ["background:none", "color:error"] : ["background:error", "color:error-contrast"];
+      return raw ? { background: "none", color: "error" } : { background: "error", color: "error-contrast" };
     default:
-      return [];
+      return {};
   }
 }
 
 function iconToStyle(icon, action) {
   if (!icon) return [];
   if (typeof icon === "object") {
-    if (action) return [`icon:${icon.code}`];
-    if (icon.position) return [`icon:${icon.code}`, ...ICON_POSITION[icon.position]];
-    return [`icon:${icon.code}`, ...ICON_POSITION["left"]];
+    if (action) return { icon: icon.code };
+    return { icon: icon.code, ...ICON_POSITION[icon.position || "left"] };
   }
-  return action ? [`icon:${icon}`] : [`icon:${icon}`, ...ICON_POSITION["left"]];
+  return action ? { icon } : { icon, ...ICON_POSITION["left"] };
 }

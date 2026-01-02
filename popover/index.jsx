@@ -1,15 +1,19 @@
 import { Component, Ref } from "@vistta/js";
+import { assignStyle } from "../utils";
 
 /**
- * @extends {Component<{
- *   id?: string,
- *   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
- *   anchor?: any,
- *   open?: boolean,
- *   inert?: boolean,
- *   style?: JSX.Style;
- *   onOutsideClick?: (event: MouseEvent) => void;
- * }>}
+ * @typedef {object} PopoverProps
+ * @property {string} [id]
+ * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
+ * @property {string} [anchor]
+ * @property {boolean} [open]
+ * @property {boolean} [inert]
+ * @property {JSX.Style} [style]
+ * @property {(event: MouseEvent) => void} [onOutsideClick]
+ */
+
+/**
+ * @extends {Component<PopoverProps>}
  */
 class Popover extends Component {
   #node;
@@ -40,7 +44,13 @@ class Popover extends Component {
           ref={Ref.forward(this.ref, this.register.bind(this))}
           id={this.id}
           anchor={this.anchor}
-          style={this.style}
+          style={assignStyle(
+            {
+              container: "center",
+              animate: "fade",
+            },
+            this.style,
+          )}
           popover="manual"
         >
           {this.children}

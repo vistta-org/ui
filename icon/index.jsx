@@ -1,5 +1,5 @@
 import { Component } from "@vistta/js";
-import { expandStyle } from "../utils";
+import { assignStyle } from "../utils";
 
 /**
  * @extends {Component<{
@@ -19,7 +19,7 @@ class Icon extends Component {
         id={this.id}
         ref={this.ref}
         anchor={this.anchor}
-        style={expandStyle(this.style, `icon:${this.code}`, this.outlined && "icon:outlined")}
+        style={assignStyle(this.style, `icon:${this.code}`, this.outlined && "icon:outlined")}
       />
     );
   }

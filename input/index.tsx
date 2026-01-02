@@ -1,5 +1,5 @@
 import { Component, Ref } from "@vistta/js";
-import { expandStyle, getTooltipLabel, type Tooltip } from "../utils";
+import { assignStyle, getTooltipLabel, type Tooltip } from "../utils";
 import Rich from "./rich";
 import Select from "./select";
 
@@ -116,7 +116,7 @@ class Input extends Component {
       <fieldset
         anchor={this.anchor}
         tooltip={getTooltipLabel(this.tooltip)}
-        style={expandStyle(this.style, this.type === "search" && "icon:e8b6")}
+        style={assignStyle(this.style, this.type === "search" && "icon:e8b6")}
       >
         {this.label ? (
           <label for={this.id}>
