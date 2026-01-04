@@ -314,7 +314,7 @@ export default (config, result) => {
     lowercase: "text-transform: lowercase",
     uppercase: "text-transform: uppercase",
     capitalize: "text-transform: capitalize",
-    elipsis: "overflow: hidden; text-overflow: ellipsis; white-space: nowrap",
+    ellipsis: "overflow: hidden; text-overflow: ellipsis; white-space: nowrap",
     clip: "overflow: hidden; text-overflow: clip; white-space: nowrap",
     trucante: "display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden",
     break: "hyphens: auto; word-break: break-word; white-space: break-spaces",
