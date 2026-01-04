@@ -1,5 +1,6 @@
 import { Component, Ref } from "@vistta/js";
 import Button from "../button/index.jsx";
+import { assignStyle } from "../utils";
 
 /**
  * @typedef {object} ToastProps
