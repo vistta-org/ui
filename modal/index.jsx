@@ -38,9 +38,19 @@ class Modal extends Component {
         id={this.id}
         anchor={this.anchor}
         inert={this.inert}
-        style={assignStyle({ container: "center", animate: "fade" }, this.style)}
+        style={assignStyle(
+          {
+            container: "center",
+            width: "fit-content",
+            "max-width": "min(600px, calc(100vw - 8rem))",
+            p: "4rem",
+            gap: "4rem",
+            animate: "fade",
+          },
+          this.style,
+        )}
       >
-        {this.title && <h3 style="col:full; p:2rem; border:bottom">{this.title}</h3>}
+        {this.title && <h5 style="col:full; mb:2rem; p:0 2rem 2rem; border:bottom">{this.title}</h5>}
         {this.children}
         {this.actions && this.actions.length > 0 && (
           <div style="col:full; container:end; gap:inherit;">

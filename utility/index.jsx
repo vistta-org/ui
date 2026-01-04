@@ -45,7 +45,6 @@ export class CustomGlobalDialogs extends Component {
         ))}
         {this.confirm && (
           <Modal
-            style="max-width:min(600px, calc(100vw - 8rem)); p:4rem; gap:4rem;"
             title={this.confirm.title}
             actions={[
               { variant: "basic", label: "Cancel", onClick: () => this.confirm.callback(false) },

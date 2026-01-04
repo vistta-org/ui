@@ -47,6 +47,7 @@ class Popover extends Component {
           style={assignStyle(
             {
               container: "center",
+              width: "fit-content",
               animate: "fade",
             },
             this.style,
@@ -61,7 +62,14 @@ class Popover extends Component {
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
         anchor={this.anchor}
-        style={this.style}
+        style={assignStyle(
+          {
+            container: "center",
+            width: "fit-content",
+            animate: "fade",
+          },
+          this.style,
+        )}
         popover="manual"
       >
         {this.children}

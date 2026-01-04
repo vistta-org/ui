@@ -34,8 +34,8 @@ export default (_, result) => {
     },
 
     "dialog, [popover]": {
-      inset: "50% auto auto 50%",
-      translate: "-50% -50%",
+      inset: "0",
+      margin: "auto",
       padding: "2rem",
       background: "color-mix(in srgb, $back-color, color-mix(in srgb, $fore-color 50%, transparent) 20%)",
       "backdrop-filter": "$blur",
