@@ -22,7 +22,7 @@ export default (config, result) =>
       inset: "0",
       "overflow-y": "auto",
       "overflow-x": "clip",
-      background: "none",
+      background: "$back-color",
       "scrollbar-color": "$scroll-color $scroll-background",
       "scrollbar-width": "thin",
     },
@@ -50,7 +50,6 @@ export default (config, result) =>
       "font-size": "$font-size",
       margin: "0",
       "text-rendering": "optimizeLegibility",
-      background: "$back-color",
     },
 
     "*, *::before, *::after": {
