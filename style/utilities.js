@@ -346,13 +346,15 @@ export default (config, result) => {
       transition: "opacity $duration, inset $duration, translate $duration",
     },
 
-    hover: {
-      after: {
-        opacity: "1",
-        inset: "var(--tooltip-position, 0 auto auto 50%)",
-        translate: "var(--tooltip-translate, -50% calc(-100% - 2rem))",
+    "@media(hover: hover)": {
+      hover: {
+        after: {
+          opacity: "1",
+          inset: "var(--tooltip-position, 0 auto auto 50%)",
+          translate: "var(--tooltip-translate, -50% calc(-100% - 2rem))",
+        },
       },
-    },
+    }
   };
   result.properties["tooltip"] = {
     top: "$tooltip-position: 0 auto auto 50%; $tooltip-translate: -50% calc(-100% - 2rem)",
