@@ -4,7 +4,7 @@ import { assignStyle } from "../utils";
 /**
  * @typedef {object} PopoverProps
  * @property {string} [id]
- * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
+ * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
  * @property {string} [anchor]
  * @property {boolean} [open]
  * @property {boolean} [inert]

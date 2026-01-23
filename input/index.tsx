@@ -23,6 +23,9 @@ class Input extends Component {
     | "richtext"
     | "select"
     | "checkbox"
+    | "radio"
+    | "range"
+    | "hidden"
     | "search" = "text";
   id?: string;
   ref?: Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void);
@@ -99,6 +102,7 @@ class Input extends Component {
         ref={this.ref}
         id={this.id}
         name={this.name}
+        style={this.type === "checkbox" || this.type === "radio" ? "scale:1.25" : ""}
         aria-label={this.label}
         type={this.type}
         placeholder={this.placeholder || " "}

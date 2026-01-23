@@ -113,6 +113,28 @@ export default (_, result) => {
       },
     },
 
+    table: {
+      width: "100%",
+      border: "$border-size solid $border-color",
+      "border-collapse": "separate",
+      "border-spacing": 0,
+      "border-radius": "$radius",
+
+      "th, td": {
+        padding: "2rem",
+        "text-align": "left",
+      },
+
+      "thead tr th": {
+        background: "color-mix(in srgb, $fore-color 5%, $back-color 95%)",
+        "border-bottom": "$border-size solid $border-color",
+      },
+
+      "tbody tr:not(:last-child) td": {
+        "border-bottom": "$border-size solid $border-color",
+      },
+    },
+
     details: {
       display: "block",
     },

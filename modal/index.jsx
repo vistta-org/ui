@@ -6,7 +6,7 @@ import { assignStyle } from "../utils.js";
  * @typedef {import("../button/index.jsx").ButtonProps} ButtonProps
  * @typedef {object} ModalProps
  * @property {string} [id]
- * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
+ * @property {Ref<HTMLDialogElement> | ((element: HTMLDialogElement) => void)} [ref]
  * @property {any} [anchor]
  * @property {boolean} [open]
  * @property {boolean} [inert]

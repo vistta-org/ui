@@ -2,6 +2,8 @@ import { Component } from "@vistta/js";
 import Modal from "../modal/index.jsx";
 import Toast from "../toast/index.jsx";
 
+const VARIANTS = ["success", "error", "info", "warning"];
+
 export class CustomGlobalDialogs extends Component {
   alerts = [];
   confirm;
@@ -12,6 +14,14 @@ export class CustomGlobalDialogs extends Component {
     window.alert = (alert) => {
       if (typeof alert === "string") alert = { message: alert };
       else if (!alert || typeof alert !== "object") return;
+      let count = 0;
+      for (let i = 0, len = VARIANTS.length; i < len; i++) {
+        if (!alert[VARIANTS[i]]) continue;
+        alert.message = alert.error;
+        alert.type = "error";
+        count++;
+      }
+      if (count > 1) throw new Error("Alert can only have one variant type.");
       alert.key = `${new Date().getTime()}`;
       if (alert.type !== "error")
         setTimeout(() => (this.alerts = this.alerts.filter((a) => a !== alert)), alert.timeout ?? 5000);

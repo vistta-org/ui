@@ -5,9 +5,9 @@ export default (config, result) => {
     start: baseContainer + " place-content: flex-start;",
     center: baseContainer + " place-content: center;",
     end: baseContainer + " place-content: flex-end;",
-    between: baseContainer + " place-content: space-between;",
-    around: baseContainer + " place-content: space-around;",
-    evenly: baseContainer + " place-content: space-evenly;",
+    "space-between": baseContainer + " place-content: space-between;",
+    "space-around": baseContainer + " place-content: space-around;",
+    "space-evenly": baseContainer + " place-content: space-evenly;",
     "*": baseContainer + " place-content: ${};",
   };
 
