@@ -244,6 +244,9 @@ export default (config, result) => {
     x: "overflow-x: scroll; scrollbar-gutter: stable both-edges",
     y: "overflow-y: scroll; scrollbar-gutter: stable both-edges",
   };
+  result.properties["scrollbar"] = {
+    hidden: "scrollbar-width: none; &::-webkit-scrollbar { display: none; }",
+  };
   result.properties["overflow"] = {
     default: "overflow: auto",
     "*": "overflow: ${}",
@@ -314,9 +317,9 @@ export default (config, result) => {
     lowercase: "text-transform: lowercase",
     uppercase: "text-transform: uppercase",
     capitalize: "text-transform: capitalize",
-    ellipsis: "overflow: hidden; text-overflow: ellipsis; white-space: nowrap",
-    clip: "overflow: hidden; text-overflow: clip; white-space: nowrap",
-    trucante: "display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden",
+    ellipsis: "overflow: clip visible; text-overflow: ellipsis; white-space: nowrap",
+    clip: "overflow: clip visible; text-overflow: clip; white-space: nowrap",
+    trucante: "display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: clip visible",
     break: "hyphens: auto; word-break: break-word; white-space: break-spaces",
   };
 
@@ -354,7 +357,7 @@ export default (config, result) => {
           translate: "var(--tooltip-translate, -50% calc(-100% - 2rem))",
         },
       },
-    }
+    },
   };
   result.properties["tooltip"] = {
     top: "$tooltip-position: 0 auto auto 50%; $tooltip-translate: -50% calc(-100% - 2rem)",

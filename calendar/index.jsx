@@ -1,6 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 import { DateTime, formatDate } from "@vistta/utils";
 import Button from "../button";
+import { assignStyle } from "../utils";
 
 const DEFAULT_DATE = new DateTime([1996, 0, 14]); // Sunday, 14 January 1996 00:00:00
 const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
@@ -27,7 +28,8 @@ const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 
  * @extends {Component<CalendarProps>}
  */
 export default class Calendar extends Component {
-  #body = new Ref();
+  // Events render
+  #body;
   type = "month";
   starting = "mon";
   events = [];
@@ -40,31 +42,33 @@ export default class Calendar extends Component {
     element.select = this.select.bind(this);
   }
 
-  onScrollEnd(event) {
-    const element = event.target;
-    if (element.scrollLeft === element.clientWidth) return;
-    this.date =
-      element.scrollLeft + element.clientWidth >= element.scrollWidth - 1
-        ? new DateTime(this.date).next(this.type)
-        : new DateTime(this.date).previous(this.type);
-    this.snapToCenter(element, false);
+  registerBody(body) {
+    if (body.clientWidth === body.scrollWidth) return setTimeout(() => this.registerBody(body), 10);
+    this.#body = body;
+    body.children[1].scrollIntoView({ behavior: "instant" });
   }
 
-  snapToCenter(element, initial = true) {
-    if (initial && element.clientWidth === element.scrollWidth) return setTimeout(() => this.snapToCenter(element), 10);
-    element.scrollLeft = element.offsetWidth;
+  onScrollEnd({ target: body }) {
+    let target;
+    for (let i = 0, len = body.children.length; i < len; i++) {
+      if (body.scrollLeft > body.children[i].offsetLeft) continue;
+      if (i === 0) target = "previous";
+      else if (i === 2) target = "next";
+      else return;
+      break;
+    }
+    this.date = new DateTime(this.date)[target](this.type);
+    body.children[1].scrollIntoView({ behavior: "instant" });
   }
 
   next() {
-    const body = this.#body.node;
-    if (!body) return;
-    body.scrollBy({ left: body.offsetWidth, behavior: "smooth" });
+    if (!this.#body) return;
+    this.#body.lastChild.scrollIntoView({ behavior: "smooth" });
   }
 
   previous() {
-    const body = this.#body.node;
-    if (!body) return;
-    body.scrollBy({ left: -body.offsetWidth, behavior: "smooth" });
+    if (!this.#body) return;
+    this.#body.firstChild.scrollIntoView({ behavior: "smooth" });
   }
 
   select(day) {
@@ -77,12 +81,19 @@ export default class Calendar extends Component {
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
         anchor={this.anchor}
-        style="relative; container; height:100%"
+        style={assignStyle(
+          {
+            position: "relative",
+            container: "default",
+            height: "100%",
+          },
+          this.style,
+        )}
       >
         <div style="relative; col:full; container; gap:0">
-          <div style="col:full; container:center; gap:4rem">
+          <div style="col:full; container:center; gap:0">
             {this.controls === "all" && (
-              <Button raw style="col:auto" action icon="e5cb" onClick={this.previous.bind(this)} />
+              <Button raw style="col:auto; mr:11rem" action icon="e5cb" onClick={this.previous.bind(this)} />
             )}
             <h5 style={["col", "text:center", this.controls === "all" && " pt:2rem"]}>
               {formatDate(this.date, {
@@ -93,8 +104,8 @@ export default class Calendar extends Component {
             </h5>
             {this.controls === "all" && (
               <>
-                <Button raw style="col:auto" action icon="e935" onClick={this.select.bind(this, new DateTime())} />
-                <Button raw style="col:auto" action icon="e5cc" onClick={this.next.bind(this)} />
+                <Button raw style="col:auto" action icon="e8df" onClick={this.select.bind(this, new DateTime())} />
+                <Button raw style="col:auto; ml:1rem" action icon="e5cc" onClick={this.next.bind(this)} />
               </>
             )}
           </div>
@@ -113,8 +124,18 @@ export default class Calendar extends Component {
             })}
         </div>
         <div
-          ref={Ref.forward(this.#body, this.snapToCenter.bind(this))}
-          style="relative; col:full; container; height:calc(100% - 20rem); gap: 0; flex-wrap: nowrap; overflow: scroll clip; scrollbar:hidden"
+          ref={this.registerBody.bind(this)}
+          style={{
+            position: "relative",
+            col: "full",
+            container: "default",
+            height: "calc(100% - 22rem)",
+            gap: 0,
+            flexWrap: "nowrap",
+            overflow: "auto clip",
+            scrollSnapType: "x mandatory",
+            scrollbar: "hidden",
+          }}
           onWheel={this.controls === "none" ? (e) => e.preventDefault() : undefined}
           onTouchMove={this.controls === "none" ? (e) => e.preventDefault() : undefined}
           onScrollEnd={this.controls !== "none" && this.onScrollEnd.bind(this)}
@@ -146,7 +167,6 @@ export default class Calendar extends Component {
 
 class View extends Component {
   container = new Ref();
-  #eventIndex = {};
 
   clickHandler(e) {
     if (!this.onClick) return;
@@ -165,71 +185,138 @@ class View extends Component {
   render() {
     const body = [];
     const weekStartIndex = WEEKDAY_TO_INDEX[this.starting] ?? 1;
-    if (this.type === "day")
-      body.push(
-        <div ref={insertOnElement({ date: this.date.date })} style={getDayStyle(this.type)}>
-          {this.date.day}
-        </div>,
-      );
+    if (this.type === "day") body.push(<Day type={this.type} date={this.date} events={this.events} />);
     else if (this.type === "week") {
       const delta = weekStartIndex - this.date.weekday;
       for (let i = 0; i < 7; i++) {
         const day = this.date.clone();
         day.day += delta + i;
-        body.push(
-          <div ref={insertOnElement({ date: day.date })} style={getDayStyle(this.type)}>
-            {day.day}
-          </div>,
-        );
+        body.push(<Day type={this.type} date={day} events={this.events} />);
       }
     } else {
       const lastDayFromPreviousMonth = new DateTime([this.date.year, this.date.month, 0]).day;
-      for (let i = 0, len = new DateTime([this.date.year, this.date.month, 1]).weekday - weekStartIndex; i < len; i++) {
-        const day = new DateTime([this.date.year, this.date.month - 1, lastDayFromPreviousMonth - len + 1 + i]);
+      for (let i = 0, len = new DateTime([this.date.year, this.date.month, 1]).weekday - weekStartIndex; i < len; i++)
         body.push(
-          <div ref={insertOnElement({ date: day.date })} style={getDayStyle(this.type, true)}>
-            {day.day}
-          </div>,
+          <Day
+            type={this.type}
+            date={new DateTime([this.date.year, this.date.month - 1, lastDayFromPreviousMonth - len + 1 + i])}
+            events={this.events}
+            disabled
+          />,
         );
-      }
-      for (let i = 1; i <= new DateTime([this.date.year, this.date.month + 1, 0]).day; i++) {
-        const day = new DateTime([this.date.year, this.date.month, i]);
+      for (let i = 1; i <= new DateTime([this.date.year, this.date.month + 1, 0]).day; i++)
+        body.push(<Day type={this.type} date={new DateTime([this.date.year, this.date.month, i])} events={this.events} />);
+      for (let i = 1, len = 42 - body.length; i <= len; i++)
         body.push(
-          <div ref={insertOnElement({ date: day.date })} style={getDayStyle(this.type)}>
-            {day.day}
-          </div>,
+          <Day
+            type={this.type}
+            date={new DateTime([this.date.year, this.date.month + 1, i])}
+            events={this.events}
+            disabled
+          />,
         );
-      }
-      for (let i = 1, len = 42 - body.length; i <= len; i++) {
-        const day = new DateTime([this.date.year, this.date.month + 1, i]);
-        body.push(
-          <div ref={insertOnElement({ date: day.date })} style={getDayStyle(this.type, true)}>
-            {day.day}
-          </div>,
-        );
-      }
     }
     return (
-      <div style="relative; col:full; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center">{body}</div>
+      <div
+        style="relative; col:full; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center; user-select: none"
+        onClick={this.clickHandler.bind(this)}
+      >
+        {body}
+      </div>
     );
   }
 }
 
-function getDayStyle(type, disabled = false) {
-  const result = {
-    position: "relative",
-    flex: "none",
-    height: 100 / 6 + "%",
-    width: 100 / 7 + "%",
-    text: "center",
-    opacity: disabled && "0.5",
-  };
-  if (type === "week") result.height = "100%";
-  else if (type === "day") {
-    result.width = "100%";
-    result.height = "100%";
+class Day extends Component {
+  render() {
+    const children = [
+      <div style="col:full; text:center">
+        {(this.type === "day"
+          ? this.date.format({
+              locales: "en-US",
+              weekday: "long",
+            }) + ", "
+          : "") + this.date.day}
+      </div>,
+    ];
+    const startOfDay = new DateTime([this.date.year, this.date.month, this.date.day]).time;
+    const endOfDay = startOfDay + 24 * 3600 * 1000;
+    for (let i = 0, len = this.events.length; i < len; i++) {
+      const event = this.events[i];
+      const start = new DateTime(event.start);
+      const end = new DateTime(event.end);
+      if (start.time > endOfDay || end.time < startOfDay) continue;
+      let insert = (element) => children.push(element);
+      for (let e = 0; e < i; e++) {
+        if (start.time - new DateTime(this.events[e].start).time < 0) {
+          insert = (element) => children.splice(e + 1, 0, element);
+          break;
+        }
+      }
+      insert(
+        <Button
+          ref={insertOnElement({ event: i })}
+          raw
+          style={{
+            col: "full",
+            mt: this.type === "month" ? "1rem" : "2rem",
+            p: this.type === "day" ? "2rem!" : "0 0 0 3px!",
+            borderLeft: "2px solid " + (event.color || "$border-color"),
+            text: "left",
+            radius: "0",
+          }}
+        >
+          <p
+            style={{
+              text: this.type === "month" && "ellipsis",
+              fontSize: this.type !== "day" ? "2.5rem" : "3rem",
+              opacity: ".75",
+              lineHeight: this.type === "month" && 0.8,
+            }}
+          >{`${start.format({ hour: "2-digit", minute: "2-digit" })} - ${end.format({ hour: "2-digit", minute: "2-digit" })}`}</p>
+          {this.type !== "month" && event.location && (
+            <p
+              style={{
+                text: this.type === "week" && "ellipsis",
+                fontSize: "3.5rem",
+                opacity: ".75",
+              }}
+            >
+              {event.location}
+            </p>
+          )}
+          <p
+            style={{
+              text: this.type === "month" && "ellipsis",
+            }}
+          >
+            {event.title}
+          </p>
+        </Button>,
+      );
+    }
+    return (
+      <div
+        ref={insertOnElement({ date: this.date })}
+        style={{
+          position: "relative",
+          flex: "none",
+          container: "default",
+          height: this.type === "week" || this.type === "day" ? "100%" : 100 / 6 + "%",
+          width: this.type === "day" ? "100%" : 100 / 7 + "%",
+          gap: 0,
+          border: "top",
+          text: "left",
+          overflow: "clip",
+          "> *": {
+            opacity: this.disabled && "0.5",
+          },
+        }}
+      >
+        {children}
+      </div>
+    );
   }
-  return result;
 }
 
 function insertOnElement(data) {
