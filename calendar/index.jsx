@@ -45,7 +45,7 @@ export default class Calendar extends Component {
   registerBody(body) {
     if (body.clientWidth === body.scrollWidth) return setTimeout(() => this.registerBody(body), 10);
     this.#body = body;
-    body.children[1].scrollIntoView({ behavior: "instant" });
+    body.scrollTo({ left: body.clientWidth, behavior: "instant" });
   }
 
   onScrollEnd({ target: body }) {
@@ -58,17 +58,17 @@ export default class Calendar extends Component {
       break;
     }
     this.date = new DateTime(this.date)[target](this.type);
-    body.children[1].scrollIntoView({ behavior: "instant" });
+    body.scrollTo({ left: body.clientWidth, behavior: "instant" });
   }
 
   next() {
     if (!this.#body) return;
-    this.#body.lastChild.scrollIntoView({ behavior: "smooth" });
+    this.#body.scrollTo({ left: this.#body.clientWidth * 2, behavior: "smooth" });
   }
 
   previous() {
     if (!this.#body) return;
-    this.#body.firstChild.scrollIntoView({ behavior: "smooth" });
+    this.#body.scrollTo({ left: 0, behavior: "smooth" });
   }
 
   select(day) {
@@ -261,7 +261,7 @@ class Day extends Component {
             col: "full",
             mt: this.type === "month" ? "1rem" : "2rem",
             p: this.type === "day" ? "2rem!" : "0 0 0 3px!",
-            borderLeft: "2px solid " + (event.color || "$border-color"),
+            borderLeft: "2px solid " + (event.color || "$neutral-color"),
             text: "left",
             radius: "0",
           }}

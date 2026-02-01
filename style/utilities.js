@@ -173,11 +173,11 @@ export default (config, result) => {
     ">*": {
       flex: "none",
       [vertical ? "height" : "width"]: "auto",
-      "border-radius": "0!",
-      border: "none!",
+      "border-radius": "0",
+      border: "none",
 
       "&:not(:first-child)": {
-        [vertical ? "border-top" : "border-left"]: "$border-size solid $border-color!",
+        [vertical ? "border-top" : "border-left"]: "$border-size solid $border-color",
       },
     },
   });

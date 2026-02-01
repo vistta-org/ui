@@ -32,6 +32,9 @@ class Select extends Component {
         aria-label={this.label}
         onChange={this.onChange}
         onInput={this.onInput}
+        required={this.required}
+        disabled={this.disabled}
+        readonly={this.readonly}
       >
         {children}
       </select>

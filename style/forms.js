@@ -7,12 +7,13 @@ export default (_, result) =>
       border: "$border-size solid $border-color",
       "border-radius": "$radius",
       "accent-color": "$primary-color",
+      cursor: "text",
 
       disabled: {
         filter: "brightness(0.5) contrast(0.5)",
       },
 
-      "&:not(:disabled,[type='file'],[type='color'],[type='submit'],[type='range'],[type='radio'],[type='checkbox']):read-only":
+      "&:not(:disabled,[type='file'],[type='color'],[type='submit'],[type='range'],[type='radio'],[type='checkbox']):is(:read-only,[readonly])":
         {
           background: "transparent!",
           "border-color": "transparent!",
@@ -20,8 +21,13 @@ export default (_, result) =>
           "border-radius": "0!",
         },
 
-      "&:focus:not(:disabled, :read-only)": {
+      "&:focus:not(:disabled, :read-only, [readonly])": {
         outline: "none",
+      },
+
+      "&[readonly]": {
+        cursor: "default!",
+        "pointer-events": "none!",
       },
     },
 
@@ -61,7 +67,16 @@ export default (_, result) =>
 
       disabled: {
         filter: "brightness(0.5) contrast(0.5)",
-        cursor: "default",
+        cursor: "default!",
+      },
+
+      "&[readonly]": {
+        cursor: "default!",
+        "pointer-events": "none!",
+
+        "&::picker-icon": {
+          display: "none!",
+        },
       },
     },
 
@@ -89,7 +104,12 @@ export default (_, result) =>
       },
 
       "&[type='color']": {
-        padding: "0 2rem",
+        appearance: "none",
+        cursor: "pointer",
+        "&::-webkit-color-swatch, &::-moz-color-swatch": {
+          border: "none",
+          "border-radius": "$radius",
+        },
       },
 
       "&[type='submit']": {
@@ -156,31 +176,48 @@ export default (_, result) =>
 
     fieldset: {
       position: "relative",
-      padding: "2rem",
       color: "$fore-color",
-      background: "$back-color",
-      border: "$border-size solid $border-color",
       "border-radius": "$radius",
       "accent-color": "$primary-color",
       display: "flex",
       "align-items": "center",
 
+      "&:not(:has([type='checkbox'], [type='radio']))": {
+        background: "$back-color",
+        border: "$border-size solid $border-color",
+      },
+
       "&:has([type='checkbox'], [type='radio'])": {
-        border: "none",
+        border: "none!",
+      },
+
+      "&:not(:has([type='color']))": {
+        padding: "2rem",
+      },
+
+      "&:has([type='color'])": {
+        padding: "0 2rem",
       },
 
       "&:has(input:disabled, textarea:disabled, [role='input']:disabled, select:disabled, [role='select']:disabled)": {
         filter: "brightness(0.5) contrast(0.5)",
       },
 
-      "input, textarea, select, [role='input'], [role='select']": {
+      "input:not([type='checkbox'], [type='radio'], [type='color']), textarea, select, [role='input'], [role='select']": {
         background: "transparent!",
         border: "none!",
         "border-radius": "0!",
+        padding: "0!",
         flex: "1",
       },
 
-      "&:focus:not(:disabled, :read-only)": {
+      "input[type='color']": {
+        border: "none!",
+        "border-radius": "$radius!",
+        flex: "1",
+      },
+
+      "&:focus:not(:disabled, :read-only, [readonly])": {
         outline: "none",
       },
 
@@ -201,14 +238,18 @@ export default (_, result) =>
     "label:has(input, textarea, select, [role='input'], [role='select'])": {
       display: "flex",
       "align-items": "center",
-      padding: "0 2rem",
+      padding: "0",
 
-      "input, textarea, select, [role='input'], [role='select']": {
+      "input:not([type='checkbox'], [type='radio'], [type='color']), textarea, select, [role='input'], [role='select']": {
         flex: "1",
         height: "100%",
         "margin-left": "2rem",
-        padding: "0 0 0 2rem",
-        "border-left": "$border-size solid $border-color!",
+        "padding-left": "2rem",
+        "border-left": "$border-size solid $border-color",
+      },
+
+      "input[type='checkbox'], input[type='radio']": {
+        margin: "0 2rem",
       },
     },
   });

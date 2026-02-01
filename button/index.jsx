@@ -7,6 +7,7 @@ const ICON_POSITION = {
 };
 
 /**
+ * @typedef {import("../utils").Tooltip} Tooltip
  * @typedef {object} ButtonProps
  * @property {string} [id]
  * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
@@ -21,6 +22,7 @@ const ICON_POSITION = {
  * @property {boolean} [raw]
  * @property {JSX.Style} [style]
  * @property {Tooltip} [tooltip]
+ * @property {boolean} [disabled]
  * @property {HTMLButtonElement["type"]} [type]
  * @property {HTMLButtonElement["onclick"]} [onClick]
  * @property {HTMLButtonElement["oncontextmenu"]} [onContextMenu]
@@ -37,7 +39,7 @@ const ICON_POSITION = {
 /**
  * @extends {Component<ButtonProps>}
  */
-class Button extends Component {
+export class Button extends Component {
   render() {
     return (
       <button
@@ -78,7 +80,7 @@ class Button extends Component {
 
 export default Button;
 
-function variantToStyle(variant, raw) {
+export function variantToStyle(variant, raw) {
   if (!variant) return raw ? ["background:none", "color:default"] : [];
   switch (variant) {
     case "basic":
@@ -109,7 +111,7 @@ function variantToStyle(variant, raw) {
   }
 }
 
-function iconToStyle(icon, action) {
+export function iconToStyle(icon, action) {
   if (!icon) return [];
   if (typeof icon === "object") {
     if (action) return { icon: icon.code };

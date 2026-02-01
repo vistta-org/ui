@@ -1,12 +1,15 @@
-import { Component } from "@vistta/js";
+import { Component, Form } from "@vistta/js";
+import Input from "../input/index.jsx";
 import Modal from "../modal/index.jsx";
 import Toast from "../toast/index.jsx";
+import { assignStyle } from "../utils";
 
 const VARIANTS = ["success", "error", "info", "warning"];
 
 export class CustomGlobalDialogs extends Component {
   alerts = [];
   confirm;
+  prompt;
   alertPositioning = "top";
 
   async onConnect() {
@@ -34,6 +37,22 @@ export class CustomGlobalDialogs extends Component {
         else if (!message || typeof message !== "object") return;
         this.confirm = { ...message, callback: (v) => ((this.confirm = null), resolve(v)) };
       });
+    window.prompt = (prompt, fields) =>
+      new Promise((resolve) => {
+        if (typeof prompt === "string") prompt = { message: prompt, fields };
+        if (!prompt.fields)
+          prompt.fields = [{ name: "default", type: "text", label: prompt.label, value: prompt.value || "" }];
+        this.prompt = {
+          ...prompt,
+          callback: (values) => {
+            this.prompt = null;
+            if (values === null) return resolve(null);
+            const keys = Object.keys(values);
+            if (keys.length === 1) return resolve(values[keys[0]]);
+            return resolve(values);
+          },
+        };
+      });
   }
 
   render() {
@@ -57,12 +76,32 @@ export class CustomGlobalDialogs extends Component {
           <Modal
             title={this.confirm.title}
             actions={[
-              { variant: "basic", label: "Cancel", onClick: () => this.confirm.callback(false) },
-              { variant: "primary", label: "OK", onClick: () => this.confirm.callback(true) },
+              { raw: true, label: "Cancel", onClick: () => this.confirm.callback(false) },
+              { label: this.confirm.submit || "OK", onClick: () => this.confirm.callback(true) },
             ]}
             open
           >
             <div style="col:full; p:4rem">{this.confirm.message}</div>
+          </Modal>
+        )}
+        {this.prompt && (
+          <Modal
+            title={this.prompt.title}
+            actions={[
+              { raw: true, label: "Cancel", onClick: () => this.prompt.callback(null) },
+              {
+                label: this.prompt.submit || "Ok",
+                onClick: () => this.prompt.callback(this.prompt.form.values()),
+              },
+            ]}
+            open
+          >
+            {this.prompt.message && <div style="col:full; p:0 2rem">{this.prompt.message}</div>}
+            <Form ref={(ref) => (this.prompt.form = ref)} style="display:contents">
+              {this.prompt.fields.map((input) => (
+                <Input {...input} style={assignStyle({ col: "full" }, input.style)} />
+              ))}
+            </Form>
           </Modal>
         )}
       </>
