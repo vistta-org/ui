@@ -114,9 +114,9 @@ class Input extends Component {
         tooltip={getTooltipLabel(this.tooltip)}
         onClick={(e) => this.#focus(e)}
         style={assignStyle(
+          { position: "relative" },
           this.style,
           {
-            position: "relative",
             marginTop:
               this.type !== "checkbox" &&
               this.type !== "radio" &&
@@ -124,13 +124,13 @@ class Input extends Component {
               (this.variant === "basic" ? "7rem" : "2rem"),
             cursor: TEXT_BASED.includes(this.type) && "text",
           },
-          this.type === "search" && "icon:e8b6",
+          this.icon ?? (this.type === "search" && "icon:e8b6"),
         )}
       >
         {this.label ? (
           <label
             style={{
-              ...getStyle(this.variant, this.type === "checkbox" || this.type === "radio"),
+              ...getStyle(this.variant, this.type === "checkbox" || this.type === "radio", this.readonly),
               "> *": {
                 borderLeft: "none!",
                 margin: "0!",
@@ -152,7 +152,7 @@ class Input extends Component {
 
 export default Input;
 
-function getStyle(variant, isCheckRadio) {
+function getStyle(variant, isCheckRadio, readonly) {
   const base = {
     content: "attr(name)",
     display: "block",
@@ -178,13 +178,14 @@ function getStyle(variant, isCheckRadio) {
   return {
     before: {
       ...base,
-      top: "1.5rem",
+      top: readonly ? "-3rem" : "1.5rem",
       left: "1rem",
       padding: "0 1rem",
+      fontSize: readonly && "3.5rem",
       transition: "top $duration, font-size $duration",
-      backdropFilter: "$blur",
+      backdropFilter: !readonly && "$blur",
     },
-    "has(*:not(:placeholder-shown), *:focus)": {
+    "has(*:not(:placeholder-shown), *:focus)": !readonly && {
       before: {
         top: "-3rem",
         fontSize: "3.5rem",

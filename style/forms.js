@@ -17,11 +17,10 @@ export default (_, result) =>
         {
           background: "transparent!",
           "border-color": "transparent!",
-          "border-bottom-color": "$border-color!",
           "border-radius": "0!",
         },
 
-      "&:focus:not(:disabled, :read-only, [readonly])": {
+      "&:focus": {
         outline: "none",
       },
 
@@ -71,6 +70,9 @@ export default (_, result) =>
       },
 
       "&[readonly]": {
+        background: "transparent!",
+        "border-color": "transparent!",
+        "border-radius": "0!",
         cursor: "default!",
         "pointer-events": "none!",
 
@@ -182,12 +184,12 @@ export default (_, result) =>
       display: "flex",
       "align-items": "center",
 
-      "&:not(:has([type='checkbox'], [type='radio']))": {
+      "&:not(:has([type='checkbox'], [type='radio'], [readonly]))": {
         background: "$back-color",
         border: "$border-size solid $border-color",
       },
 
-      "&:has([type='checkbox'], [type='radio'])": {
+      "&:has([type='checkbox'], [type='radio'], [readonly])": {
         border: "none!",
       },
 
@@ -217,7 +219,7 @@ export default (_, result) =>
         flex: "1",
       },
 
-      "&:focus:not(:disabled, :read-only, [readonly])": {
+      "&:focus": {
         outline: "none",
       },
 

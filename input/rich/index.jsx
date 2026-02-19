@@ -35,8 +35,13 @@ class Rich extends Component {
           value={this.value}
           onInput={(e) => this.#onChangeAdapter(e)}
           onChange={this.onChange}
+          disabled={this.disabled}
+          readonly={this.readonly}
           role="input"
-          contentEditable
+          contentEditable={!(this.disabled || this.readonly)}
+          style={{
+            listStylePosition: "inside",
+          }}
         />
       </>
     );

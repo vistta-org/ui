@@ -96,7 +96,7 @@ export default (config, result) => {
   };
 
   /* Border Radius */
-  result.vars.radius = config.radius ?? "6px";
+  result.vars.radius = config.radius ?? "8px";
   result.properties["rounded"] = {
     default: "border-radius: $radius",
   };
