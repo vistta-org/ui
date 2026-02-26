@@ -48,6 +48,7 @@ export function markdownToHtml(markdown) {
 
     if (!line.trim()) {
       index++;
+      htmlParts.push(`<p><br/></p>`);
       continue;
     }
 
@@ -258,9 +259,9 @@ function nodeToMarkdown(node, state) {
     case "P":
     case "DIV": {
       const content = childrenMarkdown({ inCode });
-      // Avoid returning pure whitespace-only paragraphs.
+      // Keep empty paragraphs as a blank line; non-empty uses a single line break.
       const normalized = content.replace(/\s+/g, "").length ? content : "";
-      return normalized + "\n\n";
+      return normalized ? `${normalized}\n` : "\n\n";
     }
     case "H1":
     case "H2":
