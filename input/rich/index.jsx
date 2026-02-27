@@ -41,6 +41,16 @@ class Rich extends Component {
           contentEditable={!(this.disabled || this.readonly)}
           style={{
             listStylePosition: "inside",
+            "li:has(> input[type=checkbox])": {
+              position: "relative",
+              listStyle: "none",
+              paddingLeft: "7.5rem",
+              "> input[type=checkbox]": {
+                position: "absolute",
+                top: ".5rem",
+                left: "0",
+              },
+            },
           }}
         />
       </>

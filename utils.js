@@ -83,7 +83,7 @@ export function markdownToHtml(markdown) {
         items.push(lines[index].replace(/^\s*[-+*]\s+/, ""));
         index++;
       }
-      htmlParts.push(`<ul>${items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</ul>`);
+      htmlParts.push(`<ul>${items.map((item) => `<li>${renderListItem(item)}</li>`).join("")}</ul>`);
       continue;
     }
 
@@ -93,7 +93,7 @@ export function markdownToHtml(markdown) {
         items.push(lines[index].replace(/^\s*\d+\.\s+/, ""));
         index++;
       }
-      htmlParts.push(`<ol>${items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</ol>`);
+      htmlParts.push(`<ol>${items.map((item) => `<li>${renderListItem(item)}</li>`).join("")}</ol>`);
       continue;
     }
 
@@ -129,6 +129,14 @@ function renderParagraph(lines) {
   // If it's effectively empty, keep a <br/> so contentEditable shows a line.
   if (!content || content === "<br/>") return "<p><br/></p>";
   return `<p>${content}</p>`;
+}
+
+function renderListItem(text) {
+  const match = String(text).match(/^\[(x|X| )\]\s+(.*)$/);
+  if (!match) return renderInline(text);
+  const checked = match[1].toLowerCase() === "x";
+  const content = renderInline(match[2]);
+  return `<input type="checkbox" ${checked ? "checked" : ""}/> ${content}`;
 }
 
 function renderInline(text) {
@@ -240,6 +248,14 @@ function nodeToMarkdown(node, state) {
     return out;
   };
 
+  const childrenMarkdownFiltered = (nextState, predicate) => {
+    let out = "";
+    for (const child of el.childNodes) {
+      if (predicate(child)) out += nodeToMarkdown(child, nextState);
+    }
+    return out;
+  };
+
   // Treat style-only spans as formatting where possible.
   if (tag === "SPAN") {
     const style = el.style;
@@ -320,7 +336,7 @@ function nodeToMarkdown(node, state) {
       return out + "\n";
     }
     case "LI":
-      return childrenMarkdown({ inCode });
+      return renderListItemMarkdown(el, { inCode, childrenMarkdownFiltered });
     case "BLOCKQUOTE": {
       const content = childrenMarkdown({ inCode }).trimEnd();
       const lines = content.split("\n");
@@ -329,4 +345,28 @@ function nodeToMarkdown(node, state) {
     default:
       return childrenMarkdown({ inCode });
   }
+}
+
+function renderListItemMarkdown(el, { inCode, childrenMarkdownFiltered }) {
+  let checked = null;
+  for (const child of el.childNodes) {
+    if (child.nodeType !== Node.ELEMENT_NODE) continue;
+    const tag = child.tagName?.toUpperCase();
+    if (tag !== "INPUT") continue;
+    const type = (child.getAttribute("type") || "").toLowerCase();
+    if (type !== "checkbox") continue;
+    checked = child.hasAttribute("checked");
+    break;
+  }
+
+  const content = childrenMarkdownFiltered({ inCode }, (child) => {
+    if (child.nodeType !== Node.ELEMENT_NODE) return true;
+    const tag = child.tagName?.toUpperCase();
+    if (tag !== "INPUT") return true;
+    const type = (child.getAttribute("type") || "").toLowerCase();
+    return type !== "checkbox";
+  }).trim();
+
+  if (checked == null) return content;
+  return `[${checked ? "x" : " "}] ${content}`;
 }
