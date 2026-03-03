@@ -8,6 +8,8 @@ const ICON_POSITION = {
 
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
+ * @typedef {import("@vistta/js").Ref} Ref
+ *
  * @typedef {object} ButtonProps
  * @property {string} [id]
  * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]

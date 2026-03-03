@@ -83,7 +83,6 @@ class Dropdown extends Component {
       >
         {!this.action && (this.label || this.children)}
         <Popover
-          class="dropdown"
           anchor={this.#button}
           open={this.visible}
           onOutsideClick={(e) =>

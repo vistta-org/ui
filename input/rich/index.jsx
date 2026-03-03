@@ -1,4 +1,5 @@
 import { Component, Ref } from "@vistta/js";
+import Menu from "../../menu";
 import { htmlToMarkdown, markdownToHtml } from "../../utils";
 
 class Rich extends Component {
@@ -26,6 +27,7 @@ class Rich extends Component {
   render() {
     return (
       <>
+        <Menu />
         <div
           ref={Ref.forward(this.ref, this.#register.bind(this))}
           id={this.id}
