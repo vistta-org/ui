@@ -27,13 +27,13 @@ import utilities from "./utilities.js";
  * @param {{ spacing: string }} [config.letter] Base letter spacing
  * @param {string} [config.radius] Base border radius
  * @param {string} [config.blur] Base blur
- * @param {Font} [config.font] Font configuration
+ * @param {import("./typography.js").Font} [config.font] Font configuration
  * @param {Viewports} [config.viewports] Viewports configuration
  * @param {object} [config.colors] Colors configuration
- * @param {Animation} [config.animation] Animation configuration
- * @param {Icon} [config.icon] Icon configuration
- * @param {Border} [config.border] Border configuration
- * @param {Shadow} [config.shadow] Shadow configuration
+ * @param {import("./utilities.js").Animation} [config.animation] Animation configuration
+ * @param {import("./utilities.js").Icon} [config.icon] Icon configuration
+ * @param {import("./utilities.js").Border} [config.border] Border configuration
+ * @param {import("./utilities.js").Shadow} [config.shadow] Shadow configuration
  */
 export default (config = {}) => {
   const result = {

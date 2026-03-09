@@ -1,10 +1,10 @@
-import { Component } from "@vistta/js";
+import { Component, Ref } from "@vistta/js";
 import { assignStyle } from "../utils";
 
 /**
  * @extends {Component<{
  *   id?: string,
- *   ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
+ *   ref?: Ref<HTMLSpanElement> | ((element: HTMLSpanElement) => void),
  *   anchor?: JSX.Anchor,
  *   code?: string,
  *   outlined?: boolean,

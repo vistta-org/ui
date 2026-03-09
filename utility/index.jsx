@@ -13,8 +13,9 @@ export class CustomGlobalDialogs extends Component {
   alertPositioning = "top";
 
   async onConnect() {
-    if (window.isServer) return;
-    window.alert = (alert) => {
+    const appWindow = /** @type {any} */ (window);
+    if (appWindow.isServer) return;
+    appWindow.alert = (alert) => {
       if (typeof alert === "string") alert = { message: alert };
       else if (!alert || typeof alert !== "object") return;
       let count = 0;
@@ -31,13 +32,13 @@ export class CustomGlobalDialogs extends Component {
       else alert.close = () => (this.alerts = this.alerts.filter((a) => a !== alert));
       this.alerts = [...this.alerts, alert];
     };
-    window.confirm = (message) =>
+    appWindow.confirm = (message) =>
       new Promise((resolve) => {
         if (typeof message === "string") message = { message };
         else if (!message || typeof message !== "object") return;
         this.confirm = { ...message, callback: (v) => ((this.confirm = null), resolve(v)) };
       });
-    window.prompt = (prompt, fields) =>
+    appWindow.prompt = (prompt, fields) =>
       new Promise((resolve) => {
         if (typeof prompt === "string") prompt = { message: prompt, fields };
         if (!prompt.fields)

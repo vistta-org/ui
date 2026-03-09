@@ -9,7 +9,7 @@ import Select from "./select";
  * @property {string} [id]
  * @property {Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void)} [ref]
  * @property {JSX.Anchor} [anchor]
- * @property {HTMLInputElement["type"] | "textarea" | "rich" | "richtext" | "select"} [type]
+ * @property {"button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week" | "textarea" | "rich" | "richtext" | "select"} [type]
  * @property {"default" | "basic"} [variant]
  * @property {string} [icon]
  * @property {string} [label]

@@ -6,79 +6,152 @@ import { assignStyle } from "../utils";
 /**
  * @typedef {Omit<import("../button").ButtonProps, "type">} ButtonProps
  *
- * @typedef {Omit<ButtonProps, "ref"> & { items?: MenuItem[], divider?: boolean }} MenuItem
+ * @typedef {Omit<ButtonProps, "ref"> & { items?: (MenuItem | null | false)[], divider?: boolean }} MenuItem
  *
- * @typedef {object} MenuProps
- * @extends ButtonProps
- * @property {MenuItem[]} items - The menu items.
- * @property {"horizontal" | "vertical"} [type="horizontal"] - The type of the menu.
- * @property {"click" | "hover"} [trigger="click"] - The trigger event to open the menu.
- * @property {"auto" | ((e: MouseEvent) => boolean)} [close="auto"] - The close behavior of the menu.
- * @property {import("../utils").CompositePosition} [position="left bottom"] - The position of the menu.
- * @property {() => void} [onOpen] - Callback when the menu is opened.
- * @property {() => void} [onClose] - Callback when the menu is closed.
+ * @typedef {ButtonProps & {
+ *  items?: (MenuItem | null | false)[],
+ *  type?: "horizontal" | "vertical",
+ *  trigger?: "click" | "hover",
+ *  close?: "auto" | ((e: MouseEvent) => boolean),
+ *  position?: import("../utils").CompositePosition,
+ *  onOpen?: () => void,
+ *  onClose?: () => void,
+ * }} MenuProps
  */
 
 /**
  * @extends {Component<MenuProps>}
  */
 class Menu extends Component {
-  #register(element) {
-    /*if (this.visible === "auto") {
-      new ResizeObserver(() => this.checkOverflow(element)).observe(element);
-      setTimeout(() => this.checkOverflow(element), 100);
-    }*/
+  visibleIndex = -1;
+  dropdownPosition;
+  itemRefs = [];
+
+  #registerContainer(element) {
+    this.observer = new ResizeObserver(() => this.#checkOverflow(element));
+    this.observer.observe(element);
   }
 
-  /*checkOverflow(element) {
-    const target = this.type === "horizontal" ? "width" : "height";
-    const space = element.getBoundingClientRect()[target];
-    const dropdownSpace = this.dropdownRef.node?.getBoundingClientRect()[target] || 0;
-    const gap = parseFloat(window.getComputedStyle(element).getPropertyValue("gap")) || 0;
+  #registerItem(index, element) {
+    if (!element) return;
+    this.itemRefs[index] = element;
+    if (this.observer) this.observer.observe(element);
+  }
 
-    let acc = -gap;
-    let i = 0;
-    let visible = 0;
-    const len = this.itemRefs.length;
-    while (i < len) {
-      acc += (this.itemRefs[i] as HTMLElement).getBoundingClientRect()[target] + gap;
-      if (acc > space) break;
-      if (acc > space - dropdownSpace) visible = i;
-      i++;
+  #checkOverflow(element) {
+    const target = this.type === "horizontal" ? "width" : "height";
+    const space = element.getBoundingClientRect()[target] - 40;
+    for (let i = this.itemRefs.length; i >= 0; i--) {
+      const item = this.itemRefs[i];
+      if (!item) continue;
+      const itemSpace = this.type === "horizontal" ? item.offsetLeft + item.clientWidth : item.offsetTop + item.clientHeight;
+      if (space < itemSpace) continue;
+      this.visibleIndex = i + 1;
+      this.dropdownPosition = itemSpace + parseFloat(window.getComputedStyle(element).gap);
+      return;
     }
-    if (i === len) visible = i;
-    this.visible = this.minVisible > visible ? this.minVisible : visible;
-  }*/
+    this.visibleIndex = this.itemRefs.length;
+  }
 
   render() {
+    if (this.items?.length === 0) return null;
     return (
       <div
         id={this.id}
-        ref={Ref.forward(this.ref, this.#register.bind(this))}
+        ref={Ref.forward(this.ref, this.#registerContainer.bind(this))}
         style={assignStyle(
           {
             container: "default",
+            flexWrap: "nowrap",
             padding: "0.5rem",
             gap: "0.5rem",
             radius: "rounded",
             background: "color-mix(in srgb, var(--back-color), var(--fore-color) 10%)",
+            overflow: "clip",
             button: {
               background: "color-mix(in srgb, var(--back-color), var(--fore-color) 10%)",
             },
-            "> *": {
+            "& > *": {
               col: this.type === "horizontal" ? "auto" : "full",
+              [`nth-child(n + ${this.visibleIndex + 1})`]: {
+                opacity: 0,
+                pointerEvents: "none",
+              },
             },
           },
           this.style,
         )}
       >
-        {this.items?.reduce((acc, props) => {
+        {this.items.reduce((acc, props, index) => {
           if (props === null || props === false) return acc;
           if (props.divider)
-            return [...acc, <div style={{ divider: this.type === "horizontal" ? "vertical" : "horizontal", m: 0 }} />];
-          if (props?.items) return [...acc, <Dropdown variant="basic" {...props} />];
-          return [...acc, <Button variant="basic" {...props} />];
+            return [
+              ...acc,
+
+              <div
+                style={
+                  this.type === "horizontal"
+                    ? {
+                        divider: "vertical",
+                        height: "10rem!",
+                        width: "1px!",
+                        m: 0,
+                      }
+                    : {
+                        divider: "horizontal",
+                        height: "1px!",
+                        width: "10rem!",
+                        m: 0,
+                      }
+                }
+              />,
+            ];
+          if (props?.items)
+            return [
+              ...acc,
+              <Dropdown
+                variant="basic"
+                position="right bottom"
+                {...props}
+                ref={
+                  props["ref"]
+                    ? Ref.forward(props["ref"], this.#registerItem.bind(this, index))
+                    : this.#registerItem.bind(this, index)
+                }
+              />,
+            ];
+          return [
+            ...acc,
+            <Button
+              variant="basic"
+              {...props}
+              ref={
+                props["ref"]
+                  ? Ref.forward(props["ref"], this.#registerItem.bind(this, index))
+                  : this.#registerItem.bind(this, index)
+              }
+            />,
+          ];
         }, [])}
+        {this.visibleIndex >= 0 && this.visibleIndex < this.items.length && (
+          <Dropdown
+            variant="basic"
+            position="left bottom"
+            style={{
+              position: "absolute",
+              inset:
+                this.type === "horizontal" ? `0 auto 0 ${this.dropdownPosition}px` : `auto 0 ${this.dropdownPosition}px 0`,
+              icon: this.type === "horizontal" ? "e5d3" : "e5d3",
+              opacity: "1!",
+              pointerEvents: "auto!",
+              "> dialog > div:first-child": {
+                display: "none",
+              },
+            }}
+            items={this.items.slice(this.visibleIndex)}
+            action
+          />
+        )}
       </div>
     );
   }

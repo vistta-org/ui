@@ -1,4 +1,4 @@
-import { Component } from "@vistta/js";
+import { Component, Ref } from "@vistta/js";
 import { assignStyle, getTooltipLabel } from "../utils";
 
 const ICON_POSITION = {
@@ -8,7 +8,7 @@ const ICON_POSITION = {
 
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
- * @typedef {import("@vistta/js").Ref} Ref
+ * @typedef {any} Icon
  *
  * @typedef {object} ButtonProps
  * @property {string} [id]
@@ -26,16 +26,16 @@ const ICON_POSITION = {
  * @property {Tooltip} [tooltip]
  * @property {boolean} [disabled]
  * @property {HTMLButtonElement["type"]} [type]
- * @property {HTMLButtonElement["onclick"]} [onClick]
- * @property {HTMLButtonElement["oncontextmenu"]} [onContextMenu]
- * @property {HTMLButtonElement["ondblclick"]} [onDblClick]
- * @property {HTMLButtonElement["onmousedown"]} [onMouseDown]
- * @property {HTMLButtonElement["onmouseenter"]} [onMouseEnter]
- * @property {HTMLButtonElement["onmousemove"]} [onMouseMove]
- * @property {HTMLButtonElement["onmouseleave"]} [onMouseLeave]
- * @property {HTMLButtonElement["onmouseover"]} [onMouseOver]
- * @property {HTMLButtonElement["onmouseout"]} [onMouseOut]
- * @property {HTMLButtonElement["onmouseup"]} [onMouseUp]
+ * @property {(event: MouseEvent) => any} [onClick]
+ * @property {(event: MouseEvent) => any} [onContextMenu]
+ * @property {(event: MouseEvent) => any} [onDblClick]
+ * @property {(event: MouseEvent) => any} [onMouseDown]
+ * @property {(event: MouseEvent) => any} [onMouseEnter]
+ * @property {(event: MouseEvent) => any} [onMouseMove]
+ * @property {(event: MouseEvent) => any} [onMouseLeave]
+ * @property {(event: MouseEvent) => any} [onMouseOver]
+ * @property {(event: MouseEvent) => any} [onMouseOut]
+ * @property {(event: MouseEvent) => any} [onMouseUp]
  */
 
 /**
@@ -55,7 +55,7 @@ export class Button extends Component {
         style={assignStyle(
           {
             p: this.action && "2rem!",
-            tooltip: this.tooltip?.position,
+            tooltip: typeof this.tooltip === "object" ? this.tooltip?.position : undefined,
           },
           variantToStyle(this.variant, this.raw),
           iconToStyle(this.loading ? "loading" : this.icon, this.action),

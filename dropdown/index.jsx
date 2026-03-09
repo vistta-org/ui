@@ -8,25 +8,30 @@ import { assignStyle, getTooltipLabel } from "../utils";
  *
  * @typedef {Omit<ButtonProps, "ref"> & { items?: DropdownItem[], divider?: boolean }} DropdownItem
  *
- * @typedef {object} DropdownProps
- * @extends ButtonProps
- * @property {DropdownItem[]} items - The dropdown items.
- * @property {number | string} height - The height of the dropdown.
- * @property {number | string} width - The width of the dropdown.
- * @property {"click" | "hover"} [trigger="click"] - The trigger event to open the dropdown.
- * @property {"auto" | ((e: MouseEvent) => boolean)} [close="auto"] - The close behavior of the dropdown.
- * @property {import("../utils").CompositePosition} [position="left bottom"] - The position of the dropdown.
- * @property {() => void} [onOpen] - Callback when the dropdown is opened.
- * @property {() => void} [onClose] - Callback when the dropdown is closed.
+ * @typedef {ButtonProps & {
+ *  items: DropdownItem[],
+ *  height?: number | string,
+ *  width?: number | string,
+ *  trigger?: "click" | "hover",
+ *  close?: "auto" | ((e: MouseEvent) => boolean),
+ *  position?: import("../utils").CompositePosition,
+ *  onOpen?: () => void,
+ *  onClose?: () => void,
+ * }} DropdownProps
  */
 
 /**
  * @extends {Component<DropdownProps>}
  */
 class Dropdown extends Component {
+  /** @type {"click" | "hover"} */
   trigger = "click";
+  /** @type {"auto" | ((e: MouseEvent) => boolean)} */
   close = "auto";
+  /** @type {import("../utils").CompositePosition} */
   position = "left bottom";
+  width = "fit-content";
+  height = "fit-content";
   visible = false;
   #button;
   #timeout;
@@ -47,11 +52,11 @@ class Dropdown extends Component {
         aria-label={this.label || this.name}
         name={this.label || this.name}
         tooltip={getTooltipLabel(this.tooltip)}
-        type="button"
+        type={/** @type {any} */ ("button")}
         style={assignStyle(
           {
             p: this.action && "2rem!",
-            tooltip: this.tooltip?.position,
+            tooltip: typeof this.tooltip === "object" ? this.tooltip?.position : undefined,
           },
           variantToStyle(this.variant, this.raw),
           iconToStyle(this.loading ? "loading" : this.icon, this.action),
@@ -66,7 +71,7 @@ class Dropdown extends Component {
         onMouseDown={this.onMouseDown}
         onMouseEnter={
           this.trigger === "hover"
-            ? () => (this.onMouseEnter?.(e), (this.visible = true), clearTimeout(this.#timeout))
+            ? (e) => (this.onMouseEnter?.(e), (this.visible = true), clearTimeout(this.#timeout))
             : this.onMouseEnter
         }
         onMouseMove={this.onMouseMove}
@@ -86,7 +91,9 @@ class Dropdown extends Component {
           anchor={this.#button}
           open={this.visible}
           onOutsideClick={(e) =>
-            typeof this.close === "function" ? this.close(e) : this.close === "auto" && this.#setVisible(false)
+            typeof this.close === "function"
+              ? /** @type {any} */ (this.close)(e)
+              : this.close === "auto" && this.#setVisible(false)
           }
           style={{
             positionArea: this.position,
@@ -99,7 +106,7 @@ class Dropdown extends Component {
           }}
         >
           {this.items?.reduce((acc, props) => {
-            if (props === null || props === false) return acc;
+            if (!props) return acc;
             if (props.divider) return [...acc, <div style="divider; my:1rem" />];
             if (props?.items)
               return [

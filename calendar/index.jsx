@@ -16,8 +16,9 @@ const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 
  * @property {JSX.Anchor} [anchor]
  * @property {CalendarType} [type] Calendar view type
  * @property {"mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun"} [starting] Starting day of the week
- * @property {Date} [date] Current date to display in the calendar
+ * @property {Date | DateTime} [date] Current date to display in the calendar
  * @property {"all" | "gesture" | "none"} [controls] Whether to show navigation buttons
+ * @property {JSX.Style} [style]
  * @property {(date: Date, enabled: boolean) => JSX.Element[]} [renderDay] Function to render the contents of each day
  * @property {(event: MouseEvent) => void} [onClick] Callback function when a click happens on the calendar
  */
@@ -29,10 +30,14 @@ const today = new DateTime();
  */
 export default class Calendar extends Component {
   #body;
+  /** @type {CalendarType} */
   type = "month";
+  /** @type {"mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun"} */
   starting = "mon";
   events = [];
+  /** @type {DateTime} */
   date = new DateTime();
+  /** @type {"all" | "gesture" | "none"} */
   controls = "all";
 
   register(element) {
@@ -111,7 +116,7 @@ export default class Calendar extends Component {
           {this.type !== "day" &&
             Array.from({ length: 7 }, (_, i) => {
               const date = DEFAULT_DATE.clone();
-              date.day += (i + WEEKDAY_TO_INDEX[this.starting] ?? 1) % 7;
+              date.day += (i + (WEEKDAY_TO_INDEX[this.starting] ?? 1)) % 7;
               return (
                 <div style="col; p: 2rem 0; text:center; text-transform: uppercase">
                   {date.format({
@@ -141,7 +146,7 @@ export default class Calendar extends Component {
         >
           <View
             type={this.type}
-            date={new DateTime(this.date).previous(this.type)}
+            date={new DateTime(this.date).previous(/** @type {any} */ (this.type))}
             renderDay={this.renderDay}
             starting={this.starting}
           />
@@ -154,7 +159,7 @@ export default class Calendar extends Component {
           />
           <View
             type={this.type}
-            date={new DateTime(this.date).next(this.type)}
+            date={new DateTime(this.date).next(/** @type {any} */ (this.type))}
             renderDay={this.renderDay}
             starting={this.starting}
           />

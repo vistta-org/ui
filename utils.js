@@ -106,6 +106,12 @@ export function markdownToHtml(markdown) {
       continue;
     }
 
+    if (/^\s*([-*_]\s*){3,}$/.test(line)) {
+      htmlParts.push("<hr/>");
+      index++;
+      continue;
+    }
+
     const paraLines = [];
     while (index < lines.length) {
       const current = lines[index];
@@ -115,6 +121,7 @@ export function markdownToHtml(markdown) {
       if (/^\s*[-+*]\s+/.test(current)) break;
       if (/^\s*\d+\.\s+/.test(current)) break;
       if (/^(#{1,6})\s+/.test(current)) break;
+      if (/^\s*([-*_]\s*){3,}$/.test(current)) break;
       paraLines.push(current);
       index++;
     }
@@ -192,6 +199,8 @@ function renderEmphasis(escapedText, { UO, UC }) {
 
   // Bold
   text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  // Strikethrough
+  text = text.replace(/~~(.+?)~~/g, "<del>$1</del>");
   // Italic (simple, avoids **)
   text = text.replace(/(^|[^*])\*(?!\s)(.+?)(?<!\s)\*(?!\*)/g, "$1<em>$2</em>");
   return text;
@@ -295,9 +304,15 @@ function nodeToMarkdown(node, state) {
     case "EM":
     case "I":
       return `*${childrenMarkdown({ inCode })}*`;
+    case "S":
+    case "STRIKE":
+    case "DEL":
+      return `~~${childrenMarkdown({ inCode })}~~`;
     case "U":
       // Markdown has no underline; preserve as inline HTML for round-trip.
       return `<u>${childrenMarkdown({ inCode })}</u>`;
+    case "HR":
+      return "\n\n---\n\n";
     case "A": {
       const href = el.getAttribute("href") || "";
       const safeHref = sanitizeUrl(href);
@@ -355,7 +370,7 @@ function renderListItemMarkdown(el, { inCode, childrenMarkdownFiltered }) {
     if (tag !== "INPUT") continue;
     const type = (child.getAttribute("type") || "").toLowerCase();
     if (type !== "checkbox") continue;
-    checked = child.hasAttribute("checked");
+    checked = "checked" in child ? !!child.checked : child.hasAttribute("checked");
     break;
   }
 

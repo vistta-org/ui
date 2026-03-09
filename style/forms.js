@@ -32,7 +32,7 @@ export default (_, result) =>
 
     "select, [role='select']": {
       padding: "2rem 4rem",
-      "line-height": "1.4!",
+      "line-height": "1.4",
       cursor: "pointer",
 
       "&, &::picker(select)": {
@@ -190,7 +190,7 @@ export default (_, result) =>
       },
 
       "&:has([type='checkbox'], [type='radio'], [readonly])": {
-        border: "none!",
+        border: "none",
       },
 
       "&:not(:has([type='color']))": {
@@ -206,16 +206,16 @@ export default (_, result) =>
       },
 
       "input:not([type='checkbox'], [type='radio'], [type='color']), textarea, select, [role='input'], [role='select']": {
-        background: "transparent!",
-        border: "none!",
-        "border-radius": "0!",
-        padding: "0!",
+        background: "transparent",
+        border: "none",
+        "border-radius": "0",
+        padding: "0",
         flex: "1",
       },
 
       "input[type='color']": {
-        border: "none!",
-        "border-radius": "$radius!",
+        border: "none",
+        "border-radius": "$radius",
         flex: "1",
       },
 
