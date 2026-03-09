@@ -14,11 +14,11 @@ export default (_, result) =>
       },
 
       "&:not(:disabled,[type='file'],[type='color'],[type='submit'],[type='range'],[type='radio'],[type='checkbox']):is(:read-only,[readonly])":
-        {
-          background: "transparent!",
-          "border-color": "transparent!",
-          "border-radius": "0!",
-        },
+      {
+        background: "transparent!",
+        "border-color": "transparent!",
+        "border-radius": "0!",
+      },
 
       "&:focus": {
         outline: "none",
@@ -184,12 +184,12 @@ export default (_, result) =>
       display: "flex",
       "align-items": "center",
 
-      "&:not(:has([type='checkbox'], [type='radio'], [readonly]))": {
+      "&:not(:has([type='checkbox'], [type='radio'], [readonly])), &:has([type='checkbox'], [type='radio'], [readonly]):has([contenteditable])": {
         background: "$back-color",
         border: "$border-size solid $border-color",
       },
 
-      "&:has([type='checkbox'], [type='radio'], [readonly])": {
+      "&:has([type='checkbox'], [type='radio'], [readonly]):not(:has([contenteditable]))": {
         border: "none",
       },
 
