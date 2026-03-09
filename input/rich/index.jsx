@@ -5,8 +5,43 @@ import { htmlToMarkdown, markdownToHtml } from "../../utils";
 const BLOCK_TAGS = new Set(["P", "H1", "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE", "PRE", "UL", "OL"]);
 
 class Rich extends Component {
+  formatting = true;
   #element;
   #debounce;
+  #savedRange;
+
+  #saveSelection() {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || !this.#element) return;
+
+    const range = selection.getRangeAt(0);
+    const insideStart = range.startContainer === this.#element || this.#element.contains(range.startContainer);
+    const insideEnd = range.endContainer === this.#element || this.#element.contains(range.endContainer);
+    if (!insideStart || !insideEnd) return;
+
+    this.#savedRange = range.cloneRange();
+  }
+
+  #getCurrentRange() {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && this.#element) {
+      const range = selection.getRangeAt(0);
+      const insideStart = range.startContainer === this.#element || this.#element.contains(range.startContainer);
+      const insideEnd = range.endContainer === this.#element || this.#element.contains(range.endContainer);
+      if (insideStart && insideEnd) return range;
+    }
+
+    if (!this.#savedRange || !selection || !this.#element) return null;
+    const insideStart =
+      this.#savedRange.startContainer === this.#element || this.#element.contains(this.#savedRange.startContainer);
+    const insideEnd =
+      this.#savedRange.endContainer === this.#element || this.#element.contains(this.#savedRange.endContainer);
+    if (!insideStart || !insideEnd) return null;
+
+    selection.removeAllRanges();
+    selection.addRange(this.#savedRange);
+    return this.#savedRange;
+  }
 
   #handleClick(event) {
     const target = event?.target;
@@ -37,6 +72,7 @@ class Rich extends Component {
     normalizeParagraphBase(this.#element);
     clearTimeout(this.#debounce);
     this.#debounce = setTimeout(() => this.#element.dispatchEvent(new Event("change", { bubbles: true })), 250);
+    this.#saveSelection();
   }
 
   #canEdit() {
@@ -110,9 +146,12 @@ class Rich extends Component {
   #toggleFormat(type, isBlock = false) {
     if (!this.#canEdit()) return;
     const selection = window.getSelection();
-    if (selection.rangeCount === 0) return;
+    const range = this.#getCurrentRange();
+    if (!selection || !range) return;
 
-    const range = selection.getRangeAt(0);
+    this.#element.focus();
+    selection.removeAllRanges();
+    selection.addRange(range);
     if (isBlock) {
       const blocks = getSelectedLineBlocks(range, this.#element);
       let firstTarget = null;
@@ -390,9 +429,15 @@ class Rich extends Component {
       return;
     }
 
-    const commonAncestor = range.commonAncestorContainer;
-    // console.dir(commonAncestor);
-    // const isActive = this.#isFormatActive(type, isBlock, commonAncestor);
+    if (type === "b" || type === "i" || type === "u" || type === "s") {
+      const command = type === "b" ? "bold" : type === "i" ? "italic" : type === "u" ? "underline" : "strikeThrough";
+
+      if (typeof document.execCommand !== "function") return;
+      document.execCommand(command, false, null);
+
+      this.#saveSelection();
+      this.#handleInput();
+    }
   }
 
   #insert(type) {
@@ -490,7 +535,7 @@ class Rich extends Component {
   render() {
     return (
       <>
-        {!(this.disabled || this.readonly) && (
+        {this.formatting && !this.disabled && !this.readonly && (
           <Menu
             type="horizontal"
             items={[
@@ -565,13 +610,15 @@ class Rich extends Component {
                 onClick: () => this.#toggleFormat("i"),
                 action: true,
               },
+              /*
+              Underline is not supported by Markdown
               {
                 name: "Underline",
                 icon: "e249",
                 tooltip: "Underline",
                 onClick: () => this.#toggleFormat("u"),
                 action: true,
-              },
+              },*/
               {
                 name: "Strikethrough",
                 icon: "e257",
@@ -667,6 +714,9 @@ class Rich extends Component {
           value={this.value}
           onChange={this.#handleChange.bind(this)}
           onClick={this.#handleClick.bind(this)}
+          onMouseUp={this.#saveSelection.bind(this)}
+          onKeyUp={this.#saveSelection.bind(this)}
+          onFocus={this.#saveSelection.bind(this)}
           onKeyDown={this.#handleKeyDown.bind(this)}
           onInput={this.#handleInput.bind(this)}
           disabled={this.disabled}
@@ -676,7 +726,7 @@ class Rich extends Component {
           style={{
             col: "full",
             p: "1rem!",
-            marginTop: "8rem",
+            marginTop: this.formatting && !this.disabled && !this.readonly && "8rem",
             listStylePosition: "inside",
             "li:has(> input[type=checkbox])": {
               position: "relative",

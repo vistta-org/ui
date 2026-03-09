@@ -184,12 +184,12 @@ export default (_, result) =>
       display: "flex",
       "align-items": "center",
 
-      "&:not(:has([type='checkbox'], [type='radio'], [readonly])), &:has([type='checkbox'], [type='radio'], [readonly]):has([contenteditable])": {
+      "&:not(:has([type='checkbox'], [type='radio'], [readonly])), &:has([type='checkbox'], [type='radio']):has([contenteditable])": {
         background: "$back-color",
         border: "$border-size solid $border-color",
       },
 
-      "&:has([type='checkbox'], [type='radio'], [readonly]):not(:has([contenteditable]))": {
+      "&:has([type='checkbox'], [type='radio']):not(:has([contenteditable])), &:has([readonly])": {
         border: "none",
       },
 
