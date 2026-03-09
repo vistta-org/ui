@@ -397,6 +397,79 @@ class Rich extends Component {
 
   #insert(type) {
     if (!this.#canEdit()) return;
+
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    const rangeInEditor =
+      !!range &&
+      (range.startContainer === this.#element || this.#element.contains(range.startContainer)) &&
+      (range.endContainer === this.#element || this.#element.contains(range.endContainer));
+
+    if (!rangeInEditor) {
+      range = document.createRange();
+      range.selectNodeContents(this.#element);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    switch (type) {
+      case "link": {
+        const href = window.prompt("Link URL", "https://");
+        if (!href) return;
+
+        const anchor = document.createElement("a");
+        anchor.setAttribute("href", href);
+
+        if (range.collapsed) {
+          anchor.textContent = href;
+          range.insertNode(anchor);
+
+          const caretRange = document.createRange();
+          caretRange.setStartAfter(anchor);
+          caretRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(caretRange);
+        } else {
+          const content = range.extractContents();
+          anchor.appendChild(content);
+          range.insertNode(anchor);
+
+          const caretRange = document.createRange();
+          caretRange.setStartAfter(anchor);
+          caretRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(caretRange);
+        }
+        break;
+      }
+      case "divider": {
+        const line = getSelectedLineBlocks(range, this.#element)[0];
+        const hr = document.createElement("hr");
+        const paragraph = document.createElement("p");
+        paragraph.appendChild(document.createElement("br"));
+
+        if (line) {
+          line.after(hr);
+          hr.after(paragraph);
+        } else {
+          range.insertNode(hr);
+          hr.after(paragraph);
+        }
+
+        const caretRange = document.createRange();
+        caretRange.setStart(paragraph, 0);
+        caretRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(caretRange);
+        break;
+      }
+      default:
+        return;
+    }
+    this.#handleInput();
   }
 
   #register(element) {
