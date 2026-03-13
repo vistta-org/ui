@@ -6,6 +6,56 @@ import { assignStyle } from "../utils";
 
 const VARIANTS = ["success", "error", "info", "warning"];
 
+/**
+ * @typedef {{
+ *   message?: string,
+ *   title?: string,
+ *   type?: "success"|"error"|"info"|"warning",
+ *   success?: string,
+ *   error?: string,
+ *   info?: string,
+ *   warning?: string,
+ *   timeout?: number,
+ *   close?: () => void,
+ *   key?: string,
+ * }} AlertDialogOptions
+ * @typedef {(alert: string | AlertDialogOptions) => void} AlertDialog
+ */
+
+/**
+ * @typedef {{
+ *   message?: string,
+ *   title?: string,
+ *   submit?: string,
+ *   callback?: (value: boolean) => void,
+ * }} ConfirmDialogOptions
+ * @typedef {(message: string | ConfirmDialogOptions) => Promise<boolean>} ConfirmDialog
+ */
+
+/**
+ * @typedef {{
+ *   name: string,
+ *   type?: string,
+ *   label?: string,
+ *   value?: any,
+ *   style?: any,
+ * }} PromptDialogField
+ */
+
+/**
+ * @typedef {{
+ *   message?: string,
+ *   title?: string,
+ *   label?: string,
+ *   value?: any,
+ *   submit?: string,
+ *   fields?: PromptDialogField[],
+ *   form?: { values: () => any },
+ *   callback?: (value: any) => void,
+ * }} PromptDialogOptions
+ * @typedef {(prompt: string | PromptDialogOptions, fields?: PromptDialogField[]) => Promise<any>} PromptDialog
+ */
+
 export class CustomGlobalDialogs extends Component {
   alerts = [];
   confirm;
@@ -15,6 +65,7 @@ export class CustomGlobalDialogs extends Component {
   async onConnect() {
     const appWindow = /** @type {any} */ (window);
     if (appWindow.isServer) return;
+    /** @param {string | AlertDialogOptions} alert */
     appWindow.alert = (alert) => {
       if (typeof alert === "string") alert = { message: alert };
       else if (!alert || typeof alert !== "object") return;
@@ -32,12 +83,14 @@ export class CustomGlobalDialogs extends Component {
       else alert.close = () => (this.alerts = this.alerts.filter((a) => a !== alert));
       this.alerts = [...this.alerts, alert];
     };
+    /** @param {string | ConfirmDialogOptions} message */
     appWindow.confirm = (message) =>
       new Promise((resolve) => {
         if (typeof message === "string") message = { message };
         else if (!message || typeof message !== "object") return;
         this.confirm = { ...message, callback: (v) => ((this.confirm = null), resolve(v)) };
       });
+    /** @param {string | PromptDialogOptions} prompt @param {PromptDialogField[]} [fields] */
     appWindow.prompt = (prompt, fields) =>
       new Promise((resolve) => {
         if (typeof prompt === "string") prompt = { message: prompt, fields };

@@ -33,7 +33,7 @@ class Popover extends Component {
 
   register(element) {
     this.#node = element;
-    if (this.open) requestAnimationFrame(() => this.#node.showPopover());
+    if (this.open) requestAnimationFrame(() => this.#node.isConnected && this.#node.showPopover());
   }
 
   render() {

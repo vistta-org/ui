@@ -21,8 +21,8 @@ import { assignStyle } from "../utils.js";
  */
 class Modal extends Component {
   register(element) {
-    if (this.open) requestAnimationFrame(() => element.showModal());
-    element.show = () => ((this.open = false), element.showModal());
+    if (this.open) requestAnimationFrame(() => element.isConnected && element.showModal());
+    element.show = () => ((this.open = true), element.showModal());
     const close = element.close?.bind?.(element);
     element.close = () => ((this.open = false), close());
     element.addEventListener("close", () => {

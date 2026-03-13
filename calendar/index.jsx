@@ -20,6 +20,7 @@ const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 
  * @property {"all" | "gesture" | "none"} [controls] Whether to show navigation buttons
  * @property {JSX.Style} [style]
  * @property {(date: Date, enabled: boolean) => JSX.Element[]} [renderDay] Function to render the contents of each day
+ * @property {(event: Event) => void} [onChange] Callback function when the displayed date changes
  * @property {(event: MouseEvent) => void} [onClick] Callback function when a click happens on the calendar
  */
 
@@ -30,6 +31,7 @@ const today = new DateTime();
  */
 export default class Calendar extends Component {
   #body;
+  #main;
   /** @type {CalendarType} */
   type = "month";
   /** @type {"mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun"} */
@@ -44,12 +46,14 @@ export default class Calendar extends Component {
     element.next = this.next.bind(this);
     element.previous = this.previous.bind(this);
     element.select = this.select.bind(this);
+    this.#main = element;
   }
 
   registerBody(body) {
-    if (body.clientWidth === body.scrollWidth) return setTimeout(() => this.registerBody(body), 10);
     this.#body = body;
-    body.scrollTo({ left: body.clientWidth, behavior: "instant" });
+    queueMicrotask(() => {
+      body.scrollLeft = body.clientWidth;
+    });
   }
 
   onScrollEnd({ target: body }) {
@@ -61,7 +65,12 @@ export default class Calendar extends Component {
       else return;
       break;
     }
-    this.date = new DateTime(this.date)[target](this.type);
+    const date = new DateTime(this.date)[target](this.type);
+    const event = /** @type {any} */ (new CustomEvent("change", { cancelable: true }));
+    event.date = date;
+    this.#main.dispatchEvent(event);
+    if (event.defaultPrevented) return;
+    this.date = date;
     body.scrollTo({ left: body.clientWidth, behavior: "instant" });
   }
 
@@ -85,6 +94,7 @@ export default class Calendar extends Component {
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
         anchor={this.anchor}
+        onChange={this.onChange}
         style={assignStyle(
           {
             position: "relative",

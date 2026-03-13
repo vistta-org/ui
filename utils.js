@@ -190,7 +190,7 @@ function renderInlineNoCode(raw, tokens) {
   }
 
   result += renderEmphasis(escapeHtml(raw.slice(cursor)), tokens);
-  return result;
+  return String(result ?? "").replace(/\\([\\`*_{}[\]()#+\-.!~>])/g, "$1");
 }
 
 function renderEmphasis(escapedText, { UO, UC }) {
@@ -232,7 +232,19 @@ function escapeMarkdownText(text) {
   return String(text ?? "")
     .replace(/\u00A0/g, " ")
     .replace(/\\/g, "\\\\")
-    .replace(/([*_[\]()`])/g, "\\$1");
+    .replace(/([*_[\]`])/g, "\\$1");
+}
+
+function wrapWithMarkdownDelimiters(content, delimiter) {
+  const value = String(content ?? "");
+  if (!value) return `${delimiter}${delimiter}`;
+
+  const leading = value.match(/^\s+/)?.[0] || "";
+  const trailing = value.match(/\s+$/)?.[0] || "";
+  const middle = value.slice(leading.length, value.length - trailing.length);
+
+  if (!middle) return value;
+  return `${leading}${delimiter}${middle}${delimiter}${trailing}`;
 }
 
 function nodeToMarkdown(node, state) {
@@ -300,14 +312,14 @@ function nodeToMarkdown(node, state) {
     }
     case "STRONG":
     case "B":
-      return `**${childrenMarkdown({ inCode })}**`;
+      return wrapWithMarkdownDelimiters(childrenMarkdown({ inCode }), "**");
     case "EM":
     case "I":
-      return `*${childrenMarkdown({ inCode })}*`;
+      return wrapWithMarkdownDelimiters(childrenMarkdown({ inCode }), "*");
     case "S":
     case "STRIKE":
     case "DEL":
-      return `~~${childrenMarkdown({ inCode })}~~`;
+      return wrapWithMarkdownDelimiters(childrenMarkdown({ inCode }), "~~");
     case "U":
       // Markdown has no underline; preserve as inline HTML for round-trip.
       return `<u>${childrenMarkdown({ inCode })}</u>`;
@@ -350,8 +362,29 @@ function nodeToMarkdown(node, state) {
       }
       return out + "\n";
     }
-    case "LI":
-      return renderListItemMarkdown(el, { inCode, childrenMarkdownFiltered });
+    case "LI": {
+      let checked = null;
+      for (const child of el.childNodes) {
+        if (child.nodeType !== Node.ELEMENT_NODE) continue;
+        const tag = child.tagName?.toUpperCase();
+        if (tag !== "INPUT") continue;
+        const type = (child.getAttribute("type") || "").toLowerCase();
+        if (type !== "checkbox") continue;
+        checked = "checked" in child ? !!child.checked : child.hasAttribute("checked");
+        break;
+      }
+
+      const content = childrenMarkdownFiltered({ inCode }, (child) => {
+        if (child.nodeType !== Node.ELEMENT_NODE) return true;
+        const tag = child.tagName?.toUpperCase();
+        if (tag !== "INPUT") return true;
+        const type = (child.getAttribute("type") || "").toLowerCase();
+        return type !== "checkbox";
+      }).trim();
+
+      if (checked == null) return content;
+      return `[${checked ? "x" : " "}] ${content}`;
+    }
     case "BLOCKQUOTE": {
       const content = childrenMarkdown({ inCode }).trimEnd();
       const lines = content.split("\n");
@@ -360,28 +393,4 @@ function nodeToMarkdown(node, state) {
     default:
       return childrenMarkdown({ inCode });
   }
-}
-
-function renderListItemMarkdown(el, { inCode, childrenMarkdownFiltered }) {
-  let checked = null;
-  for (const child of el.childNodes) {
-    if (child.nodeType !== Node.ELEMENT_NODE) continue;
-    const tag = child.tagName?.toUpperCase();
-    if (tag !== "INPUT") continue;
-    const type = (child.getAttribute("type") || "").toLowerCase();
-    if (type !== "checkbox") continue;
-    checked = "checked" in child ? !!child.checked : child.hasAttribute("checked");
-    break;
-  }
-
-  const content = childrenMarkdownFiltered({ inCode }, (child) => {
-    if (child.nodeType !== Node.ELEMENT_NODE) return true;
-    const tag = child.tagName?.toUpperCase();
-    if (tag !== "INPUT") return true;
-    const type = (child.getAttribute("type") || "").toLowerCase();
-    return type !== "checkbox";
-  }).trim();
-
-  if (checked == null) return content;
-  return `[${checked ? "x" : " "}] ${content}`;
 }
