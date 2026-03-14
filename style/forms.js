@@ -207,7 +207,7 @@ export default (_, result) =>
 
       "input:not([type='checkbox'], [type='radio'], [type='color']), textarea, select, [role='input'], [role='select']": {
         background: "transparent",
-        border: "none",
+        border: "none!",
         "border-radius": "0",
         padding: "0",
         flex: "1",

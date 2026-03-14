@@ -72,8 +72,8 @@ export class CustomGlobalDialogs extends Component {
       let count = 0;
       for (let i = 0, len = VARIANTS.length; i < len; i++) {
         if (!alert[VARIANTS[i]]) continue;
-        alert.message = alert.error;
-        alert.type = "error";
+        alert.message = alert[VARIANTS[i]];
+        alert.type = /** @type {"success"|"error"|"info"|"warning"} */ (VARIANTS[i]);
         count++;
       }
       if (count > 1) throw new Error("Alert can only have one variant type.");
