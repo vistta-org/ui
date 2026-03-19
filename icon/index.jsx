@@ -5,7 +5,6 @@ import { assignStyle } from "../utils";
  * @extends {Component<{
  *   id?: string,
  *   ref?: Ref<HTMLSpanElement> | ((element: HTMLSpanElement) => void),
- *   anchor?: JSX.Anchor,
  *   code?: string,
  *   outlined?: boolean,
  *   style?: JSX.Style;
@@ -18,7 +17,6 @@ class Icon extends Component {
       <span
         id={this.id}
         ref={this.ref}
-        anchor={this.anchor}
         style={assignStyle(this.style, `icon:${this.code}`, this.outlined && "icon:outlined")}
       />
     );

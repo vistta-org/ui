@@ -43,6 +43,9 @@ export default (_, result) => {
       "border-radius": "$radius",
       color: "$fore-color",
       shadow: "$shadow",
+      "&:not([open]):not(:popover-open)": {
+        display: "none!",
+      },
     },
 
     progress: {

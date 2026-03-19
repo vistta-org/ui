@@ -8,7 +8,6 @@ import Select from "./select";
  * @typedef {object} InputProps
  * @property {string} [id]
  * @property {Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void)} [ref]
- * @property {JSX.Anchor} [anchor]
  * @property {"button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week" | "textarea" | "rich" | "richtext" | "select"} [type]
  * @property {"default" | "basic"} [variant]
  * @property {string} [icon]
@@ -16,6 +15,7 @@ import Select from "./select";
  * @property {string} [name]
  * @property {string} [placeholder]
  * @property {boolean} [required]
+ * @property {boolean} [multiple]
  * @property {any} [value]
  * @property {Array<{ label: string; value: any } | string>} [options]
  * @property {Tooltip} [tooltip]
@@ -76,6 +76,7 @@ class Input extends Component {
           name={this.name}
           label={this.label}
           options={this.options}
+          multiple={this.multiple}
           value={this.value}
           required={this.required}
           disabled={this.disabled}
@@ -110,7 +111,6 @@ class Input extends Component {
   render() {
     return (
       <fieldset
-        anchor={this.anchor}
         tooltip={getTooltipLabel(this.tooltip)}
         onClick={(e) => this.#focus(e)}
         style={assignStyle(

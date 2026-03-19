@@ -7,7 +7,6 @@ import { assignStyle } from "../utils.js";
  * @typedef {object} ModalProps
  * @property {string} [id]
  * @property {Ref<HTMLDialogElement> | ((element: HTMLDialogElement) => void)} [ref]
- * @property {any} [anchor]
  * @property {boolean} [open]
  * @property {boolean} [inert]
  * @property {string | undefined} [title]
@@ -20,9 +19,12 @@ import { assignStyle } from "../utils.js";
  * @extends {Component<ModalProps>}
  */
 class Modal extends Component {
+  #node;
+
   register(element) {
-    if (this.open) requestAnimationFrame(() => element.isConnected && element.showModal());
-    element.show = () => ((this.open = true), element.showModal());
+    this.#node = element;
+    if (this.open) requestAnimationFrame(() => this.#node.isConnected && this.#node.showModal());
+    element.show = () => ((this.open = true), this.#node.showModal());
     const close = element.close?.bind?.(element);
     element.close = () => ((this.open = false), close());
     element.addEventListener("close", () => {
@@ -30,13 +32,17 @@ class Modal extends Component {
     });
   }
 
+  onUpdate(prev) {
+    if (prev.open === this.open) return;
+    if (this.open) this.#node?.showModal();
+    else this.#node?.close();
+  }
+
   render() {
-    if (!this.open) return null;
     return (
       <dialog
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
-        anchor={this.anchor}
         inert={this.inert}
         style={assignStyle(
           {

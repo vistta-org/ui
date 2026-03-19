@@ -5,7 +5,6 @@ import { assignStyle } from "../utils";
  * @typedef {object} PopoverProps
  * @property {string} [id]
  * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
- * @property {string} [anchor]
  * @property {boolean} [open]
  * @property {boolean} [inert]
  * @property {JSX.Style} [style]
@@ -36,14 +35,18 @@ class Popover extends Component {
     if (this.open) requestAnimationFrame(() => this.#node.isConnected && this.#node.showPopover());
   }
 
+  onUpdate(prev) {
+    if (prev.open === this.open) return;
+    if (this.open) this.#node?.showPopover();
+    else this.#node?.hidePopover();
+  }
+
   render() {
-    if (!this.open) return null;
     if (this.inert)
       return (
         <aside
           ref={Ref.forward(this.ref, this.register.bind(this))}
           id={this.id}
-          anchor={this.anchor}
           style={assignStyle(
             {
               container: "center",
@@ -61,7 +64,6 @@ class Popover extends Component {
       <dialog
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
-        anchor={this.anchor}
         style={assignStyle(
           {
             container: "center",

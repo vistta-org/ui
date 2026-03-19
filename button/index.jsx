@@ -15,7 +15,6 @@ const ICON_POSITION = {
  * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
  * @property {string} [name]
  * @property {string} [label]
- * @property {JSX.Anchor} [anchor]
  * @property {"basic" | "primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error"} [variant]
  * @property {boolean} [action]
  * @property {boolean} [active]
@@ -47,7 +46,6 @@ export class Button extends Component {
       <button
         id={this.id}
         ref={this.ref}
-        anchor={this.anchor}
         aria-label={this.label || this.name}
         name={this.label || this.name}
         tooltip={getTooltipLabel(this.tooltip)}

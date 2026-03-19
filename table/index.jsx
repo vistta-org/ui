@@ -11,7 +11,6 @@ import { Component, Ref } from "@vistta/js";
  * @typedef {object} TableProps
  * @property {string} [id]
  * @property {Ref<HTMLTableElement> | ((element: HTMLTableElement) => void)} [ref]
- * @property {any} [anchor]
  * @property {string | undefined} [title]
  * @property {TableColumn[]} columns
  * @property {object[]} data
@@ -33,7 +32,7 @@ class Table extends Component {
 
   render() {
     return (
-      <table ref={this.ref} id={this.id} anchor={this.anchor} style={this.style}>
+      <table ref={this.ref} id={this.id} style={this.style}>
         <thead>
           <tr>
             {this.columns.map((column) => (

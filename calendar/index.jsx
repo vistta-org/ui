@@ -13,7 +13,6 @@ const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 
  * @property {string} [id]
  * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
  * @property {string} [name]
- * @property {JSX.Anchor} [anchor]
  * @property {CalendarType} [type] Calendar view type
  * @property {"mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun"} [starting] Starting day of the week
  * @property {Date | DateTime} [date] Current date to display in the calendar
@@ -93,7 +92,6 @@ export default class Calendar extends Component {
       <div
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
-        anchor={this.anchor}
         onChange={this.onChange}
         style={assignStyle(
           {

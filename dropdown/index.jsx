@@ -1,4 +1,4 @@
-import { Component, Ref } from "@vistta/js";
+import { Anchor, Component, Ref } from "@vistta/js";
 import { Button, iconToStyle, variantToStyle } from "../button";
 import Popover from "../popover";
 import { assignStyle, getTooltipLabel } from "../utils";
@@ -14,7 +14,6 @@ import { assignStyle, getTooltipLabel } from "../utils";
  *  width?: number | string,
  *  trigger?: "click" | "hover",
  *  close?: "auto" | ((e: MouseEvent) => boolean),
- *  position?: import("../utils").CompositePosition,
  *  onOpen?: () => void,
  *  onClose?: () => void,
  * }} DropdownProps
@@ -28,12 +27,10 @@ class Dropdown extends Component {
   trigger = "click";
   /** @type {"auto" | ((e: MouseEvent) => boolean)} */
   close = "auto";
-  /** @type {import("../utils").CompositePosition} */
-  position = "left bottom";
   width = "fit-content";
   height = "fit-content";
   visible = false;
-  #button;
+  button = new Anchor();
   #timeout;
   #preventClose;
 
@@ -47,8 +44,7 @@ class Dropdown extends Component {
     return (
       <button
         id={this.id}
-        ref={Ref.forward(this.ref, (e) => (this.#button = e))}
-        anchor={this.anchor}
+        ref={Ref.forward(this.ref, this.button)}
         aria-label={this.label || this.name}
         name={this.label || this.name}
         tooltip={getTooltipLabel(this.tooltip)}
@@ -88,7 +84,6 @@ class Dropdown extends Component {
       >
         {!this.action && (this.label || this.children)}
         <Popover
-          anchor={this.#button}
           open={this.visible}
           onOutsideClick={(e) =>
             typeof this.close === "function"
@@ -96,7 +91,7 @@ class Dropdown extends Component {
               : this.close === "auto" && this.#setVisible(false)
           }
           style={{
-            positionArea: this.position,
+            inset: `${this.button("bottom", "2rem")} calc(${this.button("left")} - ${this.button("width")}) auto auto`,
             container: "default",
             gap: "1rem",
             padding: "1rem",
