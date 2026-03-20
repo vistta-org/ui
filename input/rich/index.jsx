@@ -535,6 +535,46 @@ class Rich extends Component {
   render() {
     return (
       <>
+        <div
+          ref={Ref.forward(this.ref, this.#register.bind(this))}
+          id={this.id}
+          placeholder={this.placeholder}
+          name={this.name}
+          aria-label={this.label}
+          value={this.value}
+          onChange={this.#handleChange.bind(this)}
+          onClick={this.#handleClick.bind(this)}
+          onMouseUp={this.#saveSelection.bind(this)}
+          onKeyUp={this.#saveSelection.bind(this)}
+          onFocus={this.#saveSelection.bind(this)}
+          onKeyDown={this.#handleKeyDown.bind(this)}
+          onInput={this.#handleInput.bind(this)}
+          disabled={this.disabled}
+          readonly={this.readonly}
+          role="input"
+          contentEditable={this.disabled || this.readonly ? "false" : "true"}
+          style={{
+            col: "full",
+            p: "1rem!",
+            marginTop: this.formatting && !this.disabled && !this.readonly && "8rem!",
+            listStylePosition: "inside",
+            "li:has(> input[type=checkbox])": {
+              position: "relative",
+              listStyle: "none",
+              paddingLeft: "7.5rem",
+              "> input[type=checkbox]": {
+                position: "absolute",
+                top: ".5rem",
+                left: "0",
+              },
+            },
+            "&:empty:before": {
+              content: "attr(placeholder)",
+              pointerEvents: "none",
+              opacity: "0.5",
+            },
+          }}
+        />
         {this.formatting && !this.disabled && !this.readonly && (
           <Menu
             type="horizontal"
@@ -694,7 +734,6 @@ class Rich extends Component {
               inset: "0 0 auto 0",
               col: "full",
               background: "$back-color",
-              radius: "0",
               "> button": {
                 background: "$back-color",
                 "> dialog": {
@@ -705,46 +744,6 @@ class Rich extends Component {
             }}
           />
         )}
-        <div
-          ref={Ref.forward(this.ref, this.#register.bind(this))}
-          id={this.id}
-          placeholder={this.placeholder}
-          name={this.name}
-          aria-label={this.label}
-          value={this.value}
-          onChange={this.#handleChange.bind(this)}
-          onClick={this.#handleClick.bind(this)}
-          onMouseUp={this.#saveSelection.bind(this)}
-          onKeyUp={this.#saveSelection.bind(this)}
-          onFocus={this.#saveSelection.bind(this)}
-          onKeyDown={this.#handleKeyDown.bind(this)}
-          onInput={this.#handleInput.bind(this)}
-          disabled={this.disabled}
-          readonly={this.readonly}
-          role="input"
-          contentEditable={this.disabled || this.readonly ? "false" : "true"}
-          style={{
-            col: "full",
-            p: "1rem!",
-            marginTop: this.formatting && !this.disabled && !this.readonly && "8rem",
-            listStylePosition: "inside",
-            "li:has(> input[type=checkbox])": {
-              position: "relative",
-              listStyle: "none",
-              paddingLeft: "7.5rem",
-              "> input[type=checkbox]": {
-                position: "absolute",
-                top: ".5rem",
-                left: "0",
-              },
-            },
-            "&:empty:before": {
-              content: "attr(placeholder)",
-              pointerEvents: "none",
-              opacity: "0.5",
-            },
-          }}
-        />
       </>
     );
   }

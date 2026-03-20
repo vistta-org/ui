@@ -108,88 +108,56 @@ class Input extends Component {
     this.#node?.focus();
   }
 
+  #style() {
+    if (!this.label) return {};
+    if (this.type === "checkbox" || this.type === "radio") return { paddingLeft: "2rem" };
+    if (this.variant === "basic")
+      return {
+        marginTop: "7rem",
+        "> label": {
+          position: "absolute",
+          left: "1rem",
+          top: "-7rem",
+        },
+      };
+    return {
+      marginTop: "2rem",
+      "> label": {
+        position: "absolute",
+        top: this.readonly ? "-3rem" : "1.5rem",
+        left: "1rem",
+        padding: "0 1rem",
+        fontSize: this.readonly && "3.5rem",
+        transition: "top $duration, font-size $duration",
+        backdropFilter: !this.readonly && "$blur",
+        z: 1,
+      },
+      "has(input:not(:placeholder-shown), input:focus, div)": !this.readonly && {
+        "> label": {
+          top: "-3rem",
+          fontSize: "3.5rem",
+        },
+      },
+    };
+  }
+
   render() {
     return (
       <fieldset
         tooltip={getTooltipLabel(this.tooltip)}
         onClick={(e) => this.#focus(e)}
         style={assignStyle(
-          { position: "relative" },
+          { position: "relative", cursor: TEXT_BASED.includes(this.type) && "text" },
           this.style,
-          {
-            marginTop:
-              this.type !== "checkbox" &&
-              this.type !== "radio" &&
-              this.label &&
-              (this.variant === "basic" ? "7rem" : "2rem"),
-            cursor: TEXT_BASED.includes(this.type) && "text",
-          },
+          this.#style(),
           this.icon ?? (this.type === "search" && "icon:e8b6"),
         )}
       >
-        {this.label ? (
-          <label
-            style={{
-              ...getStyle(this.variant, this.type === "checkbox" || this.type === "radio", this.readonly),
-              "> *": {
-                borderLeft: "none!",
-                margin: "0!",
-                padding: "0!",
-              },
-            }}
-            name={this.label}
-            for={this.id}
-          >
-            {this.#input()}
-          </label>
-        ) : (
-          this.#input()
-        )}
+        {this.label && <label>{this.label}</label>}
+        {this.#input()}
       </fieldset>
     );
   }
 }
 
 export default Input;
-
-function getStyle(variant, isCheckRadio, readonly) {
-  const base = {
-    content: "attr(name)",
-    display: "block",
-  };
-  if (isCheckRadio)
-    return {
-      after: {
-        ...base,
-        paddingLeft: "2rem",
-      },
-    };
-
-  base.position = "absolute";
-  if (variant === "basic")
-    return {
-      before: {
-        ...base,
-        left: "2rem",
-        top: "-7rem",
-      },
-    };
-
-  return {
-    before: {
-      ...base,
-      top: readonly ? "-3rem" : "1.5rem",
-      left: "1rem",
-      padding: "0 1rem",
-      fontSize: readonly && "3.5rem",
-      transition: "top $duration, font-size $duration",
-      backdropFilter: !readonly && "$blur",
-    },
-    "has(*:not(:placeholder-shown), *:focus)": !readonly && {
-      before: {
-        top: "-3rem",
-        fontSize: "3.5rem",
-      },
-    },
-  };
-}

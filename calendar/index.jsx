@@ -21,6 +21,7 @@ const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 
  * @property {(date: Date, enabled: boolean) => JSX.Element[]} [renderDay] Function to render the contents of each day
  * @property {(event: Event) => void} [onChange] Callback function when the displayed date changes
  * @property {(event: MouseEvent) => void} [onClick] Callback function when a click happens on the calendar
+ * @property {(event: MouseEvent) => void} [onDblClick] Callback function when a double click happens on the calendar
  */
 
 const today = new DateTime();
@@ -164,6 +165,7 @@ export default class Calendar extends Component {
             renderDay={this.renderDay}
             starting={this.starting}
             onClick={this.onClick}
+            onDblClick={this.onDblClick}
           />
           <View
             type={this.type}
@@ -183,13 +185,24 @@ class View extends Component {
   render() {
     const body = [];
     const weekStartIndex = WEEKDAY_TO_INDEX[this.starting] ?? 1;
-    if (this.type === "day") body.push(<Day type={this.type} date={this.date} renderDay={this.renderDay} />);
+    if (this.type === "day")
+      body.push(
+        <Day
+          type={this.type}
+          date={this.date}
+          renderDay={this.renderDay}
+          onClick={this.onClick}
+          onDblClick={this.onDblClick}
+        />,
+      );
     else if (this.type === "week") {
       const delta = weekStartIndex - this.date.weekday;
       for (let i = 0; i < 7; i++) {
         const day = this.date.clone();
         day.day += delta + i;
-        body.push(<Day type={this.type} date={day} renderDay={this.renderDay} />);
+        body.push(
+          <Day type={this.type} date={day} renderDay={this.renderDay} onClick={this.onClick} onDblClick={this.onDblClick} />,
+        );
       }
     } else {
       const lastDayFromPreviousMonth = new DateTime([this.date.year, this.date.month, 0]).day;
@@ -204,7 +217,13 @@ class View extends Component {
         );
       for (let i = 1; i <= new DateTime([this.date.year, this.date.month + 1, 0]).day; i++)
         body.push(
-          <Day type={this.type} date={new DateTime([this.date.year, this.date.month, i])} renderDay={this.renderDay} />,
+          <Day
+            type={this.type}
+            date={new DateTime([this.date.year, this.date.month, i])}
+            renderDay={this.renderDay}
+            onClick={this.onClick}
+            onDblClick={this.onDblClick}
+          />,
         );
       for (let i = 1, len = 42 - body.length; i <= len; i++)
         body.push(
@@ -217,10 +236,7 @@ class View extends Component {
         );
     }
     return (
-      <div
-        style="relative; col:full; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center; user-select: none"
-        onClick={this.onClick}
-      >
+      <div style="relative; col:full; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center; user-select: none">
         {body}
       </div>
     );
@@ -231,6 +247,11 @@ class Day extends Component {
   render() {
     return (
       <div
+        ref={(element) =>
+          Object.defineProperty(element, "value", {
+            get: () => this.date.toISOString(),
+          })
+        }
         style={{
           position: "relative",
           flex: "none",
@@ -269,7 +290,8 @@ class Day extends Component {
               : {}),
           },
         }}
-        onClick={(e) => (e.date = this.date.toISOString())}
+        onClick={this.onClick}
+        onDblClick={this.onDblClick}
       >
         {this.renderDay?.(this.date, !this.disabled)}
       </div>
