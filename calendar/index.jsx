@@ -275,14 +275,15 @@ class Day extends Component {
             }"`,
             position: "absolute",
             top: "0",
-            left: "calc(50% - 2.5rem)",
+            left: this.type !== "day" ? "calc(50% - 2.5rem)" : "0",
             height: "5rem",
-            width: "5rem",
+            width: this.type !== "day" ? "5rem" : "100%",
             padding: "0.4rem",
             radius: "rounded",
             text: "center",
-            font: "small",
-            ...(isToday(this.date)
+            font: this.type !== "day" && "small",
+            lineHeight: "130%",
+            ...(this.type !== "day" && isToday(this.date)
               ? {
                   background: "$fore-color",
                   color: "$back-color",
