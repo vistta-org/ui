@@ -14,6 +14,7 @@ import Select from "./select";
  * @property {string} [label]
  * @property {string} [name]
  * @property {string} [placeholder]
+ * @property {boolean} [hidden]
  * @property {boolean} [required]
  * @property {boolean} [multiple]
  * @property {any} [value]
@@ -152,6 +153,7 @@ class Input extends Component {
           this.#style(),
           this.icon ?? (this.type === "search" && "icon:e8b6"),
         )}
+        hidden={this.hidden}
       >
         {this.label && <label>{this.label}</label>}
         {this.#input()}
