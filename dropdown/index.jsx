@@ -12,6 +12,7 @@ import { assignStyle, getTooltipLabel } from "../utils";
  *  items: DropdownItem[],
  *  height?: number | string,
  *  width?: number | string,
+ *  position?: "top" | "bottom" | "left" | "right",
  *  trigger?: "click" | "hover",
  *  close?: "auto" | ((e: MouseEvent) => boolean),
  *  onOpen?: () => void,
@@ -91,7 +92,7 @@ class Dropdown extends Component {
               : this.close === "auto" && this.#setVisible(false)
           }
           style={{
-            inset: `${this.button("bottom", "2rem")} calc(${this.button("left")} - ${this.button("width")}) auto auto`,
+            inset: getPositionStyle(this.position, this.button),
             container: "default",
             gap: "1rem",
             padding: "1rem",
@@ -122,3 +123,16 @@ class Dropdown extends Component {
 }
 
 export default Dropdown;
+
+function getPositionStyle(position, anchor) {
+  switch (position) {
+    case "top":
+      return `auto calc(${anchor("left")} - ${anchor("width")}) ${anchor("top", "2rem")} auto`;
+    case "left":
+      return `${anchor("y")} auto auto ${anchor("left", "2rem")}`;
+    case "right":
+      return `${anchor("y")} auto auto ${anchor("right", "2rem")}`;
+    default:
+      return `${anchor("bottom", "2rem")} calc(${anchor("left")} - ${anchor("width")}) auto auto`;
+  }
+}
