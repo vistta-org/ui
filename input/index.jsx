@@ -133,7 +133,7 @@ class Input extends Component {
         backdropFilter: !this.readonly && "$blur",
         z: 1,
       },
-      "has(input:not(:placeholder-shown), input:focus, div)": !this.readonly && {
+      "has(input:not(:placeholder-shown), input:focus, div, select)": !this.readonly && {
         "> label": {
           top: "-3rem",
           fontSize: "3.5rem",
