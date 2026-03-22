@@ -95,7 +95,7 @@ export class CustomGlobalDialogs extends Component {
       new Promise((resolve) => {
         if (typeof prompt === "string") prompt = { message: prompt, fields };
         if (!prompt.fields)
-          prompt.fields = [{ name: "default", type: "text", label: prompt.label, value: prompt.value || "" }];
+          prompt.fields = [{ name: "default", type: "text", label: prompt.label || "", value: prompt.value || "" }];
         this.prompt = {
           ...prompt,
           callback: (values) => {
