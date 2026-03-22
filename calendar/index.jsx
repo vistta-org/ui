@@ -289,6 +289,7 @@ class Day extends Component {
                   color: "$back-color",
                 }
               : {}),
+            opacity: this.disabled ? 0.5 : 1,
           },
         }}
         onClick={this.onClick}
