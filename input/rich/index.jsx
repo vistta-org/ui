@@ -555,6 +555,9 @@ class Rich extends Component {
           contentEditable={this.disabled || this.readonly ? "false" : "true"}
           style={{
             col: "full",
+            alignSelf: "flex-start",
+            maxHeight: this.formatting && !this.disabled && !this.readonly ? "calc(100% - 8rem)" : "100%",
+            overflow: "auto",
             p: "1rem!",
             marginTop: this.formatting && !this.disabled && !this.readonly && "8rem!",
             listStylePosition: "inside",
