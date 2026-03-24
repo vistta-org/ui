@@ -44,7 +44,7 @@ class Table extends Component {
           {this.data.map((row) => (
             <tr>
               {this.columns.map((column) => (
-                <td>{columnToString(column.type, row[column.key])}</td>
+                <td>{columnToString(column.type, row[column.key], row)}</td>
               ))}
             </tr>
           ))}
@@ -56,8 +56,8 @@ class Table extends Component {
 
 export default Table;
 
-function columnToString(type, value) {
-  if (typeof type === "function") return type(value);
+function columnToString(type, value, row) {
+  if (typeof type === "function") return type(value, row);
   switch (type) {
     case "date":
       return new Date(value).toLocaleDateString();
