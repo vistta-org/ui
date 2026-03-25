@@ -66,10 +66,10 @@ class Menu extends Component {
             padding: "0.5rem",
             gap: "0.5rem",
             radius: "rounded",
-            background: "color-mix(in srgb, var(--back-color), var(--fore-color) 10%)",
+            background: "overlay",
             overflow: "clip",
             button: {
-              background: "color-mix(in srgb, var(--back-color), var(--fore-color) 10%)",
+              background: "overlay",
             },
             "& > *": {
               col: this.type === "horizontal" ? "auto" : "full",

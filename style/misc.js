@@ -37,7 +37,7 @@ export default (_, result) => {
       inset: "0",
       margin: "auto",
       padding: "2rem",
-      background: "color-mix(in srgb, $back-color, color-mix(in srgb, $fore-color 50%, transparent) 20%)",
+      background: "$overlay-color",
       "backdrop-filter": "$blur",
       border: "none",
       "border-radius": "$radius",

@@ -4,7 +4,7 @@ export default (config, result) => {
   const colors = Object.assign(
     {
       dark: "#181818",
-      light: "#f5f5f5",
+      light: "#e0e0e0",
       primary: "#c68346",
       secondary: "#3d3d3d",
       info: "#23abb6",
@@ -21,6 +21,7 @@ export default (config, result) => {
   };
   result.properties.background = {
     default: "background: $back-color",
+    overlay: "background: $overlay-color; backdrop-filter: $blur",
     "*": "background: ${}",
   };
   if (!colors.dark && !colors.light)

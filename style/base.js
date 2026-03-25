@@ -5,6 +5,7 @@ export default (config, result) =>
       "color-scheme": "light dark",
       "$fore-color": `light-dark($dark-color, $light-color)`,
       "$back-color": `light-dark($light-color, $dark-color)`,
+      "$overlay-color": `color-mix(in srgb, $back-color, color-mix(in srgb, $fore-color 50%, transparent) 20%)`,
       "$scroll-color": config.scroll?.color || "color-mix(in srgb, $back-color, $fore-color, 10%)",
       "$scroll-background": config.scroll?.background || "$back-color",
       "$scroll-size": config.scroll?.size || "3rem",
