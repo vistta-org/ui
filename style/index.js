@@ -37,8 +37,9 @@ import utilities from "./utilities.js";
  */
 export default (config = {}) => {
   const result = {
-    vars: { size: config.size || "4px" },
     properties: {},
+    functions: {},
+    vars: { size: config.size || "4px" },
     fonts: {},
     animations: {},
     queries: {

@@ -3,8 +3,8 @@ import { contrastColor, formatColor, mixColors } from "@vistta/utils";
 export default (config, result) => {
   const colors = Object.assign(
     {
-      dark: "#181818",
-      light: "#e0e0e0",
+      dark: "#232323",
+      light: "#ebebeb",
       primary: "#c68346",
       secondary: "#3d3d3d",
       info: "#23abb6",
@@ -14,29 +14,34 @@ export default (config, result) => {
     },
     config.colors || {},
   );
+  result.root.$foreColor = `light-dark($dark-color, $light-color)`;
+  result.root.$backColor = `light-dark($light-color, $dark-color)`;
 
   result.properties.color = {
-    default: "color: $fore-color",
-    "*": "color: ${}",
+    default: { color: "$fore-color" },
+    "*": { color: "${}" },
   };
   result.properties.background = {
-    default: "background: $back-color",
-    overlay: "background: $overlay-color; backdrop-filter: $blur",
-    "*": "background: ${}",
+    default: { background: "$back-color" },
+    "*": { background: "${}" },
   };
+  result.functions.tint = "color-mix(in srgb, ${1}, white ${2:10%})";
+  result.functions.shade = "color-mix(in srgb, ${1}, black ${2:10%})";
+  result.functions.transparent = "color-mix(in srgb, ${1}, transparent ${2:10%})";
+
   if (!colors.dark && !colors.light)
     throw new Error('You must provide at least a "dark" or "light" color scheme in the colors config.');
   colors.neutral = mixColors(colors.dark, colors.light);
   const colorNames = Object.keys(colors || {});
   for (let i = 0, len = colorNames.length; i < len; i++) {
-    const color = colorNames[i];
-    result.vars[`${color}-color`] = colors[color].startsWith("#") ? colors[color] : formatColor(colors[color], "hex");
-    result.properties.color[color] = "color: $" + color + "-color";
-    result.properties.background[color] = "background: $" + color + "-color";
-    if (color === "light" || color === "dark" || color === "neutral") continue;
-    result.vars[`${color}-contrast-color`] = contrastColor(colors[color]);
-    result.properties.color[color + "-contrast"] = "color: $" + color + "-contrast-color";
-    result.properties.background[color + "-contrast"] = "background: $" + color + "-contrast-color";
+    const value = colorNames[i];
+    result.vars[`${value}-color`] = colors[value].startsWith("#") ? colors[value] : formatColor(colors[value], "hex");
+    result.properties.color[value] = { color: `$${value}-color` };
+    result.properties.background[value] = { background: `$${value}-color` };
+    if (value === "light" || value === "dark" || value === "neutral") continue;
+    result.vars[`${value}-contrast-color`] = contrastColor(colors[value]);
+    result.properties.color[value + "-contrast"] = { color: `$${value}-contrast-color` };
+    result.properties.background[value + "-contrast"] = { background: `$${value}-contrast-color` };
   }
   return result;
 };

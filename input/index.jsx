@@ -1,31 +1,42 @@
-import { Component, Ref } from "@vistta/js";
-import { assignStyle, getTooltipLabel } from "../utils";
+import { Anchor, Component, Ref } from "@vistta/js";
+import { Style, getTooltipLabel } from "../utils";
 import Rich from "./rich";
 import Select from "./select";
 
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
- * @typedef {object} InputProps
- * @property {string} [id]
- * @property {Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void)} [ref]
- * @property {"button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week" | "textarea" | "rich" | "richtext" | "select"} [type]
- * @property {"default" | "basic"} [variant]
- * @property {string} [icon]
- * @property {string} [label]
- * @property {string} [name]
- * @property {string} [placeholder]
- * @property {boolean} [hidden]
- * @property {boolean} [required]
- * @property {boolean} [multiple]
- * @property {any} [value]
- * @property {Array<{ label: string; value: any } | string>} [options]
- * @property {Tooltip} [tooltip]
- * @property {any} [toolbar]
- * @property {JSX.Style} [style]
- * @property {boolean} [disabled]
- * @property {boolean} [readonly]
- * @property {(event?: any) => any} [onChange]
- * @property {(event?: InputEvent) => any} [onInput]
+ * @typedef {import("./select").SelectProps} SelectProps
+ * @typedef {import("./rich").RichProps} RichProps
+ *
+ * @typedef {{
+ *  variant?: "default" | "basic",
+ *  icon?: string,
+ *  label?: string,
+ *  hidden?: boolean,
+ *  tooltip?: Tooltip,
+ *  style?: JSX.Style,
+ * }} FieldsetProps
+ *
+ * @typedef {"button" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week"} BaseInputs
+ *
+ * @typedef {{
+ *  id?: string,
+ *  ref?: Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void),
+ *  name?: string,
+ *  placeholder?: string,
+ *  required?: boolean,
+ *  value?: any,
+ *  disabled?: boolean,
+ *  readonly?: boolean,
+ *  onChange?: (event?: any) => any,
+ *  onInput?: (event?: any) => any,
+ * }} BaseInputProps
+ *
+ * @typedef {BaseInputProps & FieldsetProps & { type?: BaseInputs | "textarea" }} StandardInputProps
+ * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio", variant?: "default" | "inverted" }} CheckInputProps
+ * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
+ * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
+ * @typedef {StandardInputProps | CheckInputProps | SelectInputProps | RichInputProps} InputProps
  */
 
 const TEXT_BASED = ["text", "password", "email", "url", "tel", "search", "textarea", "rich", "richtext"];
@@ -35,6 +46,7 @@ const TEXT_BASED = ["text", "password", "email", "url", "tel", "search", "textar
  */
 class Input extends Component {
   #node;
+  anchor = new Anchor();
 
   #input() {
     if (this.type === "textarea")
@@ -59,10 +71,11 @@ class Input extends Component {
           ref={Ref.forward(this.ref, (el) => (this.#node = el))}
           id={this.id}
           name={this.name}
-          label={this.label}
           placeholder={this.placeholder}
           value={this.value}
-          toolbar={this.toolbar}
+          // @ts-ignore - narrowed by type check above
+          format={this.format}
+          required={this.required}
           disabled={this.disabled}
           readonly={this.readonly}
           onChange={this.onChange}
@@ -73,11 +86,17 @@ class Input extends Component {
       return (
         <Select
           ref={Ref.forward(this.ref, (el) => (this.#node = el))}
+          // @ts-ignore - narrowed by type check above
+          anchor={this.anchor}
           id={this.id}
           name={this.name}
-          label={this.label}
+          placeholder={this.placeholder}
+          // @ts-ignore - narrowed by type check above
           options={this.options}
+          // @ts-ignore - narrowed by type check above
           multiple={this.multiple}
+          // @ts-ignore - narrowed by type check above
+          filterable={this.filterable}
           value={this.value}
           required={this.required}
           disabled={this.disabled}
@@ -105,13 +124,46 @@ class Input extends Component {
   }
 
   #focus(event) {
-    if (event.target === this.#node || !TEXT_BASED.includes(this.type)) return;
-    this.#node?.focus();
+    if (event.target === this.#node) return;
+    if (TEXT_BASED.includes(this.type)) this.#node?.focus();
+    if (this.type === "select" || this.type === "checkbox" || this.type === "radio") this.#node?.click();
   }
 
-  #style() {
+  get #iconStyle() {
+    if (this.icon !== "") {
+      const style = {
+        ":before": {
+          color: "$placeholder-color",
+          width: "6rem",
+          height: "6rem",
+          margin: "0 0 0 2rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "color $duration",
+        },
+      };
+      if (this.type === "search") style.icon = this.icon || "e8b6";
+      else if (this.type === "select") {
+        style[":before"] = {
+          ...style[":before"],
+          color: "$fore-color",
+          margin: "0 2rem 0 0",
+          order: 99,
+        };
+        style.icon = this.icon || "e5c5";
+      } else style.icon = this.icon;
+      return style;
+    }
+    return {};
+  }
+
+  get #labelStyle() {
     if (!this.label) return {};
-    if (this.type === "checkbox" || this.type === "radio") return { paddingLeft: "2rem" };
+    if (this.type === "checkbox" || this.type === "radio")
+      return {
+        "> label": { width: "auto", background: "transparent", userSelect: "none" },
+      };
     if (this.variant === "basic")
       return {
         marginTop: "7rem",
@@ -125,33 +177,82 @@ class Input extends Component {
       marginTop: "2rem",
       "> label": {
         position: "absolute",
-        top: this.readonly ? "-3rem" : "1.5rem",
+        top: this.readonly ? "-3rem" : "2rem",
         left: "1rem",
+        width: "auto",
         padding: "0 1rem",
         fontSize: this.readonly && "3.5rem",
         transition: "top $duration, font-size $duration",
+        background: "transparent",
         backdropFilter: !this.readonly && "$blur",
+        pointerEvents: "none",
         z: 1,
       },
-      "has(input:not(:placeholder-shown), input:focus, div, select)": !this.readonly && {
-        "> label": {
-          top: "-3rem",
-          fontSize: "3.5rem",
+      ":has(input:not(:placeholder-shown), input:focus, [role=input]:not(:empty), [role=input]:focus, [role=select][aria-selected], [role=select][aria-expanded])":
+        !this.readonly && {
+          "> label": {
+            top: "-3rem",
+            fontSize: "3.5rem",
+          },
         },
-      },
     };
   }
 
   render() {
     return (
       <fieldset
+        ref={this.anchor}
         tooltip={getTooltipLabel(this.tooltip)}
         onClick={(e) => this.#focus(e)}
-        style={assignStyle(
-          { position: "relative", cursor: TEXT_BASED.includes(this.type) && "text" },
+        style={Style.assign(
+          {
+            position: "relative",
+            background: this.readonly ? "none" : "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
+            container: "default",
+            alignItems: this.type !== "rich" && this.type !== "richtext" && "center",
+            gap: "0",
+            border: this.readonly ? "none" : "default",
+            radius: "rounded",
+            cursor: TEXT_BASED.includes(this.type) && "text",
+            ...(this.type === "radio" || this.type === "checkbox"
+              ? {
+                  background: "none",
+                  border: "none",
+                  padding: "0",
+                }
+              : {}),
+            $placeholderColor: "transparent",
+            ...this.#iconStyle,
+            ":has(input:focus, [role=input]:focus, [role=select][aria-expanded])": {
+              $placeholderColor: "shade($neutral-color, 35%)",
+            },
+            ":has([role=select])": {
+              cursor: "pointer",
+            },
+            "> input, > [role=input], > [role=select]": {
+              col: "default",
+              border: "none",
+              background: "inherit",
+              color: "inherit",
+              ...(this.type === "radio" || this.type === "checkbox"
+                ? {
+                    col: "auto",
+                    [this.variant !== "inverted" ? "margin-left" : "margin-right"]: "1rem",
+                    order: this.variant === "inverted" && "-1",
+                    scale: "1.5",
+                  }
+                : {}),
+            },
+            "input:placeholder, [role=input]:before": {
+              color: "$placeholder-color",
+              transition: "color $duration",
+            },
+          },
           this.style,
-          this.#style(),
-          this.icon ?? (this.type === "search" && "icon:e8b6"),
+          this.#labelStyle,
+          this.readonly && {
+            pointerEvents: "none",
+          },
         )}
         hidden={this.hidden}
       >

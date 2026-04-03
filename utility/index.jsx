@@ -2,7 +2,7 @@ import { Component, Form } from "@vistta/js";
 import Input from "../input/index.jsx";
 import Modal from "../modal/index.jsx";
 import Toast from "../toast/index.jsx";
-import { assignStyle } from "../utils";
+import { Style } from "../utils";
 
 const VARIANTS = ["success", "error", "info", "warning"];
 
@@ -56,11 +56,18 @@ const VARIANTS = ["success", "error", "info", "warning"];
  * @typedef {(prompt: string | PromptDialogOptions, fields?: PromptDialogField[]) => Promise<any>} PromptDialog
  */
 
+/**
+ * @typedef {import("../toast/index.jsx").ToastProps["position"]} AlertPosition
+ */
+
+/**
+ * @extends {Component<{ alertPosition: AlertPosition }>}
+ */
 export class CustomGlobalDialogs extends Component {
   alerts = [];
   confirm;
   prompt;
-  alertPositioning = "top";
+  alertPosition = /** @type {AlertPosition} */ ("top");
 
   async onConnect() {
     const appWindow = /** @type {any} */ (window);
@@ -115,12 +122,12 @@ export class CustomGlobalDialogs extends Component {
         {this.alerts.map((alert, index) => (
           <Toast
             key={alert.key}
-            position={this.alertPositioning}
+            position={this.alertPosition}
             variant={alert.type}
             message={alert.message}
             onDismiss={alert.close}
             style={
-              this.alertPositioning === "top"
+              this.alertPosition === "top"
                 ? `translate:-50% calc((${index + 1} * 4rem) + (${index} * 100%))`
                 : `translate:-50% calc(${index + 1} * (-100% - 4rem))`
             }
@@ -130,7 +137,7 @@ export class CustomGlobalDialogs extends Component {
           <Modal
             title={this.confirm.title}
             actions={[
-              { raw: true, label: "Cancel", onClick: () => this.confirm.callback(false) },
+              { variant: "raw", label: "Cancel", onClick: () => this.confirm.callback(false) },
               { label: this.confirm.submit || "OK", onClick: () => this.confirm.callback(true) },
             ]}
             open
@@ -142,7 +149,7 @@ export class CustomGlobalDialogs extends Component {
           <Modal
             title={this.prompt.title}
             actions={[
-              { raw: true, label: "Cancel", onClick: () => this.prompt.callback(null) },
+              { variant: "raw", label: "Cancel", onClick: () => this.prompt.callback(null) },
               {
                 label: this.prompt.submit || "Ok",
                 onClick: () => this.prompt.callback(this.prompt.form.values()),
@@ -153,7 +160,7 @@ export class CustomGlobalDialogs extends Component {
             {this.prompt.message && <div style="col:full; p:0 2rem">{this.prompt.message}</div>}
             <Form ref={(ref) => (this.prompt.form = ref)} style="display:contents">
               {this.prompt.fields.map((input) => (
-                <Input {...input} style={assignStyle({ col: "full" }, input.style)} />
+                <Input {...input} style={Style.assign({ col: "full" }, input.style)} />
               ))}
             </Form>
           </Modal>

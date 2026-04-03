@@ -76,7 +76,7 @@ export default (config, result) => {
 
   /* Border */
   result.vars["border-size"] = config.border?.size ?? "1px";
-  result.vars["border-color"] = config.border?.color ?? "rgba(125, 125, 125, 0.4)";
+  result.root["$border-color"] = config.border?.color ?? "light-dark(rgba(0, 0, 0, 0.075), rgba(255, 255, 255, 0.05))";
   result.properties["border"] = {
     default: "border: $border-size solid $border-color",
     x: "border-left: $border-size solid $border-color; border-right: $border-size solid $border-color",
@@ -97,20 +97,26 @@ export default (config, result) => {
 
   /* Border Radius */
   result.vars.radius = config.radius ?? "8px";
+  const radius = (value) => ({
+    "border-radius": value,
+    "> *": {
+      $currentRadius: value,
+    },
+  });
   result.properties["rounded"] = {
-    default: "border-radius: $radius",
+    default: radius("$radius"),
   };
   result.properties["edged"] = {
-    default: "border-radius: 0",
+    default: radius("0"),
   };
   result.properties["circular"] = {
-    default: "border-radius: 50%",
+    default: radius("50%"),
   };
   result.properties["radius"] = {
-    edged: "border-radius: 0",
-    rounded: "border-radius: $radius",
-    circular: "border-radius: 50%",
-    "*": "border-radius: ${}",
+    edged: radius("0"),
+    rounded: radius("$radius"),
+    circular: radius("50%"),
+    "*": radius("${}"),
   };
 
   /* Visibility */
@@ -133,7 +139,7 @@ export default (config, result) => {
     margin: "4rem 0",
     display: "block",
 
-    after: {
+    ":after": {
       position: "absolute",
       content: "attr(label)",
       "max-width": "90%",
@@ -156,7 +162,7 @@ export default (config, result) => {
       height: "100%",
       width: "$border-size",
       margin: "0 4rem",
-      after: { ...divider.after, top: "50%", "max-height": "90%", "max-width": "unset", padding: "2rem 0" },
+      ":after": { ...divider[":after"], top: "50%", "max-height": "90%", "max-width": "unset", padding: "2rem 0" },
     },
   };
 
@@ -203,12 +209,12 @@ export default (config, result) => {
   result.fonts[iconFontFamily ?? "Material Symbols"] = options;
   result.animations["loading"] = { from: { rotate: "0deg" }, to: { rotate: "360deg" } };
   result.properties["icon"] = {
-    outlined: "before:(font-variation-settings:'FILL' 0!)",
-    right: "before:(float:right)",
+    outlined: ":before:(font-variation-settings:'FILL' 0!)",
+    right: ":before:(float:right)",
     loading:
-      "before:(content: ''; display:inline-block; float: left; animation: loading 1s linear infinite; height:$icon-size; width:$icon-size; border-radius:50%; border:.5rem solid currentColor; border-top-color:transparent; border-right-color:transparent)",
+      ":before:(content: ''; display:inline-block; float: left; animation: loading 1s linear infinite; height:$icon-size; width:$icon-size; border-radius:50%; border:.5rem solid currentColor; border-top-color:transparent; border-right-color:transparent)",
     "*":
-      "before:(font-family:$icon-font; content:'\\${}'; float:left; font-size:$icon-size; font-variation-settings:'FILL' 1; font-weight:normal; font-style: normal; " +
+      ":before:(font-family:$icon-font; content:'\\${}'; float:left; font-size:$icon-size; font-variation-settings:'FILL' 1; font-weight:normal; font-style: normal; " +
       "line-height: 100%; text-transform:none; letter-spacing:normal; word-wrap:normal; white-space:nowrap; direction:ltr; -webkit-font-soothing:antialiased; " +
       "text-rendering:optimizeLegibility; -moz-osx-font-soothing:grayscale; font-feature-settings:'liga')",
   };
@@ -326,7 +332,7 @@ export default (config, result) => {
   /* Tooltip */
   result["[tooltip]:not([disabled])"] = {
     position: "relative",
-    after: {
+    ":after": {
       position: "absolute",
       with: "max-content",
       "max-width": "50vw",
@@ -339,8 +345,8 @@ export default (config, result) => {
       background: "$overlay-color",
       "backdrop-filter": "$blur",
       "border-radius": "$radius",
-      translate: "-50% -50%",
       "box-shadow": "$shadow",
+      translate: "-50% -50%",
       opacity: "0",
       overflow: "clip",
       "z-index": "20",
@@ -349,9 +355,9 @@ export default (config, result) => {
       transition: "opacity $duration, inset $duration, translate $duration",
     },
 
-    "@media(hover: hover)": {
-      hover: {
-        after: {
+    ":media(hover: hover)": {
+      ":hover": {
+        ":after": {
           opacity: "1",
           inset: "var(--tooltip-position, 0 auto auto 50%)",
           translate: "var(--tooltip-translate, -50% calc(-100% - 2rem))",

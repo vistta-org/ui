@@ -1,5 +1,5 @@
 import { Component, Ref } from "@vistta/js";
-import { assignStyle } from "../utils";
+import { Style } from "../utils";
 
 /**
  * @typedef {object} AccordionProps
@@ -31,7 +31,7 @@ import { assignStyle } from "../utils";
  */
 class Accordion extends Component {
   /**
-   * @extends {Component<AccordionProps>}
+   * @extends {Component<AccordionGroupProps>}
    */
   static Group = class AccordionGroup extends Component {
     items = [];
@@ -44,7 +44,7 @@ class Accordion extends Component {
         <div
           ref={this.ref}
           id={this.id}
-          style={assignStyle(
+          style={Style.assign(
             {
               container: "default",
             },
@@ -79,13 +79,14 @@ class Accordion extends Component {
       <div
         ref={this.ref}
         id={this.id}
-        style={assignStyle(
+        style={Style.assign(
           {
             container: "default",
             gap: 0,
             border: "default",
             radius: "rounded",
             overflow: "clip",
+            background: "$back-color",
           },
           this.style,
         )}
@@ -93,11 +94,10 @@ class Accordion extends Component {
         <div
           style={{
             col: "full",
-            background: "$border-color",
             cursor: "pointer",
             p: "2rem",
             icon: this.icon !== false && (typeof this.icon === "string" ? this.icon : "e313"),
-            before: {
+            ":before": {
               float: this.iconPosition === "right" ? "right" : "left",
               rotate: this.open ? "0" : "-90deg",
               transition: "rotate $duration",
@@ -116,8 +116,9 @@ class Accordion extends Component {
             container: "default",
             p: "2rem",
             display: this.open ? "block" : "none",
+            height: this.open ? "auto" : 0,
             transition: "display $duration allow-discrete, height $duration",
-            startingStyle: {
+            ":initial": {
               height: 0,
             },
           }}

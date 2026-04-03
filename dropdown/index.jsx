@@ -1,7 +1,7 @@
 import { Anchor, Component, Ref } from "@vistta/js";
 import { Button, iconToStyle, variantToStyle } from "../button";
 import Popover from "../popover";
-import { assignStyle, getTooltipLabel } from "../utils";
+import { Style, getTooltipLabel } from "../utils";
 
 /**
  * @typedef {Omit<import("../button").ButtonProps, "type">} ButtonProps
@@ -15,6 +15,7 @@ import { assignStyle, getTooltipLabel } from "../utils";
  *  position?: "top" | "bottom" | "left" | "right",
  *  trigger?: "click" | "hover",
  *  close?: "auto" | ((e: MouseEvent) => boolean),
+ *  buttonVariant?: ButtonProps["variant"],
  *  onOpen?: () => void,
  *  onClose?: () => void,
  * }} DropdownProps
@@ -28,8 +29,6 @@ class Dropdown extends Component {
   trigger = "click";
   /** @type {"auto" | ((e: MouseEvent) => boolean)} */
   close = "auto";
-  width = "fit-content";
-  height = "fit-content";
   visible = false;
   button = new Anchor();
   #timeout;
@@ -50,12 +49,12 @@ class Dropdown extends Component {
         name={this.label || this.name}
         tooltip={getTooltipLabel(this.tooltip)}
         type={/** @type {any} */ ("button")}
-        style={assignStyle(
+        style={Style.assign(
           {
             p: this.action && "2rem!",
             tooltip: typeof this.tooltip === "object" ? this.tooltip?.position : undefined,
           },
-          variantToStyle(this.variant, this.raw),
+          variantToStyle(this.buttonVariant ?? this.variant),
           iconToStyle(this.loading ? "loading" : this.icon, this.action),
           this.style,
         )}
@@ -98,7 +97,9 @@ class Dropdown extends Component {
             padding: "1rem",
             "> *": { col: "full", text: "left" },
             height: this.height,
-            width: this.width,
+            width: this.width || `fit-content`,
+            minWidth: !this.width && this.button.width,
+            background: this.variant !== "raw" && "inherit",
           }}
         >
           {this.items?.reduce((acc, props) => {
@@ -114,7 +115,7 @@ class Dropdown extends Component {
                   {...props}
                 />,
               ];
-            return [...acc, <Button variant={this.variant} raw={this.raw} {...props} />];
+            return [...acc, <Button variant={this.variant} {...props} />];
           }, [])}
         </Popover>
       </button>

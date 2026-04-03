@@ -3,9 +3,6 @@ export default (config, result) =>
     root: {
       "interpolate-size": "allow-keywords",
       "color-scheme": "light dark",
-      "$fore-color": `light-dark($dark-color, $light-color)`,
-      "$back-color": `light-dark($light-color, $dark-color)`,
-      "$overlay-color": `color-mix(in srgb, $back-color, color-mix(in srgb, $fore-color 50%, transparent) 20%)`,
       "$scroll-color": config.scroll?.color || "color-mix(in srgb, $back-color, $fore-color, 10%)",
       "$scroll-background": config.scroll?.background || "$back-color",
       "$scroll-size": config.scroll?.size || "3rem",
@@ -23,7 +20,7 @@ export default (config, result) =>
       inset: "0",
       "overflow-y": "auto",
       "overflow-x": "clip",
-      background: "$back-color",
+      background: "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
       "scrollbar-color": "$scroll-color $scroll-background",
       "scrollbar-width": "thin",
     },

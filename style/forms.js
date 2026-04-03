@@ -2,8 +2,9 @@ export default (_, result) =>
   Object.assign(result, {
     "input, textarea, [role='input']": {
       padding: "2rem",
-      color: "$fore-color",
-      background: "$back-color",
+      height: "10rem",
+      color: "default",
+      background: "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
       border: "$border-size solid $border-color",
       "border-radius": "$radius",
       "accent-color": "$primary-color",
@@ -14,11 +15,11 @@ export default (_, result) =>
       },
 
       "&:not(:disabled,[type='file'],[type='color'],[type='submit'],[type='range'],[type='radio'],[type='checkbox']):is(:read-only,[readonly])":
-      {
-        background: "transparent!",
-        "border-color": "transparent!",
-        "border-radius": "0!",
-      },
+        {
+          background: "transparent!",
+          "border-color": "transparent!",
+          "border-radius": "0!",
+        },
 
       "&:focus": {
         outline: "none",
@@ -34,23 +35,28 @@ export default (_, result) =>
       padding: "2rem 4rem",
       "line-height": "1.4",
       cursor: "pointer",
+      background: "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
 
       "&, &::picker(select)": {
         appearance: "base-select",
         "accent-color": "$primary-color",
-        color: "$fore-color",
-        background: "$back-color",
+        color: "default",
         border: "$border-size solid $border-color",
         "border-radius": "$radius",
         "list-style": "none",
         outline: "none",
       },
 
+      "&::picker(select)": {
+        translate: "-2rem 2rem",
+        background: "default",
+      },
+
       option: {
         padding: "2rem 6rem 2rem 2rem",
         "accent-color": "$primary-color",
-        color: "$fore-color",
-        background: "$back-color",
+        color: "default",
+        background: "default",
         "list-style": "none",
 
         "&:checked, &:hover, &:focus": {
@@ -106,6 +112,7 @@ export default (_, result) =>
       },
 
       "&[type='color']": {
+        minWidth: "9rem",
         appearance: "none",
         cursor: "pointer",
         "&::-webkit-color-swatch, &::-moz-color-swatch": {
@@ -130,7 +137,7 @@ export default (_, result) =>
         width: "100%",
         padding: "0",
         height: "2rem",
-        background: "$back-color",
+        background: "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
         border: "$border-size solid $border-color",
         cursor: "pointer",
 
@@ -150,6 +157,7 @@ export default (_, result) =>
         height: "$font-size-large",
         width: "$font-size-large",
         padding: "0",
+        cursor: "pointer",
       },
 
       "&[type='number']::-webkit-inner-spin-button, &[type='number']::-webkit-outer-spin-button": {
@@ -173,58 +181,18 @@ export default (_, result) =>
 
     textarea: {
       resize: "none",
+      minHeight: "10rem",
+      height: "auto",
       "field-sizing": "content",
     },
 
     fieldset: {
       position: "relative",
-      color: "$fore-color",
-      "border-radius": "$radius",
-      "accent-color": "$primary-color",
-      display: "flex",
-      "align-items": "center",
-
-      "&:not(:has([type='checkbox'], [type='radio'], [readonly])), &:has([type='checkbox'], [type='radio']):has([contenteditable])": {
-        background: "$back-color",
-        border: "$border-size solid $border-color",
-      },
-
-      "&:has([type='checkbox'], [type='radio']):not(:has([contenteditable])), &:has([readonly])": {
-        border: "none",
-      },
-
-      "&:not(:has([type='color']))": {
-        padding: "2rem",
-      },
-
-      "&:has([type='color'])": {
-        padding: "0 2rem",
-      },
-
-      "&:has(input:disabled, textarea:disabled, [role='input']:disabled, select:disabled, [role='select']:disabled)": {
-        filter: "brightness(0.5) contrast(0.5)",
-      },
-
-      "input:not([type='checkbox'], [type='radio'], [type='color']), textarea, select, [role='input'], [role='select']": {
-        background: "transparent",
-        border: "none!",
-        "border-radius": "0",
-        padding: "0",
-        flex: "1",
-      },
-
-      "input[type='color']": {
-        border: "none",
-        "border-radius": "$radius",
-        flex: "1",
-      },
-
-      "&:focus": {
-        outline: "none",
-      },
-
-      "label:first-child:last-child": {
-        width: "100%",
+      container: "default",
+      width: "fit-content",
+      border: "none",
+      "> *": {
+        col: "full",
       },
     },
 
@@ -235,23 +203,5 @@ export default (_, result) =>
       "max-width": "100%",
       padding: "0",
       "white-space": "normal",
-    },
-
-    "label:has(input, textarea, select, [role='input'], [role='select'])": {
-      display: "flex",
-      "align-items": "center",
-      padding: "0",
-
-      "input:not([type='checkbox'], [type='radio'], [type='color']), textarea, select, [role='input'], [role='select']": {
-        flex: "1",
-        height: "100%",
-        "margin-left": "2rem",
-        "padding-left": "2rem",
-        "border-left": "$border-size solid $border-color",
-      },
-
-      "input[type='checkbox'], input[type='radio']": {
-        margin: "0 2rem",
-      },
     },
   });

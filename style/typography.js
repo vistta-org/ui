@@ -89,10 +89,10 @@ export default (config, result) => {
       "font-family": "monospace, monospace",
       "font-size": "1em",
 
-      "&[data-language]": {
+      "[data-language]": {
         padding: "calc($font-size-small + 5rem) 2rem 3rem",
 
-        before: {
+        ":before": {
           position: "absolute",
           inset: "0 0 auto 0",
           padding: ".5rem 2rem",
@@ -111,7 +111,7 @@ export default (config, result) => {
     label: {
       padding: ".5rem 2rem",
       color: "$fore-color",
-      background: "color-mix(in srgb, $back-color, $fore-color, 10%)",
+      background: "$back-color",
       "border-radius": "$radius",
     },
 

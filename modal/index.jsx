@@ -1,6 +1,6 @@
 import { Component, Ref } from "@vistta/js";
 import Button from "../button/index.jsx";
-import { assignStyle } from "../utils.js";
+import { Style } from "../utils.js";
 
 /**
  * @typedef {import("../button/index.jsx").ButtonProps} ButtonProps
@@ -44,7 +44,7 @@ class Modal extends Component {
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
         inert={this.inert}
-        style={assignStyle(
+        style={Style.assign(
           {
             container: "center",
             width: "fit-content",

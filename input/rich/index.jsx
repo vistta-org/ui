@@ -1,22 +1,65 @@
 import { Component, Ref } from "@vistta/js";
 import Menu from "../../menu";
-import { htmlToMarkdown, markdownToHtml } from "../../utils";
+import { htmlToMarkdown, markdownToHtml } from "./utils";
 
 const BLOCK_TAGS = new Set(["P", "H1", "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE", "PRE", "UL", "OL"]);
+const FORMAT_ALLOWED_TAGS = new Set([
+  "P",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "BLOCKQUOTE",
+  "PRE",
+  "UL",
+  "OL",
+  "LI",
+  "HR",
+  "B",
+  "STRONG",
+  "I",
+  "EM",
+  "S",
+  "DEL",
+  "CODE",
+  "A",
+  "INPUT",
+  "BR",
+]);
+const PLAIN_ALLOWED_TAGS = new Set(["P", "BR"]);
 
+/**
+ * @typedef {object} RichProps
+ * @property {string} [id]
+ * @property {Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void)} [ref]
+ * @property {string} [name]
+ * @property {string} [placeholder]
+ * @property {boolean} [format]
+ * @property {any} [value]
+ * @property {boolean} [required]
+ * @property {boolean} [disabled]
+ * @property {boolean} [readonly]
+ * @property {(event?: any) => any} [onChange]
+ * @property {(event?: InputEvent) => any} [onInput]
+ */
+
+/**
+ * @extends {Component<RichProps>}
+ */
 class Rich extends Component {
-  formatting = true;
-  #element;
+  #node;
   #debounce;
   #savedRange;
 
   #saveSelection() {
     const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0 || !this.#element) return;
+    if (!selection || selection.rangeCount === 0 || !this.#node) return;
 
     const range = selection.getRangeAt(0);
-    const insideStart = range.startContainer === this.#element || this.#element.contains(range.startContainer);
-    const insideEnd = range.endContainer === this.#element || this.#element.contains(range.endContainer);
+    const insideStart = range.startContainer === this.#node || this.#node.contains(range.startContainer);
+    const insideEnd = range.endContainer === this.#node || this.#node.contains(range.endContainer);
     if (!insideStart || !insideEnd) return;
 
     this.#savedRange = range.cloneRange();
@@ -24,18 +67,17 @@ class Rich extends Component {
 
   #getCurrentRange() {
     const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0 && this.#element) {
+    if (selection && selection.rangeCount > 0 && this.#node) {
       const range = selection.getRangeAt(0);
-      const insideStart = range.startContainer === this.#element || this.#element.contains(range.startContainer);
-      const insideEnd = range.endContainer === this.#element || this.#element.contains(range.endContainer);
+      const insideStart = range.startContainer === this.#node || this.#node.contains(range.startContainer);
+      const insideEnd = range.endContainer === this.#node || this.#node.contains(range.endContainer);
       if (insideStart && insideEnd) return range;
     }
 
-    if (!this.#savedRange || !selection || !this.#element) return null;
+    if (!this.#savedRange || !selection || !this.#node) return null;
     const insideStart =
-      this.#savedRange.startContainer === this.#element || this.#element.contains(this.#savedRange.startContainer);
-    const insideEnd =
-      this.#savedRange.endContainer === this.#element || this.#element.contains(this.#savedRange.endContainer);
+      this.#savedRange.startContainer === this.#node || this.#node.contains(this.#savedRange.startContainer);
+    const insideEnd = this.#savedRange.endContainer === this.#node || this.#node.contains(this.#savedRange.endContainer);
     if (!insideStart || !insideEnd) return null;
 
     selection.removeAllRanges();
@@ -69,33 +111,173 @@ class Rich extends Component {
   }
 
   #handleInput() {
-    normalizeParagraphBase(this.#element);
+    normalizeParagraphBase(this.#node);
     clearTimeout(this.#debounce);
-    this.#debounce = setTimeout(() => this.#element.dispatchEvent(new Event("change", { bubbles: true })), 250);
+    this.#debounce = setTimeout(() => this.#node.dispatchEvent(new Event("change", { bubbles: true })), 250);
     this.#saveSelection();
   }
 
   #canEdit() {
-    return !!this.#element && !this.disabled && !this.readonly;
+    return !!this.#node && !this.disabled && !this.readonly;
+  }
+
+  #handlePaste(event) {
+    if (!this.#canEdit()) return;
+    event.preventDefault();
+
+    const html = event.clipboardData?.getData("text/html");
+    const text = event.clipboardData?.getData("text/plain") || "";
+
+    const container = document.createElement("div");
+    if (html) container.innerHTML = html;
+    else {
+      for (const line of text.split("\n")) {
+        const p = document.createElement("p");
+        if (line.trim()) p.textContent = line;
+        else p.appendChild(document.createElement("br"));
+        container.appendChild(p);
+      }
+    }
+
+    sanitizeNode(container, this.format);
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+
+    let lastInserted = null;
+    while (container.firstChild) {
+      lastInserted = container.firstChild;
+      range.insertNode(lastInserted);
+      range.setStartAfter(lastInserted);
+      range.collapse(true);
+    }
+
+    if (lastInserted) {
+      range.setStartAfter(lastInserted);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    this.#handleInput();
   }
 
   #handleKeyDown(event) {
-    if (event.key !== "Backspace" && event.key !== "Delete") return;
     if (!this.#canEdit()) return;
+
+    if (event.key === "Enter" && !event.shiftKey) {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+      if (!range.collapsed) return;
+
+      let li = null;
+      let current =
+        range.startContainer.nodeType === Node.ELEMENT_NODE
+          ? /** @type {Element} */ (range.startContainer)
+          : range.startContainer.parentElement;
+      while (current && current !== this.#node) {
+        if (current.tagName === "LI") {
+          li = current;
+          break;
+        }
+        current = current.parentElement;
+      }
+
+      if (!li) return;
+      const list = /** @type {Element | null} */ (li.parentElement);
+      if (!list || list.tagName !== "UL" || !list.hasAttribute("data-task-list")) return;
+
+      event.preventDefault();
+
+      // Move range start past the checkbox so it stays on the original li
+      const checkboxInput = li.querySelector("input[type='checkbox']");
+      if (checkboxInput) {
+        const cbIdx = Array.from(li.childNodes).indexOf(checkboxInput);
+        if (range.startContainer === li && range.startOffset <= cbIdx + 1) {
+          range.setStart(li, cbIdx + 1);
+          range.collapse(true);
+        }
+      }
+
+      const afterRange = document.createRange();
+      afterRange.setStart(range.startContainer, range.startOffset);
+      afterRange.setEnd(li, li.childNodes.length);
+      const afterContent = afterRange.extractContents();
+
+      const newLi = document.createElement("li");
+      const checkbox = document.createElement("input");
+      checkbox.setAttribute("type", "checkbox");
+      newLi.appendChild(checkbox);
+
+      // Remove any checkboxes that came from the extracted content
+      for (const input of afterContent.querySelectorAll("input[type='checkbox']")) input.remove();
+      newLi.appendChild(afterContent);
+
+      if (!newLi.textContent?.trim() && !newLi.querySelector("br")) {
+        newLi.appendChild(document.createElement("br"));
+      }
+
+      if (!li.textContent?.trim() && !li.querySelector("br")) {
+        li.appendChild(document.createElement("br"));
+      }
+
+      // Ensure original li still has its checkbox
+      if (checkboxInput && !li.contains(checkboxInput)) {
+        const restored = document.createElement("input");
+        restored.setAttribute("type", "checkbox");
+        li.insertBefore(restored, li.firstChild);
+      }
+
+      li.after(newLi);
+
+      const caretRange = document.createRange();
+      const walker = document.createTreeWalker(newLi, NodeFilter.SHOW_TEXT);
+      if (walker.nextNode()) caretRange.setStart(walker.currentNode, 0);
+      else caretRange.setStartAfter(checkbox);
+      caretRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(caretRange);
+
+      this.#handleInput();
+      return;
+    }
+
+    if (event.key !== "Backspace" && event.key !== "Delete") return;
 
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
 
     const range = selection.getRangeAt(0);
-    if (!range.collapsed) return;
-    if (!this.#element.contains(range.startContainer) && range.startContainer !== this.#element) return;
+    if (!range.collapsed) {
+      // Prevent deleting all content — after deletion, ensure at least one block remains
+      const text = this.#node.textContent || "";
+      if (range.toString().length >= text.length) {
+        event.preventDefault();
+        this.#node.innerHTML = "";
+        normalizeParagraphBase(this.#node);
+        const p = this.#node.querySelector("p");
+        if (p) {
+          const caretRange = document.createRange();
+          caretRange.setStart(p, 0);
+          caretRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(caretRange);
+        }
+        this.#node.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      return;
+    }
+    if (!this.#node.contains(range.startContainer) && range.startContainer !== this.#node) return;
 
     let line = null;
     let current =
       range.startContainer.nodeType === Node.ELEMENT_NODE
         ? /** @type {Element} */ (range.startContainer)
         : range.startContainer.parentElement;
-    while (current && current !== this.#element) {
+    while (current && current !== this.#node) {
       if (current.tagName === "LI" || BLOCK_TAGS.has(current.tagName)) {
         line = current;
         break;
@@ -103,7 +285,53 @@ class Rich extends Component {
       current = current.parentElement;
     }
 
-    if (!line || line.tagName === "P") return;
+    if (!line || line.tagName === "P") {
+      // Backspace at start of a P: if previous sibling is a list, merge into the last li
+      if (event.key === "Backspace" && line?.tagName === "P") {
+        const offsetRange = document.createRange();
+        offsetRange.setStart(line, 0);
+        offsetRange.setEnd(range.startContainer, range.startOffset);
+        if (offsetRange.toString().length === 0) {
+          const prev = line.previousElementSibling;
+          if (prev && (prev.tagName === "UL" || prev.tagName === "OL")) {
+            const lastLi = prev.querySelector("li:last-child");
+            if (lastLi) {
+              event.preventDefault();
+              // Find caret anchor: after checkbox or at end of existing content
+              const checkbox = lastLi.querySelector("input[type='checkbox']");
+              let caretNode = null;
+              let caretOffset = 0;
+              const walker = document.createTreeWalker(lastLi, NodeFilter.SHOW_TEXT);
+              let lastText = null;
+              while (walker.nextNode()) lastText = walker.currentNode;
+              if (lastText) {
+                caretNode = lastText;
+                caretOffset = lastText.textContent?.length || 0;
+              }
+
+              // Remove trailing br from lastLi
+              const lastChild = /** @type {Element | null} */ (lastLi.lastChild);
+              if (lastChild?.nodeType === Node.ELEMENT_NODE && lastChild?.tagName === "BR") lastChild.remove();
+
+              // Move P contents into the li
+              while (line.firstChild) lastLi.appendChild(line.firstChild);
+              line.remove();
+
+              const caretRange = document.createRange();
+              if (caretNode) caretRange.setStart(caretNode, caretOffset);
+              else if (checkbox) caretRange.setStartAfter(checkbox);
+              else caretRange.setStart(lastLi, 0);
+              caretRange.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(caretRange);
+
+              this.#handleInput();
+            }
+          }
+        }
+      }
+      return;
+    }
 
     const offsetRange = document.createRange();
     offsetRange.setStart(line, 0);
@@ -149,11 +377,11 @@ class Rich extends Component {
     const range = this.#getCurrentRange();
     if (!selection || !range) return;
 
-    this.#element.focus();
+    this.#node.focus();
     selection.removeAllRanges();
     selection.addRange(range);
     if (isBlock) {
-      const blocks = getSelectedLineBlocks(range, this.#element);
+      const blocks = getSelectedLineBlocks(range, this.#node);
       let firstTarget = null;
       let caretOffset = null;
       if (range.collapsed && blocks.length) {
@@ -394,6 +622,11 @@ class Rich extends Component {
       this.#handleInput();
 
       if (firstTarget) {
+        // For task list items, place caret after the checkbox
+        const isTaskListTarget =
+          (targetType === "tl" || targetType === "ul" || targetType === "ol") && firstTarget.tagName === "LI";
+        const taskCheckbox = isTaskListTarget && firstTarget.querySelector("input[type='checkbox']");
+
         let textNode = null;
         let nodeOffset = 0;
         let remaining = typeof caretOffset === "number" ? caretOffset : 0;
@@ -420,12 +653,49 @@ class Rich extends Component {
 
         const caretRange = document.createRange();
         if (textNode) caretRange.setStart(textNode, nodeOffset);
+        else if (taskCheckbox) caretRange.setStartAfter(taskCheckbox);
         else caretRange.setStart(firstTarget, 0);
         caretRange.collapse(true);
         selection.removeAllRanges();
         selection.addRange(caretRange);
       }
 
+      return;
+    }
+
+    if (type === "code") {
+      let codeEl = null;
+      let current =
+        range.startContainer.nodeType === Node.ELEMENT_NODE
+          ? /** @type {Element} */ (range.startContainer)
+          : range.startContainer.parentElement;
+      while (current && current !== this.#node) {
+        if (current.tagName === "CODE") {
+          codeEl = current;
+          break;
+        }
+        current = current.parentElement;
+      }
+
+      if (codeEl) {
+        const newRange = document.createRange();
+        newRange.selectNodeContents(codeEl);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+        while (codeEl.firstChild) codeEl.before(codeEl.firstChild);
+        codeEl.remove();
+      } else if (!range.collapsed) {
+        const code = document.createElement("code");
+        code.appendChild(range.extractContents());
+        range.insertNode(code);
+        const newRange = document.createRange();
+        newRange.selectNodeContents(code);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      }
+
+      this.#saveSelection();
+      this.#handleInput();
       return;
     }
 
@@ -449,12 +719,12 @@ class Rich extends Component {
     let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
     const rangeInEditor =
       !!range &&
-      (range.startContainer === this.#element || this.#element.contains(range.startContainer)) &&
-      (range.endContainer === this.#element || this.#element.contains(range.endContainer));
+      (range.startContainer === this.#node || this.#node.contains(range.startContainer)) &&
+      (range.endContainer === this.#node || this.#node.contains(range.endContainer));
 
     if (!rangeInEditor) {
       range = document.createRange();
-      range.selectNodeContents(this.#element);
+      range.selectNodeContents(this.#node);
       range.collapse(false);
       selection.removeAllRanges();
       selection.addRange(range);
@@ -491,7 +761,7 @@ class Rich extends Component {
         break;
       }
       case "divider": {
-        const line = getSelectedLineBlocks(range, this.#element)[0];
+        const line = getSelectedLineBlocks(range, this.#node)[0];
         const hr = document.createElement("hr");
         const paragraph = document.createElement("p");
         paragraph.appendChild(document.createElement("br"));
@@ -518,7 +788,7 @@ class Rich extends Component {
   }
 
   #register(element) {
-    this.#element = element;
+    this.#node = element;
     normalizeParagraphBase(element);
     Object.defineProperties(element, {
       value: {
@@ -540,7 +810,7 @@ class Rich extends Component {
           id={this.id}
           placeholder={this.placeholder}
           name={this.name}
-          aria-label={this.label}
+          aria-label={this.name}
           value={this.value}
           onChange={this.#handleChange.bind(this)}
           onClick={this.#handleClick.bind(this)}
@@ -548,18 +818,18 @@ class Rich extends Component {
           onKeyUp={this.#saveSelection.bind(this)}
           onFocus={this.#saveSelection.bind(this)}
           onKeyDown={this.#handleKeyDown.bind(this)}
+          onPaste={this.#handlePaste.bind(this)}
           onInput={this.#handleInput.bind(this)}
           disabled={this.disabled}
           readonly={this.readonly}
           role="input"
-          contentEditable={this.disabled || this.readonly ? "false" : "true"}
+          contentEditable={!(this.disabled || this.readonly)}
           style={{
-            col: "full",
-            alignSelf: "flex-start",
-            maxHeight: this.formatting && !this.disabled && !this.readonly ? "calc(100% - 8rem)" : "100%",
+            height: "auto",
+            maxHeight: this.format && !this.disabled && !this.readonly ? "calc(100% - 12rem)" : "100%",
             overflow: "auto",
-            p: "1rem!",
-            marginTop: this.formatting && !this.disabled && !this.readonly && "8rem!",
+            p: "2rem!",
+            paddingTop: this.format && !this.disabled && !this.readonly && "12rem!",
             listStylePosition: "inside",
             "li:has(> input[type=checkbox])": {
               position: "relative",
@@ -571,21 +841,20 @@ class Rich extends Component {
                 left: "0",
               },
             },
-            "&:empty:before": {
+            ":empty:before": {
               content: "attr(placeholder)",
               pointerEvents: "none",
               opacity: "0.5",
             },
           }}
         />
-        {this.formatting && !this.disabled && !this.readonly && (
+        {this.format && !this.disabled && !this.readonly && (
           <Menu
             type="horizontal"
             items={[
               {
                 name: "Size",
                 icon: "e245",
-                width: "35rem",
                 items: [
                   {
                     name: "Heading 1",
@@ -734,14 +1003,16 @@ class Rich extends Component {
             ]}
             style={{
               position: "absolute",
-              inset: "0 0 auto 0",
+              inset: "$space-top 1rem auto",
               col: "full",
-              background: "$back-color",
+              width: "calc(100% - 2rem)",
+              background: "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
+              border: "none",
               "> button": {
-                background: "$back-color",
                 "> dialog": {
                   width: "12rem",
                   overflow: "visible",
+                  background: "$back-color",
                 },
               },
             }}
@@ -776,7 +1047,7 @@ function normalizeParagraphBase(container) {
     }
 
     if (node.nodeType === Node.ELEMENT_NODE) {
-      if (BLOCK_TAGS.has(node.tagName)) {
+      if (BLOCK_TAGS.has(node.tagName) || node.tagName === "HR") {
         activeParagraph = null;
         continue;
       }
@@ -852,6 +1123,47 @@ function getSelectedLineBlocks(range, container) {
   const end = blocks.indexOf(endBlock);
   if (start === -1 || end === -1) return [];
   return blocks.slice(Math.min(start, end), Math.max(start, end) + 1);
+}
+
+function sanitizeNode(node, format) {
+  const allowed = format ? FORMAT_ALLOWED_TAGS : PLAIN_ALLOWED_TAGS;
+
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === Node.TEXT_NODE) continue;
+    if (child.nodeType !== Node.ELEMENT_NODE) {
+      child.remove();
+      continue;
+    }
+
+    const el = /** @type {Element} */ (child);
+
+    if (el.tagName === "INPUT" && el.getAttribute("type") !== "checkbox") {
+      el.remove();
+      continue;
+    }
+
+    if (!allowed.has(el.tagName)) {
+      sanitizeNode(el, format);
+      while (el.firstChild) el.before(el.firstChild);
+      el.remove();
+      continue;
+    }
+
+    const attrs = Array.from(el.attributes);
+    for (const attr of attrs) {
+      if (el.tagName === "A" && attr.name === "href") {
+        if (/^javascript:/i.test(attr.value)) el.removeAttribute("href");
+        continue;
+      }
+      if (el.tagName === "INPUT" && (attr.name === "type" || attr.name === "checked")) continue;
+      if (el.tagName === "UL" && attr.name === "data-task-list") continue;
+      el.removeAttribute(attr.name);
+    }
+
+    if (el.tagName !== "HR" && el.tagName !== "BR" && el.tagName !== "INPUT") {
+      sanitizeNode(el, format);
+    }
+  }
 }
 
 function moveNodeChildren(target, source, stripTaskCheckbox) {

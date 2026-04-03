@@ -1,7 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 import Button from "../button";
 import Dropdown from "../dropdown";
-import { assignStyle } from "../utils";
+import { Style } from "../utils";
 
 /**
  * @typedef {Omit<import("../button").ButtonProps, "type">} ButtonProps
@@ -59,21 +59,22 @@ class Menu extends Component {
       <div
         id={this.id}
         ref={Ref.forward(this.ref, this.#registerContainer.bind(this))}
-        style={assignStyle(
+        style={Style.assign(
           {
             container: "default",
-            flexWrap: "nowrap",
+            flexWrap: this.type === "horizontal" && "nowrap",
             padding: "0.5rem",
             gap: "0.5rem",
+            background: "default",
             radius: "rounded",
-            background: "overlay",
+            border: "default",
             overflow: "clip",
             button: {
-              background: "overlay",
+              background: "inherit",
             },
-            "& > *": {
+            "> *": {
               col: this.type === "horizontal" ? "auto" : "full",
-              [`nth-child(n + ${this.visibleIndex + 1})`]: {
+              [`:nth-child(n + ${this.visibleIndex + 1})`]: {
                 opacity: 0,
                 pointerEvents: "none",
               },
@@ -109,9 +110,10 @@ class Menu extends Component {
           if (props?.items)
             return [
               ...acc,
+              // @ts-ignore
               <Dropdown
                 variant="basic"
-                position="right bottom"
+                position="bottom"
                 {...props}
                 ref={
                   props["ref"]
@@ -136,7 +138,7 @@ class Menu extends Component {
         {this.visibleIndex >= 0 && this.visibleIndex < this.items.length && (
           <Dropdown
             variant="basic"
-            position="left bottom"
+            position="bottom"
             style={{
               position: "absolute",
               inset:
@@ -144,11 +146,12 @@ class Menu extends Component {
               icon: this.type === "horizontal" ? "e5d3" : "e5d3",
               opacity: "1!",
               pointerEvents: "auto!",
+              background: "inherit",
               "> dialog > div:first-child": {
                 display: "none",
               },
             }}
-            items={this.items.slice(this.visibleIndex)}
+            items={/** @type {any} */ (this.items.slice(this.visibleIndex))}
             action
           />
         )}

@@ -1,26 +1,27 @@
 import { Component, Ref } from "@vistta/js";
-import { assignStyle, getTooltipLabel } from "../utils";
+import { Style, getTooltipLabel } from "../utils";
 
 const ICON_POSITION = {
-  left: { pl: "10rem", before: { position: "absolute", left: "2rem", top: "50%", translate: "0 -50%" } },
-  right: { pr: "10rem", before: { position: "absolute", right: "2rem", top: "50%", translate: "0 -50%" } },
+  left: { pl: "10rem", ":before": { position: "absolute", left: "2rem", top: "50%", translate: "0 -50%" } },
+  right: { pr: "10rem", ":before": { position: "absolute", right: "2rem", top: "50%", translate: "0 -50%" } },
 };
 
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
  * @typedef {any} Icon
  *
+ * @typedef {"primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error"} Colors
+ *
  * @typedef {object} ButtonProps
  * @property {string} [id]
  * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
  * @property {string} [name]
  * @property {string} [label]
- * @property {"basic" | "primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error"} [variant]
+ * @property {"" | "default" | "basic" | "raw" | Colors | `raw ${Colors}` | `${Colors} raw`} [variant]
  * @property {boolean} [action]
  * @property {boolean} [active]
  * @property {Icon} [icon]
  * @property {boolean} [loading]
- * @property {boolean} [raw]
  * @property {JSX.Style} [style]
  * @property {Tooltip} [tooltip]
  * @property {boolean} [disabled]
@@ -50,12 +51,12 @@ export class Button extends Component {
         name={this.label || this.name}
         tooltip={getTooltipLabel(this.tooltip)}
         type={this.type || "button"}
-        style={assignStyle(
+        style={Style.assign(
           {
             p: this.action && "2rem!",
-            tooltip: typeof this.tooltip === "object" ? this.tooltip?.position : undefined,
+            tooltip: typeof this.tooltip === "object" && this.tooltip?.position,
           },
-          variantToStyle(this.variant, this.raw),
+          variantToStyle(this.variant),
           iconToStyle(this.loading ? "loading" : this.icon, this.action),
           this.style,
         )}
@@ -80,34 +81,28 @@ export class Button extends Component {
 
 export default Button;
 
-export function variantToStyle(variant, raw) {
-  if (!variant) return raw ? ["background:none", "color:default"] : [];
+export function variantToStyle(variant) {
+  if (!variant || variant === "default") return [];
   switch (variant) {
     case "basic":
       return {
-        background: raw ? "none" : "default",
+        background: "default",
         color: "default",
       };
-    case "primary":
-      return raw ? { background: "none", color: "primary" } : { background: "primary", color: "primary-contrast" };
-    case "secondary":
-      return raw ? { background: "none", color: "secondary" } : { background: "secondary", color: "secondary-contrast" };
-    case "tertiary":
-      return raw ? { background: "none", color: "tertiary" } : { background: "tertiary", color: "tertiary-contrast" };
-    case "light":
-      return raw ? { background: "none", color: "light" } : { background: "light", color: "dark" };
-    case "dark":
-      return raw ? { background: "none", color: "dark" } : { background: "dark", color: "light" };
-    case "info":
-      return raw ? { background: "none", color: "info" } : { background: "info", color: "info-contrast" };
-    case "success":
-      return raw ? { background: "none", color: "success" } : { background: "success", color: "success-contrast" };
-    case "warning":
-      return raw ? { background: "none", color: "warning" } : { background: "warning", color: "warning-contrast" };
-    case "error":
-      return raw ? { background: "none", color: "error" } : { background: "error", color: "error-contrast" };
-    default:
-      return {};
+    case "raw":
+      return {
+        background: "none",
+        color: "default",
+      };
+    default: {
+      let raw = false;
+      if (variant.startsWith("raw ")) ((raw = true), (variant = variant.slice(4)));
+      else if (variant.endsWith(" raw")) ((raw = true), (variant = variant.slice(0, -4)));
+      if (raw) return { background: "none", color: variant };
+      if (variant === "light") return { background: "light", color: "dark" };
+      if (variant === "dark") return { background: "dark", color: "light" };
+      return { background: variant, color: `${variant}-contrast` };
+    }
   }
 }
 

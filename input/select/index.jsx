@@ -1,158 +1,214 @@
-import { Anchor, Component, Ref } from "@vistta/js";
+import { Component, Ref } from "@vistta/js";
 import Popover from "../../popover";
 
+/**
+ * @typedef {object} SelectProps
+ * @property {string} [id]
+ * @property {Ref<HTMLInputElement | HTMLTextAreaElement> | ((element: HTMLInputElement | HTMLTextAreaElement) => void)} [ref]
+ * @property {string} [name]
+ * @property {string} [placeholder]
+ * @property {boolean} [multiple]
+ * @property {boolean} [filterable]
+ * @property {any} [value]
+ * @property {Array<{ label: string; value: any } | string>} [options]
+ * @property {boolean} [required]
+ * @property {boolean} [disabled]
+ * @property {boolean} [readonly]
+ * @property {(event?: any) => any} [onChange]
+ * @property {(event?: InputEvent) => any} [onInput]
+ */
+
+/**
+ * @extends {Component<SelectProps>}
+ */
 class Select extends Component {
   open = false;
-  anchor = new Anchor();
+  search;
+  anchor;
+  value = null;
+  #node;
+  #input;
 
   get #options() {
-    return (Array.isArray(this.options) ? this.options : [])
-      .map((option) => {
-        if (typeof option === "string") return { label: option, value: option, key: String(option) };
-        if (option && typeof option === "object") {
-          const value = option.value;
-          return {
-            label: option.label || String(value),
-            value,
-            key: String(value),
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
+    if (!this.options) return [<span style={{ padding: "1rem", color: "muted" }}>No options</span>];
+    const result = [];
+    for (let i = 0, len = this.options.length; i < len; i++) {
+      const { label, value } = normalizeOption(this.options[i]);
+      if (this.filterable && this.search && !label.toLowerCase().includes(this.search.toLowerCase())) continue;
+      const selected = isSelected(this.value, value, this.multiple);
+      result.push(
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            this.#select(value);
+          }}
+          style={{
+            background: selected ? "$fore-color" : "none",
+            color: selected ? "$back-color" : "default",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "2rem",
+            padding: "1rem 2rem",
+            borderRadius: "1rem",
+          }}
+        >
+          {label}
+        </button>,
+      );
+    }
+    return result.length ? result : [<span style={{ padding: "1rem", color: "muted" }}>No results</span>];
   }
 
-  get #selected() {
-    return new Set(
-      (Array.isArray(this.value) ? this.value : this.value != null ? [this.value] : []).map((item) => String(item)),
-    );
+  get #displayValue() {
+    const value = this.multiple ? this.value : [this.value];
+    const result = [];
+    for (let i = 0, len = value?.length || 0; i < len; i++) {
+      const option = this.options?.find((option) => normalizeOption(option).value === value[i]);
+      if (option) result.push(normalizeOption(option).label);
+    }
+    return result.join(", ");
+  }
+
+  #open() {
+    if (this.disabled || this.readonly) return;
+    if (this.#input) this.#input.focus();
+    if (!this.open) this.open = true;
+  }
+
+  #close(target) {
+    if (target && this.#node.contains(target)) return;
+    this.open = false;
+    this.search = "";
+    if (this.#input) this.#input.value = "";
+  }
+
+  #select(value, dispatch = true) {
+    if (this.disabled || this.readonly) return;
+    if (this.multiple) {
+      if (value === undefined || value === null) this.value = undefined;
+      else if (!Array.isArray(this.value)) this.value = [value];
+      else if (this.value.includes(value)) this.value = this.value.filter((v) => v !== value);
+      else this.value = [...this.value, value];
+    } else this.value = value;
+    if (this.#input) this.#input.value = "";
+    if (!this.multiple) this.#close();
+    else if (this.#input) this.#input.focus();
+    if (dispatch) this.#node.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  #onKeyDown(event) {
+    switch (event.key) {
+      case "Escape":
+        this.#close();
+        break;
+      case "Enter": {
+        const selection = [];
+        for (let i = 0, len = this.options.length; i < len; i++) {
+          const { label, value } = normalizeOption(this.options[i]);
+          if (this.filterable && this.search && !label.toLowerCase().includes(this.search.toLowerCase())) continue;
+          selection.push({ label, value });
+        }
+        if (selection.length === 1) this.#select(selection[0].value);
+        break;
+      }
+      case "Backspace":
+        if (
+          this.multiple &&
+          this.#input?.selectionStart === 0 &&
+          !this.#input.selectionEnd &&
+          Array.isArray(this.value) &&
+          this.value.length
+        ) {
+          this.#select(this.value[this.value.length - 1]);
+        }
+        break;
+    }
   }
 
   #register(element) {
-    Object.defineProperty(element, "value", {
-      set(value) {
-        if (this.multiple && !Array.isArray(value)) value = [value];
-        if (!this.multiple && Array.isArray(value)) value = value[0];
-        this.value = value;
-      },
-      get() {
-        const nextKeys = new Set();
-        for (let i = 0; i < element.selectedOptions.length; i++) nextKeys.add(element.selectedOptions[i].value);
-        return Array.from(nextKeys);
+    this.#node = element;
+    Object.defineProperties(element, {
+      value: {
+        get: () => this.value,
+        set: (value) => this.#select(value, false),
+        configurable: false,
       },
     });
   }
 
   render() {
-    const options = this.#options;
-    if (!this.multiple) {
-      const children = [<option hidden />];
-      for (let i = 0; i < options.length; i++) {
-        const option = options[i];
-        children.push(
-          <option value={option.value} selected={String(option.value) === String(this.value)}>
-            {option.label}
-          </option>,
-        );
-      }
-
-      return (
-        <select
-          ref={this.ref}
-          id={this.id}
+    return (
+      <>
+        <div
+          ref={Ref.forward(this.ref, this.#register.bind(this))}
+          role="select"
           name={this.name}
-          aria-label={this.label}
+          aria-label={this.name}
+          aria-expanded={this.open}
+          aria-disabled={this.disabled}
+          aria-selected={this.#displayValue?.length > 0}
+          onClick={this.#open.bind(this)}
           onChange={this.onChange}
           onInput={this.onInput}
-          required={this.required}
-          disabled={this.disabled}
-          readonly={this.readonly}
-          multiple={false}
-        >
-          {children}
-        </select>
-      );
-    }
-
-    return (
-      <div ref={this.anchor} style={{ position: "relative", width: "100%" }}>
-        <div
-          role="select"
-          aria-label={this.label}
-          aria-haspopup="listbox"
-          aria-expanded={this.open}
-          disabled={this.disabled || this.readonly}
-          onClick={() => {
-            this.open = !this.open;
-          }}
           style={{
-            width: "100%",
-            text: "left",
-            overflow: "hidden",
-            "text-overflow": "ellipsis",
-            "white-space": "nowrap",
-            cursor: this.disabled || this.readonly ? "default" : "pointer",
-          }}
-        >
-          {selectedToLabel(options.filter((option) => this.#selected.has(option.key)).map((option) => option.label)) ||
-            this.placeholder ||
-            "Select options"}
-        </div>
-
-        <Popover
-          open={this.open && !this.disabled && !this.readonly}
-          onOutsideClick={() => (this.open = false)}
-          style={{
-            inset: `${this.anchor("bottom", "2rem")} auto auto ${this.anchor("x")}`,
-            width: `${this.anchor("width")}`,
-            padding: "0",
-            border: "default",
+            position: "relative",
+            minHeight: "10rem",
             container: "default",
-            maxHeight: "32rem",
-            overflow: "auto",
+            flexWrap: "nowrap",
           }}
         >
-          <select
-            ref={Ref.forward(this.ref, this.#register.bind(this))}
-            multiple
-            id={this.id}
-            name={this.name}
-            required={this.required}
-            disabled={this.disabled}
-            readonly={this.readonly}
-            size={Math.min(Math.max(options.length, 4), 8)}
-            aria-label={this.label}
-            onInput={(event) => {
-              const nextKeys = new Set();
-              for (let i = 0; i < event.target.selectedOptions.length; i++) {
-                nextKeys.add(event.target.selectedOptions[i].value);
-              }
-              this.value = options.filter((item) => nextKeys.has(item.key)).map((item) => item.value);
-              this.onInput?.(event);
-              this.onChange?.(event);
-            }}
-            onKeyDown={(event) => event.key === "Escape" && (this.open = false)}
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              margin: "0!",
-            }}
-          >
-            {options.map((option) => (
-              <option value={option.key} selected={this.#selected.has(option.key)}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          {this.#displayValue}
+          {!this.readonly && !this.disabled && this.filterable && (
+            <input
+              ref={(el) => (this.#input = el)}
+              type="text"
+              onInput={(e) => (this.search = e.target.value)}
+              placeholder={this.placeholder}
+              onKeyDown={this.#onKeyDown.bind(this)}
+              style={{ col: "default", padding: "0", margin: "-2rem 0", border: "none", background: "none" }}
+            />
+          )}
+        </div>
+        <Popover
+          open={this.open}
+          onOutsideClick={(e) => this.#close(e.target)}
+          style={{
+            inset: `${this.anchor("bottom", "2rem")} calc(${this.anchor("left")} - ${this.anchor("width")}) auto auto`,
+            container: "default",
+            gap: "1rem",
+            padding: "1rem",
+            "> *": { col: "full", text: "left" },
+            height: "max-content",
+            maxHeight: "60rem",
+            overflow: "auto",
+            width: "fit-content",
+            minWidth: this.anchor.width,
+          }}
+          inert
+        >
+          {this.#options}
         </Popover>
-      </div>
+      </>
     );
   }
 }
 
 export default Select;
 
-function selectedToLabel(values) {
-  if (!values || values.length === 0) return null;
-  return values.join(", ");
+function normalizeOption(option) {
+  if (typeof option === "string") return { label: option, value: option };
+  return option;
+}
+
+function isSelected(value, target, multiple) {
+  if (multiple) {
+    if (!Array.isArray(value)) return !target;
+    for (let i = 0, len = value.length; i < len; i++) {
+      if (value[i] === target) return true;
+    }
+    return false;
+  }
+  return value === target;
 }

@@ -37,13 +37,13 @@ export default (_, result) => {
       inset: "0",
       margin: "auto",
       padding: "2rem",
-      background: "$overlay-color",
-      "backdrop-filter": "$blur",
       border: "none",
       "border-radius": "$radius",
       color: "$fore-color",
-      shadow: "$shadow",
-      "&:not([open]):not(:popover-open)": {
+      background: "light-dark(transparent(tint($back-color, 5%), 10%), transparent(tint($back-color, 5%), 10%))",
+      "backdrop-filter": "$blur",
+      "box-shadow": "$shadow",
+      ":not([open]):not(:popover-open)": {
         display: "none!",
       },
     },
@@ -122,6 +122,7 @@ export default (_, result) => {
       "border-collapse": "separate",
       "border-spacing": 0,
       "border-radius": "$radius",
+      background: "$back-color",
 
       "th, td": {
         padding: "2rem",
@@ -129,7 +130,7 @@ export default (_, result) => {
       },
 
       "thead tr th": {
-        background: "color-mix(in srgb, $fore-color 5%, $back-color 95%)",
+        background: "light-dark(tint($back-color, 5%), tint($back-color, 5%))",
         "border-bottom": "$border-size solid $border-color",
       },
 

@@ -1,7 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 import { DateTime, formatDate } from "@vistta/utils";
 import Button from "../button";
-import { assignStyle } from "../utils";
+import { Style } from "../utils";
 
 const DEFAULT_DATE = new DateTime([1996, 0, 14]); // Sunday, 14 January 1996 00:00:00
 const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
@@ -94,19 +94,22 @@ export default class Calendar extends Component {
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
         onChange={this.onChange}
-        style={assignStyle(
+        style={Style.assign(
           {
             position: "relative",
             container: "default",
             height: "100%",
+            background: "default",
+            border: "default",
+            radius: "rounded",
           },
           this.style,
         )}
       >
         <div style="relative; col:full; container; gap:0">
-          <div style="col:full; container:center; gap:0">
+          <div style="col:full; container:center; gap:0; p:1rem 1rem 0">
             {this.controls === "all" && (
-              <Button raw style="col:auto; mr:11rem" action icon="e5cb" onClick={this.previous.bind(this)} />
+              <Button variant="raw" style="col:auto; mr:11rem" action icon="e5cb" onClick={this.previous.bind(this)} />
             )}
             <h5 style={["col", "text:center", this.controls === "all" && " pt:2rem"]}>
               {formatDate(this.date, {
@@ -117,8 +120,8 @@ export default class Calendar extends Component {
             </h5>
             {this.controls === "all" && (
               <>
-                <Button raw style="col:auto" action icon="e8df" onClick={this.select.bind(this, new DateTime())} />
-                <Button raw style="col:auto; ml:1rem" action icon="e5cc" onClick={this.next.bind(this)} />
+                <Button variant="raw" style="col:auto" action icon="e8df" onClick={this.select.bind(this, new DateTime())} />
+                <Button variant="raw" style="col:auto; ml:1rem" action icon="e5cc" onClick={this.next.bind(this)} />
               </>
             )}
           </div>
@@ -261,10 +264,10 @@ class Day extends Component {
           width: this.type === "day" ? "100%" : 100 / 7 + "%",
           gap: this.type === "month" ? ".5rem" : "2rem",
           border: "top",
-          "not(:nth-child(7n))": { border: "right" },
+          ":not(:nth-child(7n))": { border: this.type !== "day" && "right" },
           text: "left",
           overflow: "clip",
-          before: {
+          ":before": {
             content: `"${
               (this.type === "day"
                 ? this.date.format({

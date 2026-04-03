@@ -1,5 +1,5 @@
 import { Component, Ref } from "@vistta/js";
-import { assignStyle } from "../utils";
+import { Style } from "../utils";
 
 /**
  * @typedef {object} PopoverProps
@@ -47,7 +47,7 @@ class Popover extends Component {
         <aside
           ref={Ref.forward(this.ref, this.register.bind(this))}
           id={this.id}
-          style={assignStyle(
+          style={Style.assign(
             {
               container: "center",
               width: "fit-content",
@@ -64,7 +64,7 @@ class Popover extends Component {
       <dialog
         ref={Ref.forward(this.ref, this.register.bind(this))}
         id={this.id}
-        style={assignStyle(
+        style={Style.assign(
           {
             container: "center",
             width: "fit-content",
