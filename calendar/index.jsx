@@ -145,7 +145,7 @@ export default class Calendar extends Component {
             position: "relative",
             col: "full",
             container: "default",
-            height: "calc(100% - 22rem)",
+            height: "calc(100% - 23rem)",
             gap: 0,
             flexWrap: "nowrap",
             overflow: "auto clip",
