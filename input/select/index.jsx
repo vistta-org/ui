@@ -95,7 +95,7 @@ class Select extends Component {
     if (this.#input) this.#input.value = "";
     if (!this.multiple) this.#close();
     else if (this.#input) this.#input.focus();
-    if (dispatch) this.#node.dispatchEvent(new Event("change", { bubbles: true }));
+    if (dispatch) this.#node.dispatchEvent(new Event("change", { bubbles: false }));
   }
 
   #onKeyDown(event) {
@@ -124,6 +124,8 @@ class Select extends Component {
           this.#select(this.value[this.value.length - 1]);
         }
         break;
+      default:
+        if (!this.open) this.#open();
     }
   }
 
