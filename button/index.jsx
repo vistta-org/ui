@@ -25,6 +25,7 @@ const ICON_POSITION = {
  * @property {JSX.Style} [style]
  * @property {Tooltip} [tooltip]
  * @property {boolean} [disabled]
+ * @property {boolean} [hidden]
  * @property {HTMLButtonElement["type"]} [type]
  * @property {(event: MouseEvent) => any} [onClick]
  * @property {(event: MouseEvent) => any} [onContextMenu]
@@ -72,6 +73,7 @@ export class Button extends Component {
         onMouseUp={this.onMouseUp}
         active={this.active}
         disabled={this.disabled || this.loading}
+        hidden={this.hidden}
       >
         {!this.action && (this.label || this.children)}
       </button>

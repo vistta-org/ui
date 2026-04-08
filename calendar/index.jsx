@@ -252,7 +252,12 @@ class Day extends Component {
       <div
         ref={(element) =>
           Object.defineProperty(element, "value", {
-            get: () => this.date.toISOString(),
+            get: () => {
+              const now = new DateTime();
+              const date = new DateTime(this.date);
+              date.hours = now.hours;
+              return date.toISOString();
+            },
           })
         }
         style={{
