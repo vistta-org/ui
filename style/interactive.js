@@ -24,7 +24,7 @@ export default (_, result) =>
       color: "$back-color",
       background: "$fore-color",
       border: "none",
-      "border-radius": "$radius",
+      radius: "$radius",
       "-webkit-appearance": "button",
       "text-transform": "none",
       overflow: "visible",
@@ -32,7 +32,7 @@ export default (_, result) =>
       "user-select": "none",
       transition: "text-shadow $duration, box-shadow $duration",
 
-      disabled: {
+      ":disabled": {
         filter: "brightness(0.5) contrast(0.5)",
         cursor: "default",
       },

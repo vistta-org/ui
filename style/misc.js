@@ -148,7 +148,7 @@ export default (_, result) => {
     },
 
     "template, [hidden]": {
-      display: "none",
+      display: "none!",
     },
   });
 };

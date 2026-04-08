@@ -1,4 +1,5 @@
 import { Component, Ref } from "@vistta/js";
+import { equals } from "@vistta/utils";
 import Popover from "../../popover";
 
 /**
@@ -25,46 +26,13 @@ class Select extends Component {
   open = false;
   search;
   anchor;
-  value = null;
   #node;
   #input;
 
-  get #options() {
-    if (!this.options) return [<span style={{ padding: "1rem", color: "muted" }}>No options</span>];
+  get #label() {
     const result = [];
-    for (let i = 0, len = this.options.length; i < len; i++) {
-      const { label, value } = normalizeOption(this.options[i]);
-      if (this.filterable && this.search && !label.toLowerCase().includes(this.search.toLowerCase())) continue;
-      const selected = isSelected(this.value, value, this.multiple);
-      result.push(
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            this.#select(value);
-          }}
-          style={{
-            background: selected ? "$fore-color" : "none",
-            color: selected ? "$back-color" : "default",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "2rem",
-            padding: "1rem 2rem",
-            borderRadius: "1rem",
-          }}
-        >
-          {label}
-        </button>,
-      );
-    }
-    return result.length ? result : [<span style={{ padding: "1rem", color: "muted" }}>No results</span>];
-  }
-
-  get #displayValue() {
-    const value = this.multiple ? this.value : [this.value];
-    const result = [];
-    for (let i = 0, len = value?.length || 0; i < len; i++) {
+    const value = this.multiple ? this.value || [] : [this.value];
+    for (let i = 0, len = value.length; i < len; i++) {
       const option = this.options?.find((option) => normalizeOption(option).value === value[i]);
       if (option) result.push(normalizeOption(option).label);
     }
@@ -84,20 +52,6 @@ class Select extends Component {
     if (this.#input) this.#input.value = "";
   }
 
-  #select(value, dispatch = true) {
-    if (this.disabled || this.readonly) return;
-    if (this.multiple) {
-      if (value === undefined || value === null) this.value = undefined;
-      else if (!Array.isArray(this.value)) this.value = [value];
-      else if (this.value.includes(value)) this.value = this.value.filter((v) => v !== value);
-      else this.value = [...this.value, value];
-    } else this.value = value;
-    if (this.#input) this.#input.value = "";
-    if (!this.multiple) this.#close();
-    else if (this.#input) this.#input.focus();
-    if (dispatch) this.#node.dispatchEvent(new Event("change", { bubbles: false }));
-  }
-
   #onKeyDown(event) {
     switch (event.key) {
       case "Escape":
@@ -114,15 +68,8 @@ class Select extends Component {
         break;
       }
       case "Backspace":
-        if (
-          this.multiple &&
-          this.#input?.selectionStart === 0 &&
-          !this.#input.selectionEnd &&
-          Array.isArray(this.value) &&
-          this.value.length
-        ) {
+        if (this.multiple && this.#input?.selectionStart === 0 && !this.#input.selectionEnd && this.value?.length)
           this.#select(this.value[this.value.length - 1]);
-        }
         break;
       default:
         if (!this.open) this.#open();
@@ -134,10 +81,27 @@ class Select extends Component {
     Object.defineProperties(element, {
       value: {
         get: () => this.value,
-        set: (value) => this.#select(value, false),
+        set: (value) => {
+          if (this.disabled || this.readonly || equals(this.value, value)) return;
+          this.value = this.multiple && !Array.isArray(value) ? [value] : value;
+        },
         configurable: false,
       },
     });
+  }
+
+  #select(value) {
+    if (this.disabled || this.readonly) return;
+    if (this.multiple) {
+      if (value === undefined || value === null) this.value = [];
+      else if (!Array.isArray(this.value)) this.value = [value];
+      else if (this.value.includes(value)) this.value = this.value.filter((v) => v !== value);
+      else this.value = [...this.value, value];
+    } else this.value = value;
+    if (this.#input) this.#input.value = "";
+    if (!this.multiple) this.#close();
+    else if (this.#input) this.#input.focus();
+    this.#node.dispatchEvent(new Event("change", { bubbles: false }));
   }
 
   render() {
@@ -150,7 +114,7 @@ class Select extends Component {
           aria-label={this.name}
           aria-expanded={this.open}
           aria-disabled={this.disabled}
-          aria-selected={this.#displayValue?.length > 0}
+          aria-selected={this.#label?.length > 0}
           onClick={this.#open.bind(this)}
           onChange={this.onChange}
           onInput={this.onInput}
@@ -161,7 +125,7 @@ class Select extends Component {
             flexWrap: "nowrap",
           }}
         >
-          {this.#displayValue}
+          {this.#label}
           {!this.readonly && !this.disabled && this.filterable && (
             <input
               ref={(el) => (this.#input = el)}
@@ -190,7 +154,29 @@ class Select extends Component {
           }}
           inert
         >
-          {this.#options}
+          {this.options?.reduce((result, option) => {
+            const { label, value } = normalizeOption(option);
+            if (this.filterable && this.search && !label.toLowerCase().includes(this.search.toLowerCase())) return result;
+            return [
+              ...result,
+              <button
+                type="button"
+                onClick={(e) => (e.stopPropagation(), this.#select(value))}
+                style={((selected) => ({
+                  background: selected ? "$fore-color" : "none",
+                  color: selected ? "$back-color" : "default",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "2rem",
+                  padding: "1rem 2rem",
+                  borderRadius: "1rem",
+                }))((this.multiple ? this.value || [] : [this.value]).includes(value))}
+              >
+                {label}
+              </button>,
+            ];
+          }, []) || <span style={{ padding: "1rem", color: "muted" }}>No options</span>}
         </Popover>
       </>
     );
@@ -202,15 +188,4 @@ export default Select;
 function normalizeOption(option) {
   if (typeof option === "string") return { label: option, value: option };
   return option;
-}
-
-function isSelected(value, target, multiple) {
-  if (multiple) {
-    if (!Array.isArray(value)) return !target;
-    for (let i = 0, len = value.length; i < len; i++) {
-      if (value[i] === target) return true;
-    }
-    return false;
-  }
-  return value === target;
 }
