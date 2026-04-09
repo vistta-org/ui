@@ -86,6 +86,9 @@ export default class Calendar extends Component {
 
   select(day) {
     this.date = new DateTime(day);
+    const event = /** @type {any} */ (new CustomEvent("change", { cancelable: true }));
+    event.date = new DateTime(day);
+    this.#main.dispatchEvent(event);
   }
 
   render() {
