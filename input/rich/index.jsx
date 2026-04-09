@@ -826,7 +826,7 @@ class Rich extends Component {
           contentEditable={!(this.disabled || this.readonly)}
           style={{
             height: "auto",
-            maxHeight: this.format && !this.disabled && !this.readonly ? "calc(100% - 12rem)" : "100%",
+            maxHeight: "100%",
             overflow: "auto",
             p: "2rem!",
             paddingTop: this.format && !this.disabled && !this.readonly && "12rem!",
