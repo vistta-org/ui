@@ -24,8 +24,6 @@ const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 
  * @property {(event: MouseEvent) => void} [onDblClick] Callback function when a double click happens on the calendar
  */
 
-const today = new DateTime();
-
 /**
  * @extends {Component<CalendarProps>}
  */
@@ -51,21 +49,18 @@ export default class Calendar extends Component {
 
   registerBody(body) {
     this.#body = body;
-    queueMicrotask(() => {
+    const observer = new ResizeObserver(() => {
+      if (!body.clientWidth) return;
+      observer.disconnect();
       body.scrollLeft = body.clientWidth;
     });
+    observer.observe(body);
   }
 
   onScrollEnd({ target: body }) {
-    let target;
-    for (let i = 0, len = body.children.length; i < len; i++) {
-      if (body.scrollLeft > body.children[i].offsetLeft) continue;
-      if (i === 0) target = "previous";
-      else if (i === 2) target = "next";
-      else return;
-      break;
-    }
-    const date = new DateTime(this.date)[target](this.type);
+    const page = Math.round(body.scrollLeft / body.clientWidth);
+    if (page === 1) return;
+    const date = new DateTime(this.date)[page === 0 ? "previous" : "next"](this.type);
     const event = /** @type {any} */ (new CustomEvent("change", { cancelable: true }));
     event.date = date;
     this.#main.dispatchEvent(event);
@@ -85,10 +80,11 @@ export default class Calendar extends Component {
   }
 
   select(day) {
-    this.date = new DateTime(day);
     const event = /** @type {any} */ (new CustomEvent("change", { cancelable: true }));
     event.date = new DateTime(day);
     this.#main.dispatchEvent(event);
+    if (event.defaultPrevented) return;
+    this.date = new DateTime(day);
   }
 
   render() {
@@ -202,7 +198,8 @@ class View extends Component {
         />,
       );
     else if (this.type === "week") {
-      const delta = weekStartIndex - this.date.weekday;
+      let delta = weekStartIndex - this.date.weekday;
+      if (delta > 0) delta -= 7;
       for (let i = 0; i < 7; i++) {
         const day = this.date.clone();
         day.day += delta + i;
@@ -212,7 +209,11 @@ class View extends Component {
       }
     } else {
       const lastDayFromPreviousMonth = new DateTime([this.date.year, this.date.month, 0]).day;
-      for (let i = 0, len = new DateTime([this.date.year, this.date.month, 1]).weekday - weekStartIndex; i < len; i++)
+      for (
+        let i = 0, len = (new DateTime([this.date.year, this.date.month, 1]).weekday - weekStartIndex + 7) % 7;
+        i < len;
+        i++
+      )
         body.push(
           <Day
             type={this.type}
@@ -313,5 +314,6 @@ class Day extends Component {
 }
 
 function isToday(date) {
+  const today = new DateTime();
   return date.year === today.year && date.month === today.month && date.day === today.day;
 }

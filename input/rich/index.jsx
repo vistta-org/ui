@@ -1,3 +1,5 @@
+// Known issues:
+// - Modifing empty paragraphs result in no change being made
 import { Component, Ref } from "@vistta/js";
 import Menu from "../../menu";
 import { htmlToMarkdown, markdownToHtml } from "./utils";
@@ -141,31 +143,99 @@ class Rich extends Component {
 
     sanitizeNode(container, this.format);
 
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-    const range = selection.getRangeAt(0);
-    range.deleteContents();
-
-    let lastInserted = null;
-    while (container.firstChild) {
-      lastInserted = container.firstChild;
-      range.insertNode(lastInserted);
-      range.setStartAfter(lastInserted);
-      range.collapse(true);
-    }
-
-    if (lastInserted) {
-      range.setStartAfter(lastInserted);
-      range.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
+    // execCommand is deprecated but has no replacement for undo-aware contentEditable insertion
+    document.execCommand("insertHTML", false, container.innerHTML);
 
     this.#handleInput();
   }
 
   #handleKeyDown(event) {
     if (!this.#canEdit()) return;
+
+    // Tab indent/outdent in lists
+    if (event.key === "Tab") {
+      event.preventDefault();
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+
+      let li = null;
+      let node =
+        range.startContainer.nodeType === Node.ELEMENT_NODE
+          ? /** @type {Element} */ (range.startContainer)
+          : range.startContainer.parentElement;
+      while (node && node !== this.#node) {
+        if (node.tagName === "LI") {
+          li = node;
+          break;
+        }
+        node = node.parentElement;
+      }
+
+      if (!li) {
+        // Not in a list: insert a tab character (only forward tab, not shift+tab)
+        if (!event.shiftKey) document.execCommand("insertText", false, "\t");
+        return;
+      }
+      const list = /** @type {Element} */ (li.parentElement);
+      if (!list) return;
+
+      if (!event.shiftKey) {
+        // Indent: wrap this li in a nested list under the previous sibling li
+        const prevLi = li.previousElementSibling;
+        if (prevLi && prevLi.tagName === "LI") {
+          let nested = prevLi.querySelector(`:scope > ${list.tagName.toLowerCase()}`);
+          if (!nested) {
+            nested = document.createElement(list.tagName.toLowerCase());
+            if (list.hasAttribute("data-task-list")) nested.setAttribute("data-task-list", "true");
+            prevLi.appendChild(nested);
+          }
+          nested.appendChild(li);
+        }
+      } else {
+        // Outdent: move this li out of its parent list into the grandparent list
+        const parentList = list;
+        const grandparentLi = parentList.parentElement;
+        if (grandparentLi?.tagName === "LI") {
+          const grandparentList = grandparentLi.parentElement;
+          if (grandparentList && (grandparentList.tagName === "UL" || grandparentList.tagName === "OL")) {
+            // Move trailing siblings into a new nested list
+            if (li.nextSibling) {
+              const trailingList = document.createElement(parentList.tagName.toLowerCase());
+              if (parentList.hasAttribute("data-task-list")) trailingList.setAttribute("data-task-list", "true");
+              while (li.nextSibling) trailingList.appendChild(li.nextSibling);
+              if (trailingList.children.length) li.appendChild(trailingList);
+            }
+            grandparentLi.after(li);
+            if (!parentList.children.length) {
+              parentList.remove();
+              if (
+                !grandparentLi.childNodes.length ||
+                (grandparentLi.childNodes.length === 1 && !grandparentLi.textContent?.trim())
+              ) {
+                grandparentLi.remove();
+              }
+            }
+          }
+        }
+      }
+
+      // Restore caret
+      const caretRange = document.createRange();
+      const walker = document.createTreeWalker(li, NodeFilter.SHOW_TEXT);
+      if (walker.nextNode()) caretRange.setStart(walker.currentNode, 0);
+      else {
+        const cb = li.querySelector("input[type='checkbox']");
+        if (cb) caretRange.setStartAfter(cb);
+        else caretRange.setStart(li, 0);
+      }
+      caretRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(caretRange);
+
+      this.#handleInput();
+      return;
+    }
 
     if (event.key === "Enter" && !event.shiftKey) {
       const selection = window.getSelection();
@@ -188,11 +258,11 @@ class Rich extends Component {
 
       if (!li) return;
       const list = /** @type {Element | null} */ (li.parentElement);
-      if (!list || list.tagName !== "UL" || !list.hasAttribute("data-task-list")) return;
+      if (!list || (list.tagName !== "UL" && list.tagName !== "OL")) return;
 
       event.preventDefault();
 
-      // Move range start past the checkbox so it stays on the original li
+      // Detect task items by checking for a checkbox in the current li
       const checkboxInput = li.querySelector("input[type='checkbox']");
       if (checkboxInput) {
         const cbIdx = Array.from(li.childNodes).indexOf(checkboxInput);
@@ -208,9 +278,11 @@ class Rich extends Component {
       const afterContent = afterRange.extractContents();
 
       const newLi = document.createElement("li");
-      const checkbox = document.createElement("input");
-      checkbox.setAttribute("type", "checkbox");
-      newLi.appendChild(checkbox);
+      if (checkboxInput) {
+        const checkbox = document.createElement("input");
+        checkbox.setAttribute("type", "checkbox");
+        newLi.appendChild(checkbox);
+      }
 
       // Remove any checkboxes that came from the extracted content
       for (const input of afterContent.querySelectorAll("input[type='checkbox']")) input.remove();
@@ -236,7 +308,7 @@ class Rich extends Component {
       const caretRange = document.createRange();
       const walker = document.createTreeWalker(newLi, NodeFilter.SHOW_TEXT);
       if (walker.nextNode()) caretRange.setStart(walker.currentNode, 0);
-      else caretRange.setStartAfter(checkbox);
+      else caretRange.setStart(newLi, newLi.childNodes.length);
       caretRange.collapse(true);
       selection.removeAllRanges();
       selection.addRange(caretRange);
@@ -284,6 +356,9 @@ class Rich extends Component {
       }
       current = current.parentElement;
     }
+
+    // Only intercept Backspace at position 0, never Delete (Delete should just delete the next char)
+    if (event.key === "Delete") return;
 
     if (!line || line.tagName === "P") {
       // Backspace at start of a P: if previous sibling is a list, merge into the last li
@@ -700,9 +775,8 @@ class Rich extends Component {
     }
 
     if (type === "b" || type === "i" || type === "u" || type === "s") {
+      // execCommand is deprecated but has no replacement for undo-aware contentEditable mutations
       const command = type === "b" ? "bold" : type === "i" ? "italic" : type === "u" ? "underline" : "strikeThrough";
-
-      if (typeof document.execCommand !== "function") return;
       document.execCommand(command, false, null);
 
       this.#saveSelection();
@@ -831,6 +905,10 @@ class Rich extends Component {
             p: "2rem!",
             paddingTop: this.format && !this.disabled && !this.readonly && "12rem!",
             listStylePosition: "inside",
+            "li > ul, li > ol": {
+              paddingLeft: "6rem",
+              marginTop: "1rem",
+            },
             "li:has(> input[type=checkbox])": {
               position: "relative",
               listStyle: "none",

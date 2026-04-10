@@ -12,7 +12,7 @@ npm install @vistta/components
 
 ### **Usage**
 
-```jsx demo
+```jsx
 <Button label="label" />
 ```
 
