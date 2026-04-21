@@ -209,14 +209,16 @@ export default (config, result) => {
   result.fonts[iconFontFamily ?? "Material Symbols"] = options;
   result.animations["loading"] = { from: { rotate: "0deg" }, to: { rotate: "360deg" } };
   result.properties["icon"] = {
-    outlined: ":before:(font-variation-settings:'FILL' 0!)",
-    right: ":before:(float:right)",
     loading:
       ":before:(content: ''; display:inline-block; float: left; animation: loading 1s linear infinite; height:$icon-size; width:$icon-size; border-radius:50%; border:.5rem solid currentColor; border-top-color:transparent; border-right-color:transparent)",
     "*":
       ":before:(font-family:$icon-font; content:'\\${}'; float:left; font-size:$icon-size; font-variation-settings:'FILL' 1; font-weight:normal; font-style: normal; " +
       "line-height: 100%; text-transform:none; letter-spacing:normal; word-wrap:normal; white-space:nowrap; direction:ltr; -webkit-font-soothing:antialiased; " +
       "text-rendering:optimizeLegibility; -moz-osx-font-soothing:grayscale; font-feature-settings:'liga')",
+  };
+  result.properties["icon-style"] = {
+    default: ":before:(font-variation-settings:'FILL' 1!)",
+    outlined: ":before:(font-variation-settings:'FILL' 0!)",
   };
 
   /* Position */
@@ -334,23 +336,23 @@ export default (config, result) => {
     position: "relative",
     ":after": {
       position: "absolute",
-      with: "max-content",
-      "max-width": "50vw",
+      width: "max-content",
+      maxWidth: "50vw",
       content: "attr(tooltip)",
       inset: "50% auto auto 50%",
       padding: "1rem 2rem",
-      "font-size": "$font-size-small",
-      "white-space": "break-spaces",
+      fontSize: "$font-size-small",
+      whiteSpace: "break-spaces",
       color: "$fore-color",
-      background: "$overlay-color",
-      "backdrop-filter": "$blur",
-      "border-radius": "$radius",
-      "box-shadow": "$shadow",
+      background: "light-dark(transparent(tint($back-color, 5%), 5%), transparent(tint($back-color, 5%), 5%))",
+      backdropFilter: "$blur",
+      borderRadius: "$radius",
+      boxShadow: "$shadow",
       translate: "-50% -50%",
       opacity: "0",
       overflow: "clip",
-      "z-index": "20",
-      "pointer-events": "none",
+      z: "20",
+      pointerEvents: "none",
       display: "block",
       transition: "opacity $duration, inset $duration, translate $duration",
     },

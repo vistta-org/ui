@@ -19,14 +19,11 @@ class Icon extends Component {
         id={this.id}
         ref={this.ref}
         tooltip={getTooltipLabel(this.tooltip)}
-        style={Style.assign(
-          this.style,
-          {
-            icon: this.code,
-            tooltip: typeof this.tooltip === "object" && this.tooltip?.position,
-          },
-          this.outlined && "icon:outlined",
-        )}
+        style={Style.assign(this.style, {
+          icon: this.code,
+          iconStyle: this.outlined && "outlined",
+          tooltip: typeof this.tooltip === "object" && this.tooltip?.position,
+        })}
       />
     );
   }

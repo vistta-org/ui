@@ -8,6 +8,7 @@ export { default as Input } from "./input";
 export { default as Menu } from "./menu";
 export { default as Modal } from "./modal";
 export { default as Popover } from "./popover";
+export { default as Skeleton } from "./skeleton";
 export { default as style } from "./style";
 export { default as Table } from "./table";
 export { default as Toast } from "./toast";

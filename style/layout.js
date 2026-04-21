@@ -14,11 +14,10 @@ export default (config, result) => {
   result.properties.col = {
     default: "flex: 1; margin: 0; max-width: 100%;",
     full: "flex: none; width: 100%;",
-    auto: "flex: none; width: auto;",
+    "*": "flex: none; width: ${};",
   };
   for (let i = 1, len = config.layout ?? 12; i <= len; i++)
-    result.properties.col[`${i}`] =
-      `flex: none; width: calc(((100% - (${len - 1} * $gap)) / ${len}) * ${i} + ${i - 1} * $gap);`;
+    result.properties.col[`${i}`] = `flex: none; width: calc((100% - (${i - 1} * $gap)) / ${i});`;
 
   result.properties.gap = {
     default: "gap: 2rem; >*:($gap: 2rem)",

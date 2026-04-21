@@ -113,7 +113,8 @@ class Input extends Component {
         aria-label={this.label}
         type={this.type}
         placeholder={this.placeholder || " "}
-        value={this.value}
+        value={this.type === "checkbox" || this.type === "radio" ? undefined : this.value}
+        checked={this.type === "checkbox" || this.type === "radio" ? this.value : undefined}
         required={this.required}
         disabled={this.disabled}
         readonly={this.readonly}
