@@ -146,7 +146,7 @@ class Select extends Component {
             container: "default",
             gap: "1rem",
             padding: "1rem",
-            "> *": { col: 1, text: "left" },
+            "> *": { col: "full", text: "left" },
             height: "max-content",
             maxHeight: "60rem",
             overflow: "auto",

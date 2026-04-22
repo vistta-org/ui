@@ -112,8 +112,8 @@ export default class Calendar extends Component {
           this.style,
         )}
       >
-        <div style="relative; col:1; container; gap:0">
-          <div style="col:1; container:center; gap:0; p:1rem 1rem 0">
+        <div style="relative; col:full; container; gap:0">
+          <div style="col:full; container:center; gap:0; p:1rem 1rem 0">
             {this.controls === "all" && (
               <Button variant="raw" style="col:auto; mr:11rem" action icon="e5cb" onClick={this.previous.bind(this)} />
             )}
@@ -152,7 +152,7 @@ export default class Calendar extends Component {
           controls={this.controls === "all" ? "gesture" : this.controls}
           onChange={this.#onChange.bind(this)}
           style={{
-            col: 1,
+            col: "full",
             height: "calc(100% - 23rem)",
           }}
         />
@@ -223,7 +223,7 @@ class View extends Component {
         );
     }
     return (
-      <div style="relative; col:1; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center; user-select: none">
+      <div style="relative; col:full; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center; user-select: none">
         {body}
       </div>
     );

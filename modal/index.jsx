@@ -56,10 +56,10 @@ class Modal extends Component {
           this.style,
         )}
       >
-        {this.title && <h5 style="col:1; mb:2rem; p:0 2rem 2rem; border:bottom">{this.title}</h5>}
+        {this.title && <h5 style="col:full; mb:2rem; p:0 2rem 2rem; border:bottom">{this.title}</h5>}
         {this.children}
         {this.actions && this.actions.length > 0 && (
-          <div style="col:1; container:end; gap:inherit;">
+          <div style="col:full; container:end; gap:inherit;">
             {this.actions.map((action) => (
               <Button {...action} />
             ))}

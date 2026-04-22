@@ -88,7 +88,7 @@ class Dropdown extends Component {
             container: "default",
             gap: "1rem",
             padding: "1rem",
-            "> *": { col: 1, text: "left" },
+            "> *": { col: "full", text: "left" },
             height: this.height,
             width: this.width || `min-content`,
             minWidth: !this.width && this.button.width,

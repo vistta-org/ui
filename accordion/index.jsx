@@ -93,7 +93,7 @@ class Accordion extends Component {
       >
         <div
           style={{
-            col: 1,
+            col: "full",
             cursor: "pointer",
             p: "2rem",
             icon: this.icon !== false && (typeof this.icon === "string" ? this.icon : "e313"),
@@ -112,7 +112,7 @@ class Accordion extends Component {
         </div>
         <div
           style={{
-            col: 1,
+            col: "full",
             container: "default",
             p: "2rem",
             display: this.open ? "block" : "none",
