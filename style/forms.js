@@ -192,7 +192,7 @@ export default (_, result) =>
       width: "min-content",
       border: "none",
       "> *": {
-        col: "full",
+        col: 1,
       },
     },
 

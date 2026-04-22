@@ -152,7 +152,7 @@ export default class Calendar extends Component {
           controls={this.controls === "all" ? "gesture" : this.controls}
           onChange={this.#onChange.bind(this)}
           style={{
-            col: "full",
+            col: 1,
             height: "calc(100% - 23rem)",
           }}
         />
