@@ -1,5 +1,6 @@
 import { Component, Ref } from "@vistta/js";
 import { equals } from "@vistta/utils";
+import Button from "../../button";
 import Popover from "../../popover";
 
 /**
@@ -145,11 +146,11 @@ class Select extends Component {
             container: "default",
             gap: "1rem",
             padding: "1rem",
-            "> *": { col: "full", text: "left" },
+            "> *": { col: 1, text: "left" },
             height: "max-content",
             maxHeight: "60rem",
             overflow: "auto",
-            width: "fit-content",
+            width: "min-content",
             minWidth: this.anchor.width,
           }}
           inert
@@ -157,24 +158,18 @@ class Select extends Component {
           {this.options?.reduce((result, option) => {
             const { label, value } = normalizeOption(option);
             if (this.filterable && this.search && !label.toLowerCase().includes(this.search.toLowerCase())) return result;
+            const selected = (this.multiple ? this.value || [] : [this.value]).includes(value);
             return [
               ...result,
-              <button
-                type="button"
+              <Button
+                variant={selected ? "raw" : "raw"}
+                label={label}
                 onClick={(e) => (e.stopPropagation(), this.#select(value))}
-                style={((selected) => ({
+                style={{
                   background: selected ? "$fore-color" : "none",
                   color: selected ? "$back-color" : "default",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "2rem",
-                  padding: "1rem 2rem",
-                  borderRadius: "1rem",
-                }))((this.multiple ? this.value || [] : [this.value]).includes(value))}
-              >
-                {label}
-              </button>,
+                }}
+              />,
             ];
           }, []) || <span style={{ padding: "1rem", color: "muted" }}>No options</span>}
         </Popover>

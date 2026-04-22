@@ -1,7 +1,6 @@
 import { Anchor, Component, Ref } from "@vistta/js";
-import { Button, iconToStyle, variantToStyle } from "../button";
+import Button from "../button";
 import Popover from "../popover";
-import { Style, getTooltipLabel } from "../utils";
 
 /**
  * @typedef {Omit<import("../button").ButtonProps, "type">} ButtonProps
@@ -42,22 +41,18 @@ class Dropdown extends Component {
 
   render() {
     return (
-      <button
+      <Button
         id={this.id}
         ref={Ref.forward(this.ref, this.button)}
-        aria-label={this.label || this.name}
-        name={this.label || this.name}
-        tooltip={getTooltipLabel(this.tooltip)}
-        type={/** @type {any} */ ("button")}
-        style={Style.assign(
-          {
-            p: this.action && "2rem!",
-            tooltip: typeof this.tooltip === "object" ? this.tooltip?.position : undefined,
-          },
-          variantToStyle(this.buttonVariant ?? this.variant),
-          iconToStyle(this.loading ? "loading" : this.icon, this.action),
-          this.style,
-        )}
+        name={this.name}
+        tooltip={this.tooltip}
+        variant={this.buttonVariant ?? this.variant}
+        icon={this.loading ? "loading" : this.icon}
+        action={this.action}
+        active={this.active}
+        disabled={this.disabled || this.loading}
+        loading={this.loading}
+        style={this.style}
         onClick={(e) => {
           this.onClick?.(e);
           if (this.trigger === "click" && !this.#preventClose && !e.defaultPrevented) this.#setVisible(!this.visible);
@@ -79,10 +74,8 @@ class Dropdown extends Component {
         onMouseOver={this.onMouseOver}
         onMouseOut={this.onMouseOut}
         onMouseUp={this.onMouseUp}
-        active={this.active}
-        disabled={this.disabled || this.loading}
       >
-        {!this.action && (this.label || this.children)}
+        {this.label || ""}
         <Popover
           open={this.visible}
           onOutsideClick={(e) =>
@@ -95,9 +88,9 @@ class Dropdown extends Component {
             container: "default",
             gap: "1rem",
             padding: "1rem",
-            "> *": { col: "full", text: "left" },
+            "> *": { col: 1, text: "left" },
             height: this.height,
-            width: this.width || `fit-content`,
+            width: this.width || `min-content`,
             minWidth: !this.width && this.button.width,
             background: this.variant !== "raw" && "inherit",
           }}
@@ -118,7 +111,7 @@ class Dropdown extends Component {
             return [...acc, <Button variant={this.variant} {...props} />];
           }, [])}
         </Popover>
-      </button>
+      </Button>
     );
   }
 }

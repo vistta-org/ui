@@ -189,10 +189,10 @@ export default (_, result) =>
     fieldset: {
       position: "relative",
       container: "default",
-      width: "fit-content",
+      width: "min-content",
       border: "none",
       "> *": {
-        col: "full",
+        col: 1,
       },
     },
 

@@ -1,11 +1,11 @@
-import { Component, Ref } from "@vistta/js";
+import { Component } from "@vistta/js";
 import Button from "../button/index.jsx";
+import Popover from "../popover/index.jsx";
 import { Style } from "../utils";
 
 /**
  * @typedef {object} ToastProps
  * @property {string} [id]
- * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
  * @property {JSX.Style} [style]
  * @property {string} [message]
  * @property {"top" | "bottom"} [position]
@@ -19,31 +19,15 @@ import { Style } from "../utils";
  */
 class Toast extends Component {
   variant = /** @type {"basic"} */ ("basic");
-  #node;
-  #handler;
-
-  onConnect() {
-    this.#handler = (event) => {
-      if (!this.#node || this.#node.contains(event.target)) return;
-      this.onOutsideClick?.(event);
-    };
-    this.onOutsideClick && document.addEventListener("click", this.#handler);
-  }
-
-  onDisconnect() {
-    this.onOutsideClick && document.removeEventListener("click", this.#handler);
-  }
-
-  register(element) {
-    this.#node = element;
-    requestAnimationFrame(() => this.#node.showPopover());
-  }
 
   render() {
     return (
-      <aside
-        ref={Ref.forward(this.ref, this.register.bind(this))}
+      <Popover
+        ref={this.ref}
         id={this.id}
+        open
+        inert
+        onOutsideClick={this.onOutsideClick}
         style={Style.assign(
           {
             p: "4rem",
@@ -56,7 +40,6 @@ class Toast extends Component {
           },
           this.style,
         )}
-        popover="manual"
       >
         <p>
           {`${this.message}`}
@@ -69,7 +52,7 @@ class Toast extends Component {
             />
           )}
         </p>
-      </aside>
+      </Popover>
     );
   }
 }

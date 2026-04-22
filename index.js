@@ -2,6 +2,7 @@ export { default as Accordion } from "./accordion";
 export { default as Button } from "./button";
 export { default as Calendar } from "./calendar";
 export { default as Card } from "./card";
+export { default as Carousel } from "./carousel";
 export { default as Dropdown } from "./dropdown";
 export { default as Icon } from "./icon";
 export { default as Input } from "./input";

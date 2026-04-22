@@ -50,7 +50,7 @@ class Popover extends Component {
           style={Style.assign(
             {
               container: "center",
-              width: "fit-content",
+              width: "min-content",
               animate: "fade",
             },
             this.style,
@@ -67,7 +67,7 @@ class Popover extends Component {
         style={Style.assign(
           {
             container: "center",
-            width: "fit-content",
+            width: "min-content",
             animate: "fade",
           },
           this.style,

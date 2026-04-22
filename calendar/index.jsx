@@ -1,6 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 import { DateTime, formatDate } from "@vistta/utils";
 import Button from "../button";
+import Carousel from "../carousel";
 import { Style } from "../utils";
 
 const DEFAULT_DATE = new DateTime([1996, 0, 14]); // Sunday, 14 January 1996 00:00:00
@@ -28,8 +29,8 @@ const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 
  * @extends {Component<CalendarProps>}
  */
 export default class Calendar extends Component {
-  #body;
   #main;
+  #carousel = new Ref();
   /** @type {CalendarType} */
   type = "month";
   /** @type {"mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun"} */
@@ -47,36 +48,42 @@ export default class Calendar extends Component {
     this.#main = element;
   }
 
-  registerBody(body) {
-    this.#body = body;
-    const observer = new ResizeObserver(() => {
-      if (!body.clientWidth) return;
-      observer.disconnect();
-      body.scrollLeft = body.clientWidth;
-    });
-    observer.observe(body);
+  #getItem(active, offset) {
+    if (offset === 0)
+      return (
+        <View
+          type={this.type}
+          date={new DateTime(this.date)}
+          renderDay={this.renderDay}
+          starting={this.starting}
+          onClick={this.onClick}
+          onDblClick={this.onDblClick}
+        />
+      );
+    const date = new DateTime(this.date);
+    if (offset < 0) for (let i = 0; i > offset; i--) date.previous(/** @type {any} */ (this.type));
+    else for (let i = 0; i < offset; i++) date.next(/** @type {any} */ (this.type));
+    return <View type={this.type} date={date} renderDay={this.renderDay} starting={this.starting} />;
   }
 
-  onScrollEnd({ target: body }) {
-    const page = Math.round(body.scrollLeft / body.clientWidth);
-    if (page === 1) return;
-    const date = new DateTime(this.date)[page === 0 ? "previous" : "next"](this.type);
-    const event = /** @type {any} */ (new CustomEvent("change", { cancelable: true }));
-    event.date = date;
-    this.#main.dispatchEvent(event);
-    if (event.defaultPrevented) return;
+  #onChange(event) {
+    const date = new DateTime(this.date)[event.index < 0 ? "previous" : "next"](this.type);
+    const calEvent = /** @type {any} */ (new CustomEvent("change", { cancelable: true }));
+    calEvent.date = date;
+    this.#main.dispatchEvent(calEvent);
+    if (calEvent.defaultPrevented) {
+      event.preventDefault();
+      return;
+    }
     this.date = date;
-    body.scrollTo({ left: body.clientWidth, behavior: "instant" });
   }
 
   next() {
-    if (!this.#body) return;
-    this.#body.scrollTo({ left: this.#body.clientWidth * 2, behavior: "smooth" });
+    this.#carousel.node?.next();
   }
 
   previous() {
-    if (!this.#body) return;
-    this.#body.scrollTo({ left: 0, behavior: "smooth" });
+    this.#carousel.node?.previous();
   }
 
   select(day) {
@@ -105,8 +112,8 @@ export default class Calendar extends Component {
           this.style,
         )}
       >
-        <div style="relative; col:full; container; gap:0">
-          <div style="col:full; container:center; gap:0; p:1rem 1rem 0">
+        <div style="relative; col:1; container; gap:0">
+          <div style="col:1; container:center; gap:0; p:1rem 1rem 0">
             {this.controls === "all" && (
               <Button variant="raw" style="col:auto; mr:11rem" action icon="e5cb" onClick={this.previous.bind(this)} />
             )}
@@ -138,44 +145,17 @@ export default class Calendar extends Component {
               );
             })}
         </div>
-        <div
-          ref={this.registerBody.bind(this)}
+        <Carousel
+          ref={this.#carousel}
+          items={this.#getItem.bind(this)}
+          active={this.date}
+          controls={this.controls === "all" ? "gesture" : this.controls}
+          onChange={this.#onChange.bind(this)}
           style={{
-            position: "relative",
-            col: "full",
-            container: "default",
+            col: 1,
             height: "calc(100% - 23rem)",
-            gap: 0,
-            flexWrap: "nowrap",
-            overflow: "auto clip",
-            scrollSnapType: "x mandatory",
-            scrollbar: "hidden",
           }}
-          onWheel={this.controls === "none" ? (e) => e.preventDefault() : undefined}
-          onTouchMove={this.controls === "none" ? (e) => e.preventDefault() : undefined}
-          onScrollEnd={this.controls !== "none" && this.onScrollEnd.bind(this)}
-        >
-          <View
-            type={this.type}
-            date={new DateTime(this.date).previous(/** @type {any} */ (this.type))}
-            renderDay={this.renderDay}
-            starting={this.starting}
-          />
-          <View
-            type={this.type}
-            date={new DateTime(this.date)}
-            renderDay={this.renderDay}
-            starting={this.starting}
-            onClick={this.onClick}
-            onDblClick={this.onDblClick}
-          />
-          <View
-            type={this.type}
-            date={new DateTime(this.date).next(/** @type {any} */ (this.type))}
-            renderDay={this.renderDay}
-            starting={this.starting}
-          />
-        </div>
+        />
       </div>
     );
   }
@@ -243,7 +223,7 @@ class View extends Component {
         );
     }
     return (
-      <div style="relative; col:full; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center; user-select: none">
+      <div style="relative; col:1; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center; user-select: none">
         {body}
       </div>
     );

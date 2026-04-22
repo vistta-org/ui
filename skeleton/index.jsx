@@ -16,9 +16,9 @@ import { Component, Style } from "@vistta/js";
 export default class Skeleton extends Component {
   render() {
     const animation = this.animate !== false && {
-      "0%": { opacity: ".4" },
-      "50%": { opacity: ".05" },
-      "100%": { opacity: ".4" },
+      "0%": { opacity: "0" },
+      "50%": { opacity: ".4" },
+      "100%": { opacity: "0" },
       duration: "2s",
       timingFunction: "ease-in-out",
       iterationCount: "infinite",
@@ -48,7 +48,7 @@ export default class Skeleton extends Component {
                 width: i === 7 ? "60%" : "100%",
                 height: "1em",
                 flexShrink: 0,
-                opacity: ".4",
+                opacity: animation ? "0" : ".4",
                 animation,
               }}
             />
@@ -77,7 +77,7 @@ export default class Skeleton extends Component {
                   ? `min(${this.width}, ${this.height})`
                   : (this.height ?? this.width ?? "3rem")
                 : (this.height ?? (this.variant === "text" ? "1em" : "100%")),
-            opacity: ".4",
+            opacity: animation ? "0" : ".4",
             animation,
           },
           this.style,
