@@ -47,7 +47,7 @@ class Modal extends Component {
         style={Style.assign(
           {
             container: "center",
-            width: "min-content",
+            width: "fit-content",
             "max-width": "min(600px, calc(100vw - 8rem))",
             p: "4rem",
             gap: "4rem",
