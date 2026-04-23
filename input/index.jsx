@@ -1,10 +1,12 @@
 import { Anchor, Component, Ref } from "@vistta/js";
 import { Style, getTooltipLabel } from "../utils";
+import Color from "./color";
 import Rich from "./rich";
 import Select from "./select";
 
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
+ * @typedef {import("./color").ColorProps} ColorProps
  * @typedef {import("./select").SelectProps} SelectProps
  * @typedef {import("./rich").RichProps} RichProps
  *
@@ -17,7 +19,7 @@ import Select from "./select";
  *  style?: JSX.Style,
  * }} FieldsetProps
  *
- * @typedef {"button" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week"} BaseInputs
+ * @typedef {"button" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week"} BaseInputs
  *
  * @typedef {{
  *  id?: string,
@@ -36,7 +38,8 @@ import Select from "./select";
  * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio", variant?: "default" | "inverted" }} CheckInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
- * @typedef {StandardInputProps | CheckInputProps | SelectInputProps | RichInputProps} InputProps
+ * @typedef {ColorProps & FieldsetProps & { type: "color" }} ColorInputProps
+ * @typedef {StandardInputProps | CheckInputProps | SelectInputProps | RichInputProps | ColorInputProps} InputProps
  */
 
 const TEXT_BASED = ["text", "password", "email", "url", "tel", "search", "textarea", "rich", "richtext"];
@@ -75,6 +78,25 @@ class Input extends Component {
           value={this.value}
           // @ts-ignore - narrowed by type check above
           format={this.format}
+          required={this.required}
+          disabled={this.disabled}
+          readonly={this.readonly}
+          onChange={this.onChange}
+          onInput={this.onInput}
+        />
+      );
+    if (this.type === "color")
+      return (
+        <Color
+          ref={Ref.forward(this.ref, (el) => (this.#node = el))}
+          anchor={this.anchor}
+          id={this.id}
+          name={this.name}
+          value={this.value}
+          // @ts-ignore - narrowed by type check above
+          presets={this.presets}
+          // @ts-ignore - narrowed by type check above
+          recent={this.recent}
           required={this.required}
           disabled={this.disabled}
           readonly={this.readonly}
@@ -127,7 +149,8 @@ class Input extends Component {
   #focus(event) {
     if (event.target === this.#node) return;
     if (TEXT_BASED.includes(this.type)) this.#node?.focus();
-    if (this.type === "select" || this.type === "checkbox" || this.type === "radio") this.#node?.click();
+    if (this.type === "select" || this.type === "color" || this.type === "checkbox" || this.type === "radio")
+      this.#node?.click();
   }
 
   get #iconStyle() {

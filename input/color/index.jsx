@@ -1,0 +1,417 @@
+import { Component, Ref } from "@vistta/js";
+import Popover from "../../popover";
+
+/**
+ * @typedef {object} ColorProps
+ * @property {string} [id]
+ * @property {Ref<HTMLInputElement> | ((element: HTMLInputElement) => void)} [ref]
+ * @property {import("@vistta/js").Anchor} [anchor]
+ * @property {string} [name]
+ * @property {string} [value]
+ * @property {string[]} [presets]
+ * @property {string[]} [recent]
+ * @property {boolean} [required]
+ * @property {boolean} [disabled]
+ * @property {boolean} [readonly]
+ * @property {(event?: any) => any} [onChange]
+ * @property {(event?: InputEvent) => any} [onInput]
+ */
+
+const SWATCH_STYLE = {
+  width: "6rem",
+  height: "6rem",
+  minWidth: "6rem",
+  radius: "circular",
+  cursor: "pointer",
+  padding: 0,
+  col: "auto",
+  transition: "border-color $duration",
+};
+
+/**
+ * @extends {Component<ColorProps>}
+ */
+class Color extends Component {
+  #node;
+  open = false;
+  hue = 0;
+  sat = 100;
+  val = 100;
+
+  get current() {
+    return this.#node?.value || this.value;
+  }
+
+  #select(color) {
+    if (!this.#node || this.disabled || this.readonly) return;
+    this.#node.value = color;
+    this.#node.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  #selectHSV(color) {
+    const [h, s, v] = hexToHSV(color);
+    this.hue = h;
+    this.sat = s;
+    this.val = v;
+    this.#select(color);
+  }
+
+  #register(element) {
+    this.#node = element;
+    Object.defineProperties(element, {
+      value: {
+        get: () => this.value,
+        set: (value) => {
+          if (this.disabled || this.readonly || this.value === value) return;
+          this.value = value;
+        },
+        configurable: false,
+      },
+      click: {
+        value: () => {
+          if (!this.disabled && !this.readonly) this.open = true;
+        },
+        configurable: false,
+      },
+    });
+  }
+
+  onConnect() {
+    if (this.value) {
+      const [h, s, v] = hexToHSV(this.value);
+      this.hue = h;
+      this.sat = s;
+      this.val = v;
+    }
+  }
+
+  render() {
+    return (
+      <>
+        <div
+          ref={Ref.forward(this.ref, this.#register.bind(this))}
+          role="select"
+          name={this.name}
+          aria-label={this.name}
+          aria-expanded={this.open}
+          aria-selected={!!this.current}
+          onChange={this.onChange}
+          onInput={this.onInput}
+          style={{
+            position: "relative",
+            container: "default",
+            alignItems: "center",
+            gap: "2rem",
+            cursor: this.disabled || this.readonly ? "default" : "pointer",
+            minHeight: "10rem",
+          }}
+        >
+          <input
+            type="hidden"
+            id={this.id}
+            name={this.name}
+            value={this.value}
+            required={this.required}
+            disabled={this.disabled}
+          />
+          <span
+            style={{
+              width: "6rem",
+              height: "6rem",
+              minWidth: "6rem",
+              radius: "circular",
+              backgroundColor: this.current || "$neutral-color",
+              border: ".5rem solid $fore-color",
+              display: "inline-block",
+            }}
+          />
+          <span style={{ col: "default", opacity: this.current ? 1 : 0.5 }}>{this.current || "Select color"}</span>
+        </div>
+        {this.open && (
+          <ColorPopover
+            anchor={this.anchor}
+            current={this.current}
+            hue={this.hue}
+            sat={this.sat}
+            val={this.val}
+            hueColor={hsvToHex(this.hue, 100, 100)}
+            presets={this.presets}
+            recent={this.recent}
+            onClose={() => (this.open = false)}
+            onSelect={(color) => this.#select(color)}
+            onSelectHSV={(color) => this.#selectHSV(color)}
+            onAreaChange={(sat, val) => {
+              this.sat = sat;
+              this.val = val;
+              this.#select(hsvToHex(this.hue, sat, val));
+            }}
+            onHueChange={(hue) => {
+              this.hue = hue;
+              this.#select(hsvToHex(hue, this.sat, this.val));
+            }}
+            onHexInput={(hex) => this.#selectHSV(hex)}
+          />
+        )}
+      </>
+    );
+  }
+}
+
+class ColorPopover extends Component {
+  #canvas;
+  #hueBar;
+  #popover;
+  #dragging = null;
+  #boundMove;
+  #boundUp;
+  #boundClose;
+
+  onConnect() {
+    this.#boundMove = (e) => this.#onMove(e);
+    this.#boundUp = () => (this.#dragging = null);
+    this.#boundClose = (e) => {
+      if (this.#popover && !this.#popover.contains(e.target)) this.onClose?.();
+    };
+    document.addEventListener("mousemove", this.#boundMove);
+    document.addEventListener("mouseup", this.#boundUp);
+    document.addEventListener("touchmove", this.#boundMove, { passive: false });
+    document.addEventListener("touchend", this.#boundUp);
+    requestAnimationFrame(() => document.addEventListener("pointerdown", this.#boundClose));
+  }
+
+  onDisconnect() {
+    document.removeEventListener("mousemove", this.#boundMove);
+    document.removeEventListener("mouseup", this.#boundUp);
+    document.removeEventListener("touchmove", this.#boundMove);
+    document.removeEventListener("touchend", this.#boundUp);
+    document.removeEventListener("pointerdown", this.#boundClose);
+  }
+
+  #onMove(e) {
+    if (!this.#dragging) return;
+    e.preventDefault();
+    if (this.#dragging === "area") this.#updateArea(e);
+    else if (this.#dragging === "hue") this.#updateHue(e);
+  }
+
+  #updateArea(e) {
+    const rect = this.#canvas?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (e.touches?.[0]?.clientX ?? e.clientX) - rect.left;
+    const y = (e.touches?.[0]?.clientY ?? e.clientY) - rect.top;
+    const sat = Math.round(Math.min(100, Math.max(0, (x / rect.width) * 100)));
+    const val = Math.round(Math.min(100, Math.max(0, 100 - (y / rect.height) * 100)));
+    this.onAreaChange?.(sat, val);
+  }
+
+  #updateHue(e) {
+    const rect = this.#hueBar?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (e.touches?.[0]?.clientX ?? e.clientX) - rect.left;
+    const hue = Math.round(Math.min(360, Math.max(0, (x / rect.width) * 360)));
+    this.onHueChange?.(hue);
+  }
+
+  #onHexInput(e) {
+    let hex = e.target.value.trim();
+    if (!hex.startsWith("#")) hex = "#" + hex;
+    if (/^#[0-9a-fA-F]{6}$/.test(hex)) this.onHexInput?.(hex.toLowerCase());
+  }
+
+  get #recentFiltered() {
+    const presetSet = new Set(this.presets);
+    return (this.recent || []).filter((c) => !presetSet.has(c));
+  }
+
+  render() {
+    return (
+      <Popover
+        ref={(el) => (this.#popover = el)}
+        open
+        style={{
+          inset: `${this.anchor("bottom", "2rem")} calc(${this.anchor("left")} - ${this.anchor("width")}) auto auto`,
+          container: "default",
+          gap: "2rem",
+          padding: "3rem",
+          width: "min-content",
+          minWidth: this.anchor.width,
+        }}
+        inert
+      >
+        <div
+          ref={(el) => (this.#canvas = el)}
+          onMouseDown={(e) => {
+            this.#dragging = "area";
+            this.#updateArea(e);
+          }}
+          onTouchStart={(e) => {
+            this.#dragging = "area";
+            this.#updateArea(e);
+          }}
+          style={{
+            col: "full",
+            position: "relative",
+            width: "100%",
+            height: "40rem",
+            radius: "rounded",
+            cursor: "crosshair",
+            backgroundImage: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${this.hueColor})`,
+            touchAction: "none",
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              width: "4rem",
+              height: "4rem",
+              radius: "circular",
+              border: ".5rem solid #fff",
+              boxShadow: "0 0 .5rem rgba(0,0,0,.5)",
+              transform: "translate(-50%, -50%)",
+              pointerEvents: "none",
+              left: this.sat + "%",
+              top: 100 - this.val + "%",
+            }}
+          />
+        </div>
+        <div
+          ref={(el) => (this.#hueBar = el)}
+          onMouseDown={(e) => {
+            this.#dragging = "hue";
+            this.#updateHue(e);
+          }}
+          onTouchStart={(e) => {
+            this.#dragging = "hue";
+            this.#updateHue(e);
+          }}
+          style={{
+            col: "full",
+            position: "relative",
+            width: "100%",
+            height: "5rem",
+            radius: "rounded",
+            cursor: "pointer",
+            backgroundImage:
+              "linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%)",
+            touchAction: "none",
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              width: "4rem",
+              height: "100%",
+              radius: "rounded",
+              border: ".5rem solid #fff",
+              boxShadow: "0 0 .5rem rgba(0,0,0,.5)",
+              transform: "translateX(-50%)",
+              pointerEvents: "none",
+              left: (this.hue / 360) * 100 + "%",
+              top: 0,
+            }}
+          />
+        </div>
+        <div style="col:full; container; gap:2rem; align-items:center">
+          <span
+            style={{
+              width: "8rem",
+              height: "8rem",
+              minWidth: "8rem",
+              radius: "circular",
+              backgroundColor: this.current || "$neutral-color",
+              border: ".5rem solid $fore-color",
+            }}
+          />
+          <input
+            type="text"
+            value={this.current || ""}
+            maxLength={7}
+            onInput={(e) => this.#onHexInput(e)}
+            style={{
+              col: "default",
+              border: "default",
+              radius: "rounded",
+              padding: "1rem 2rem",
+              background: "inherit",
+              color: "inherit",
+              fontFamily: "monospace",
+            }}
+          />
+        </div>
+        {this.presets?.length > 0 && (
+          <div style="col:full; container; gap:1rem; flex-wrap:wrap; align-items:center">
+            {this.presets.map((color) => (
+              <button
+                type="button"
+                onClick={() => this.onSelectHSV?.(color)}
+                style={{
+                  ...SWATCH_STYLE,
+                  backgroundColor: color,
+                  border: this.current === color ? ".5rem solid $fore-color" : ".5rem solid transparent",
+                }}
+              />
+            ))}
+          </div>
+        )}
+        {this.#recentFiltered.length > 0 && (
+          <>
+            <span style="col:full; font:small; opacity:.6">Recent</span>
+            <div style="col:full; container; gap:1rem; flex-wrap:wrap; align-items:center">
+              {this.#recentFiltered.map((color) => (
+                <button
+                  type="button"
+                  onClick={() => this.onSelectHSV?.(color)}
+                  style={{
+                    ...SWATCH_STYLE,
+                    backgroundColor: color,
+                    border: this.current === color ? ".5rem solid $fore-color" : ".5rem solid transparent",
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </Popover>
+    );
+  }
+}
+
+export default Color;
+
+function hsvToHex(h, s, v) {
+  s /= 100;
+  v /= 100;
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = v - c;
+  let r, g, b;
+  if (h < 60) ((r = c), (g = x), (b = 0));
+  else if (h < 120) ((r = x), (g = c), (b = 0));
+  else if (h < 180) ((r = 0), (g = c), (b = x));
+  else if (h < 240) ((r = 0), (g = x), (b = c));
+  else if (h < 300) ((r = x), (g = 0), (b = c));
+  else ((r = c), (g = 0), (b = x));
+  r = Math.round((r + m) * 255);
+  g = Math.round((g + m) * 255);
+  b = Math.round((b + m) * 255);
+  return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+}
+
+function hexToHSV(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d + 6) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  const s = max === 0 ? 0 : (d / max) * 100;
+  const v = max * 100;
+  return [Math.round(h), Math.round(s), Math.round(v)];
+}
