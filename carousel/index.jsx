@@ -176,7 +176,6 @@ export default class Carousel extends Component {
               icon="e408"
               onClick={() => this.previous()}
               variant="raw"
-              action
               disabled={!this.hasPrev}
               style="pointer-events:auto"
             />
@@ -184,7 +183,6 @@ export default class Carousel extends Component {
               icon="e409"
               onClick={() => this.next()}
               variant="raw"
-              action
               disabled={!this.hasNext}
               style="pointer-events:auto"
             />

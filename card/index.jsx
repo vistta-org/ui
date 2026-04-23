@@ -28,7 +28,7 @@ export default class Card extends Component {
             radius: "rounded",
             border: "default",
             "> *": {
-              col: 1,
+              col: "full",
             },
           },
           this.style,

@@ -18,7 +18,6 @@ const ICON_POSITION = {
  * @property {string} [name]
  * @property {string} [label]
  * @property {"" | "default" | "basic" | "raw" | Colors | `raw ${Colors}` | `${Colors} raw`} [variant]
- * @property {boolean} [action]
  * @property {boolean} [active]
  * @property {Icon} [icon]
  * @property {boolean} [loading]
@@ -54,11 +53,11 @@ export class Button extends Component {
         type={this.type || "button"}
         style={Style.assign(
           {
-            p: this.action && "2rem!",
+            p: !this.label && "2rem!",
             tooltip: typeof this.tooltip === "object" && this.tooltip?.position,
           },
           variantToStyle(this.variant),
-          iconToStyle(this.loading ? "loading" : this.icon, this.action),
+          iconToStyle(this.loading ? "loading" : this.icon, !this.label),
           this.style,
         )}
         onClick={this.onClick}
@@ -75,7 +74,7 @@ export class Button extends Component {
         disabled={this.disabled || this.loading}
         hidden={this.hidden}
       >
-        {!this.action && (this.label || this.children)}
+        {this.label || this.children}
       </button>
     );
   }

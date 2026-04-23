@@ -160,7 +160,7 @@ export class CustomGlobalDialogs extends Component {
             {this.prompt.message && <div style="col:full; p:0 2rem">{this.prompt.message}</div>}
             <Form ref={(ref) => (this.prompt.form = ref)} style="display:contents">
               {this.prompt.fields.map((input) => (
-                <Input {...input} style={Style.assign({ col: 1 }, input.style)} />
+                <Input {...input} style={Style.assign({ col: "full" }, input.style)} />
               ))}
             </Form>
           </Modal>

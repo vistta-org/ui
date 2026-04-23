@@ -152,7 +152,6 @@ class Menu extends Component {
               },
             }}
             items={/** @type {any} */ (this.items.slice(this.visibleIndex))}
-            action
           />
         )}
       </div>

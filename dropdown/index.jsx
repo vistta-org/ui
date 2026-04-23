@@ -48,7 +48,6 @@ class Dropdown extends Component {
         tooltip={this.tooltip}
         variant={this.buttonVariant ?? this.variant}
         icon={this.loading ? "loading" : this.icon}
-        action={this.action}
         active={this.active}
         disabled={this.disabled || this.loading}
         loading={this.loading}
@@ -88,7 +87,7 @@ class Dropdown extends Component {
             container: "default",
             gap: "1rem",
             padding: "1rem",
-            "> *": { col: 1, text: "left" },
+            "> *": { col: "full", text: "left" },
             height: this.height,
             width: this.width || `min-content`,
             minWidth: !this.width && this.button.width,
