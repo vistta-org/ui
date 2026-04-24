@@ -49,7 +49,6 @@ const VARIANTS = ["success", "error", "info", "warning"];
  *   title?: string,
  *   value?: any,
  *   labels?: { submit?: string, cancel?: string, field?: string },
- *   submit?: string,
  *   fields?: PromptDialogField[],
  *   form?: { values: () => any },
  *   callback?: (value: any) => void,
@@ -159,7 +158,7 @@ export class CustomGlobalDialogs extends Component {
             actions={[
               { variant: "raw", label: this.prompt.labels?.cancel || "Cancel", onClick: () => this.prompt.callback(null) },
               {
-                label: this.prompt.labels?.submit || this.prompt.submit || "Ok",
+                label: this.prompt.labels?.submit || "Ok",
                 onClick: () => this.prompt.callback(this.prompt.form.values()),
               },
             ]}
