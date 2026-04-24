@@ -26,6 +26,7 @@ const VARIANTS = ["success", "error", "info", "warning"];
  * @typedef {{
  *   message?: string,
  *   title?: string,
+ *   labels?: { submit?: string, cancel?: string },
  *   submit?: string,
  *   callback?: (value: boolean) => void,
  * }} ConfirmDialogOptions
@@ -46,8 +47,8 @@ const VARIANTS = ["success", "error", "info", "warning"];
  * @typedef {{
  *   message?: string,
  *   title?: string,
- *   label?: string,
  *   value?: any,
+ *   labels?: { submit?: string, cancel?: string, field?: string },
  *   submit?: string,
  *   fields?: PromptDialogField[],
  *   form?: { values: () => any },
@@ -102,7 +103,7 @@ export class CustomGlobalDialogs extends Component {
       new Promise((resolve) => {
         if (typeof prompt === "string") prompt = { message: prompt, fields };
         if (!prompt.fields)
-          prompt.fields = [{ name: "default", type: "text", label: prompt.label || "", value: prompt.value || "" }];
+          prompt.fields = [{ name: "default", type: "text", label: prompt.labels?.field || "", value: prompt.value || "" }];
         this.prompt = {
           ...prompt,
           callback: (values) => {
@@ -137,8 +138,15 @@ export class CustomGlobalDialogs extends Component {
           <Modal
             title={this.confirm.title}
             actions={[
-              { variant: "raw", label: "Cancel", onClick: () => this.confirm.callback(false) },
-              { label: this.confirm.submit || "OK", onClick: () => this.confirm.callback(true) },
+              {
+                variant: "raw",
+                label: this.confirm.labels?.cancel || "Cancel",
+                onClick: () => this.confirm.callback(false),
+              },
+              {
+                label: this.confirm.labels?.submit || this.confirm.submit || "OK",
+                onClick: () => this.confirm.callback(true),
+              },
             ]}
             open
           >
@@ -149,9 +157,9 @@ export class CustomGlobalDialogs extends Component {
           <Modal
             title={this.prompt.title}
             actions={[
-              { variant: "raw", label: "Cancel", onClick: () => this.prompt.callback(null) },
+              { variant: "raw", label: this.prompt.labels?.cancel || "Cancel", onClick: () => this.prompt.callback(null) },
               {
-                label: this.prompt.submit || "Ok",
+                label: this.prompt.labels?.submit || this.prompt.submit || "Ok",
                 onClick: () => this.prompt.callback(this.prompt.form.values()),
               },
             ]}
