@@ -91,10 +91,14 @@ class Color extends Component {
         <div
           ref={Ref.forward(this.ref, this.#register.bind(this))}
           role="select"
+          id={this.id}
           name={this.name}
+          value={this.value}
           aria-label={this.name}
           aria-expanded={this.open}
           aria-selected={!!this.current}
+          required={this.required}
+          disabled={this.disabled}
           onChange={this.onChange}
           onInput={this.onInput}
           style={{
@@ -106,14 +110,6 @@ class Color extends Component {
             minHeight: "10rem",
           }}
         >
-          <input
-            type="hidden"
-            id={this.id}
-            name={this.name}
-            value={this.value}
-            required={this.required}
-            disabled={this.disabled}
-          />
           <span
             style={{
               width: "6rem",
@@ -212,10 +208,15 @@ class ColorPopover extends Component {
     this.onHueChange?.(hue);
   }
 
-  #onHexInput(e) {
-    let hex = e.target.value.trim();
-    if (!hex.startsWith("#")) hex = "#" + hex;
-    if (/^#[0-9a-fA-F]{6}$/.test(hex)) this.onHexInput?.(hex.toLowerCase());
+  #onRGBInput(channel, e) {
+    const val = parseInt(e.target.value, 10);
+    if (isNaN(val)) return;
+    const clamped = Math.min(255, Math.max(0, val));
+    const [r, g, b] = hexToRGB(this.current || "#000000");
+    const rgb = [r, g, b];
+    rgb[channel] = clamped;
+    const hex = "#" + rgb.map((c) => c.toString(16).padStart(2, "0")).join("");
+    this.onHexInput?.(hex);
   }
 
   get #recentFiltered() {
@@ -229,12 +230,11 @@ class ColorPopover extends Component {
         ref={(el) => (this.#popover = el)}
         open
         style={{
-          inset: `${this.anchor("bottom", "2rem")} calc(${this.anchor("left")} - ${this.anchor("width")}) auto auto`,
+          ...this.anchor("bottom", { gap: "2rem" }),
           container: "default",
           gap: "2rem",
           padding: "3rem",
           width: "min-content",
-          minWidth: this.anchor.width,
         }}
         inert
       >
@@ -322,21 +322,29 @@ class ColorPopover extends Component {
               border: ".5rem solid $fore-color",
             }}
           />
-          <input
-            type="text"
-            value={this.current || ""}
-            maxLength={7}
-            onInput={(e) => this.#onHexInput(e)}
-            style={{
-              col: "default",
-              border: "default",
-              radius: "rounded",
-              padding: "1rem 2rem",
-              background: "inherit",
-              color: "inherit",
-              fontFamily: "monospace",
-            }}
-          />
+          {["R", "G", "B"].map((label, i) => (
+            <div style="container:center; width: 16rem; gap:.5rem; align-items:center">
+              <span style="font:small; opacity:.6">{label}</span>
+              <input
+                type="number"
+                role="part"
+                min={0}
+                max={255}
+                value={hexToRGB(this.current || "#000000")[i]}
+                onInput={(e) => this.#onRGBInput(i, e)}
+                style={{
+                  width: "13rem",
+                  textAlign: "center",
+                  border: "default",
+                  radius: "rounded",
+                  padding: "1rem",
+                  background: "inherit",
+                  color: "inherit",
+                  fontFamily: "monospace",
+                }}
+              />
+            </div>
+          ))}
         </div>
         {this.presets?.length > 0 && (
           <div style="col:full; container; gap:1rem; flex-wrap:wrap; align-items:center">
@@ -398,20 +406,25 @@ function hsvToHex(h, s, v) {
 }
 
 function hexToHSV(hex) {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
+  const [r, g, b] = hexToRGB(hex);
+  const rn = r / 255,
+    gn = g / 255,
+    bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
   const d = max - min;
   let h = 0;
   if (d !== 0) {
-    if (max === r) h = ((g - b) / d + 6) % 6;
-    else if (max === g) h = (b - r) / d + 2;
-    else h = (r - g) / d + 4;
+    if (max === rn) h = ((gn - bn) / d + 6) % 6;
+    else if (max === gn) h = (bn - rn) / d + 2;
+    else h = (rn - gn) / d + 4;
     h *= 60;
   }
   const s = max === 0 ? 0 : (d / max) * 100;
   const v = max * 100;
   return [Math.round(h), Math.round(s), Math.round(v)];
+}
+
+function hexToRGB(hex) {
+  return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
 }

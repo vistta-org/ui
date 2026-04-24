@@ -83,7 +83,7 @@ class Dropdown extends Component {
               : this.close === "auto" && this.#setVisible(false)
           }
           style={{
-            inset: getPositionStyle(this.position, this.button),
+            ...this.button(this.position || "bottom", { gap: "2rem" }),
             container: "default",
             gap: "1rem",
             padding: "1rem",
@@ -116,16 +116,3 @@ class Dropdown extends Component {
 }
 
 export default Dropdown;
-
-function getPositionStyle(position, anchor) {
-  switch (position) {
-    case "top":
-      return `auto calc(${anchor("left")} - ${anchor("width")}) ${anchor("top", "2rem")} auto`;
-    case "left":
-      return `${anchor("y")} auto auto ${anchor("left", "2rem")}`;
-    case "right":
-      return `${anchor("y")} auto auto ${anchor("right", "2rem")}`;
-    default:
-      return `${anchor("bottom", "2rem")} calc(${anchor("left")} - ${anchor("width")}) auto auto`;
-  }
-}

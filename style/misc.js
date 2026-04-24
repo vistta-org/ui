@@ -43,6 +43,7 @@ export default (_, result) => {
       background: "light-dark(transparent(tint($back-color, 5%), 10%), transparent(tint($back-color, 5%), 10%))",
       "backdrop-filter": "$blur",
       "box-shadow": "$shadow",
+      overflow: "clip",
       ":not([open]):not(:popover-open)": {
         display: "none!",
       },

@@ -142,7 +142,7 @@ class Select extends Component {
           open={this.open}
           onOutsideClick={(e) => this.#close(e.target)}
           style={{
-            inset: `${this.anchor("bottom", "2rem")} calc(${this.anchor("left")} - ${this.anchor("width")}) auto auto`,
+            ...this.anchor("bottom", { gap: "2rem" }),
             container: "default",
             gap: "1rem",
             padding: "1rem",
@@ -151,7 +151,6 @@ class Select extends Component {
             maxHeight: "60rem",
             overflow: "auto",
             width: "min-content",
-            minWidth: this.anchor.width,
           }}
           inert
         >
