@@ -35,7 +35,7 @@ import Select from "./select";
  * }} BaseInputProps
  *
  * @typedef {BaseInputProps & FieldsetProps & { type?: BaseInputs | "textarea" }} StandardInputProps
- * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio", variant?: "default" | "inverted" }} CheckInputProps
+ * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio" | "switch", variant?: "default" | "inverted" }} CheckInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
  * @typedef {ColorProps & FieldsetProps & { type: "color" }} ColorInputProps
@@ -133,10 +133,11 @@ class Input extends Component {
         id={this.id}
         name={this.name}
         aria-label={this.label}
-        type={this.type}
+        type={this.type === "switch" ? "checkbox" : this.type}
+        role={this.type === "switch" ? "switch" : undefined}
         placeholder={this.placeholder || " "}
-        value={this.type === "checkbox" || this.type === "radio" ? undefined : this.value}
-        checked={this.type === "checkbox" || this.type === "radio" ? this.value : undefined}
+        value={this.type === "checkbox" || this.type === "radio" || this.type === "switch" ? undefined : this.value}
+        checked={this.type === "checkbox" || this.type === "radio" || this.type === "switch" ? this.value : undefined}
         required={this.required}
         disabled={this.disabled}
         readonly={this.readonly}
@@ -149,7 +150,7 @@ class Input extends Component {
   #focus(event) {
     if (event.target === this.#node) return;
     if (TEXT_BASED.includes(this.type)) this.#node?.focus();
-    if (this.type === "select" || this.type === "color" || this.type === "checkbox" || this.type === "radio")
+    if (this.type === "select" || this.type === "color" || this.type === "checkbox" || this.type === "radio" || this.type === "switch")
       this.#node?.click();
   }
 
@@ -184,7 +185,7 @@ class Input extends Component {
 
   get #labelStyle() {
     if (!this.label) return {};
-    if (this.type === "checkbox" || this.type === "radio")
+    if (this.type === "checkbox" || this.type === "radio" || this.type === "switch")
       return {
         "> label": { width: "auto", background: "transparent", userSelect: "none" },
       };
@@ -238,7 +239,7 @@ class Input extends Component {
             border: this.readonly ? "none" : "default",
             radius: "rounded",
             cursor: TEXT_BASED.includes(this.type) && "text",
-            ...(this.type === "radio" || this.type === "checkbox"
+            ...(this.type === "radio" || this.type === "checkbox" || this.type === "switch"
               ? {
                   background: "none",
                   border: "none",
@@ -264,6 +265,37 @@ class Input extends Component {
                     [this.variant !== "inverted" ? "margin-left" : "margin-right"]: "1rem",
                     order: this.variant === "inverted" && "-1",
                     scale: "1.5",
+                  }
+                : {}),
+              ...(this.type === "switch"
+                ? {
+                    col: "auto",
+                    [this.variant !== "inverted" ? "margin-left" : "margin-right"]: "1rem",
+                    order: this.variant === "inverted" && "-1",
+                    appearance: "none",
+                    width: "10rem",
+                    height: "5.5rem",
+                    padding: "0.5rem",
+                    borderRadius: "3rem",
+                    background: "shade($neutral-color, 35%)",
+                    cursor: "pointer",
+                    transition: "background $duration ease-in-out",
+                    "&:checked": {
+                      background: "$primary-color",
+                    },
+                    "&::before": {
+                      content: "''",
+                      display: "block",
+                      width: "4.5rem",
+                      height: "4.5rem",
+                      borderRadius: "50%",
+                      background: "$back-color",
+                      transform: "translateX(0)",
+                      transition: "transform $duration ease-in-out",
+                    },
+                    "&:checked::before": {
+                      transform: "translateX(4.5rem)",
+                    },
                   }
                 : {}),
             },
