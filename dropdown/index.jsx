@@ -1,5 +1,5 @@
-import { Anchor, Component, Ref } from "@vistta/js";
-import Button from "../button";
+import { Anchor, Component, Ref, Style } from "@vistta/js";
+import Button, { iconToStyle } from "../button";
 import Popover from "../popover";
 
 /**
@@ -51,7 +51,13 @@ class Dropdown extends Component {
         active={this.active}
         disabled={this.disabled || this.loading}
         loading={this.loading}
-        style={this.style}
+        style={Style.assign(
+          {
+            p: !this.label && "2rem!",
+          },
+          iconToStyle(this.loading ? "loading" : this.icon, !this.label),
+          this.style,
+        )}
         onClick={(e) => {
           this.onClick?.(e);
           if (this.trigger === "click" && !this.#preventClose && !e.defaultPrevented) this.#setVisible(!this.visible);
