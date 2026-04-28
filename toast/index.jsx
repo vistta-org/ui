@@ -1,4 +1,4 @@
-import { Component } from "@vistta/js";
+import { Component, Ref } from "@vistta/js";
 import Button from "../button/index.jsx";
 import Popover from "../popover/index.jsx";
 import { Style } from "../utils";
@@ -6,6 +6,7 @@ import { Style } from "../utils";
 /**
  * @typedef {object} ToastProps
  * @property {string} [id]
+ * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
  * @property {JSX.Style} [style]
  * @property {string} [message]
  * @property {"top" | "bottom"} [position]
@@ -34,6 +35,7 @@ class Toast extends Component {
             inset: this.position === "bottom" ? "100% auto auto 50%" : "0% auto auto 50%",
             translate: this.position === "bottom" ? "-50% calc(-100% - 4rem)" : "-50% 4rem",
             animate: this.position === "bottom" ? "slide-top" : "slide-bottom",
+            width: "max-content",
             background: getBackgroundColor(this.variant),
             backdropFilter: "$blur",
             shadow: "default",
