@@ -43,11 +43,11 @@ export default (config = {}) => {
     fonts: {},
     animations: {},
     queries: {
-      sm: `(max-width: ${config.viewports?.small ?? "64ch"})`,
-      md: `(max-width: ${config.viewports?.medium ?? "78ch"})`,
-      lg: `(max-width: ${config.viewports?.large ?? "102ch"})`,
-      xl: `(max-width: ${config.viewports?.xlarge ?? "128ch"})`,
-      xxl: `(max-width: ${config.viewports?.xxlarge ?? "154ch"})`,
+      sm: `(max-width: ${config.viewports?.small ?? "576px"})`,
+      md: `(max-width: ${config.viewports?.medium ?? "768px"})`,
+      lg: `(max-width: ${config.viewports?.large ?? "992px"})`,
+      xl: `(max-width: ${config.viewports?.xlarge ?? "1200px"})`,
+      xxl: `(max-width: ${config.viewports?.xxlarge ?? "1400px"})`,
     },
   };
 
