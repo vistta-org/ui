@@ -150,7 +150,13 @@ class Input extends Component {
   #focus(event) {
     if (event.target === this.#node) return;
     if (TEXT_BASED.includes(this.type)) this.#node?.focus();
-    if (this.type === "select" || this.type === "color" || this.type === "checkbox" || this.type === "radio" || this.type === "switch")
+    if (
+      this.type === "select" ||
+      this.type === "color" ||
+      this.type === "checkbox" ||
+      this.type === "radio" ||
+      this.type === "switch"
+    )
       this.#node?.click();
   }
 

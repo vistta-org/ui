@@ -1,5 +1,3 @@
-// Known issues:
-// - Modifing empty paragraphs result in no change being made
 import { Component, Ref } from "@vistta/js";
 import Menu from "../../menu";
 import { htmlToMarkdown, markdownToHtml } from "./utils";
@@ -1108,10 +1106,10 @@ class Rich extends Component {
           contentEditable={!(this.disabled || this.readonly)}
           style={{
             height: "auto",
-            maxHeight: "100%",
+            maxHeight: this.format && !this.disabled && !this.readonly ? "calc(100% - 10rem)" : "100%",
             overflow: "auto",
             p: "2rem!",
-            paddingTop: this.format && !this.disabled && !this.readonly && "12rem!",
+            marginTop: this.format && !this.disabled && !this.readonly && "10rem!",
             listStylePosition: "inside",
             "li > ul, li > ol": {
               paddingLeft: "6rem",
