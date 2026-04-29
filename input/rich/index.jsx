@@ -243,6 +243,8 @@ class Rich extends Component {
       const range = selection.getRangeAt(0);
       if (!range.collapsed) return;
 
+      // Find which block the caret is in
+      let block = null;
       let li = null;
       let current =
         range.startContainer.nodeType === Node.ELEMENT_NODE
@@ -253,7 +255,63 @@ class Rich extends Component {
           li = current;
           break;
         }
+        if (/^H[1-6]$/.test(current.tagName)) {
+          block = current;
+          break;
+        }
         current = current.parentElement;
+      }
+
+      // Handle Enter in headings
+      if (block && /^H[1-6]$/.test(block.tagName)) {
+        event.preventDefault();
+
+        const hasTextBefore = (() => {
+          const r = document.createRange();
+          r.setStart(block, 0);
+          r.setEnd(range.startContainer, range.startOffset);
+          return r.toString().length > 0;
+        })();
+
+        // Caret at start: insert empty paragraph before, keep heading
+        let newBlock = null;
+        if (!hasTextBefore) {
+          const emptyP = document.createElement("p");
+          emptyP.appendChild(document.createElement("br"));
+          block.before(emptyP);
+        } else {
+          // Extract content after cursor
+          const afterRange = document.createRange();
+          afterRange.setStart(range.startContainer, range.startOffset);
+          afterRange.setEnd(block, block.childNodes.length);
+          const afterContent = afterRange.extractContents();
+
+          // New line is always a paragraph
+          newBlock = document.createElement("p");
+          if (afterContent.textContent?.trim()) {
+            newBlock.appendChild(afterContent);
+          } else {
+            newBlock.appendChild(document.createElement("br"));
+          }
+
+          if (!block.textContent?.trim() && !block.querySelector("br")) {
+            block.appendChild(document.createElement("br"));
+          }
+          block.after(newBlock);
+        }
+
+        // Place caret: at start of heading if we inserted before, otherwise at start of new block
+        const caretTarget = !hasTextBefore ? block : newBlock;
+        const caretRange = document.createRange();
+        const walker = document.createTreeWalker(caretTarget, NodeFilter.SHOW_TEXT);
+        if (walker.nextNode()) caretRange.setStart(walker.currentNode, 0);
+        else caretRange.setStart(caretTarget, 0);
+        caretRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(caretRange);
+
+        this.#handleInput();
+        return;
       }
 
       if (!li) return;
@@ -443,7 +501,80 @@ class Rich extends Component {
       return;
     }
 
-    this.#toggleFormat("p", true);
+    // Convert heading/blockquote/pre to paragraph and merge with previous block
+    const paragraph = document.createElement("p");
+    moveNodeChildren(paragraph, line, false);
+    if (!paragraph.childNodes.length) paragraph.appendChild(document.createElement("br"));
+    line.replaceWith(paragraph);
+
+    const prev = paragraph.previousElementSibling;
+    if (prev) {
+      // Merge into previous block
+      if (prev.tagName === "P" || /^H[1-6]$/.test(prev.tagName)) {
+        // Remove trailing <br> from prev
+        const lastChild = prev.lastChild;
+        if (lastChild?.nodeType === Node.ELEMENT_NODE && /** @type {Element} */ (lastChild).tagName === "BR") {
+          lastChild.remove();
+        }
+
+        // Find caret position at end of prev
+        let caretNode = null;
+        let caretOffset = 0;
+        const walker = document.createTreeWalker(prev, NodeFilter.SHOW_TEXT);
+        let lastText = null;
+        while (walker.nextNode()) lastText = walker.currentNode;
+        if (lastText) {
+          caretNode = lastText;
+          caretOffset = lastText.textContent?.length || 0;
+        }
+
+        // Move paragraph contents into prev
+        while (paragraph.firstChild) prev.appendChild(paragraph.firstChild);
+        paragraph.remove();
+
+        const caretRange = document.createRange();
+        if (caretNode) caretRange.setStart(caretNode, caretOffset);
+        else caretRange.setStart(prev, 0);
+        caretRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(caretRange);
+      } else if (prev.tagName === "UL" || prev.tagName === "OL") {
+        // Merge into last li of previous list
+        const lastLi = prev.querySelector("li:last-child");
+        if (lastLi) {
+          const lastChild = lastLi.lastChild;
+          if (lastChild?.nodeType === Node.ELEMENT_NODE && /** @type {Element} */ (lastChild).tagName === "BR") {
+            lastChild.remove();
+          }
+
+          let caretNode = null;
+          let caretOffset = 0;
+          const walker = document.createTreeWalker(lastLi, NodeFilter.SHOW_TEXT);
+          let lastText = null;
+          while (walker.nextNode()) lastText = walker.currentNode;
+          if (lastText) {
+            caretNode = lastText;
+            caretOffset = lastText.textContent?.length || 0;
+          }
+
+          while (paragraph.firstChild) lastLi.appendChild(paragraph.firstChild);
+          paragraph.remove();
+
+          const caretRange = document.createRange();
+          if (caretNode) caretRange.setStart(caretNode, caretOffset);
+          else {
+            const cb = lastLi.querySelector("input[type='checkbox']");
+            if (cb) caretRange.setStartAfter(cb);
+            else caretRange.setStart(lastLi, 0);
+          }
+          caretRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(caretRange);
+        }
+      }
+    }
+
+    this.#handleInput();
   }
 
   #toggleFormat(type, isBlock = false) {
@@ -507,7 +638,21 @@ class Rich extends Component {
           const pre = document.createElement("pre");
           const lines = [];
 
-          for (const block of blocks) {
+          // Extract LIs from parent list first
+          const liBlocks = blocks.filter((b) => b.tagName === "LI");
+          const otherBlocks = blocks.filter((b) => b.tagName !== "LI");
+          let preRef = null;
+
+          if (liBlocks.length) {
+            preRef = extractLIsFromList(liBlocks);
+            for (const li of liBlocks) {
+              const cloned = li.cloneNode(true);
+              for (const input of cloned.querySelectorAll("input[type='checkbox']")) input.remove();
+              lines.push((cloned.textContent || "").replace(/\n+$/g, ""));
+            }
+          }
+
+          for (const block of otherBlocks) {
             if (block.tagName === "UL" || block.tagName === "OL") {
               for (const item of Array.from(block.children)) {
                 const cloned = item.cloneNode(true);
@@ -522,8 +667,10 @@ class Rich extends Component {
 
           pre.textContent = lines.join("\n");
           if (blocks.length) {
-            blocks[0].before(pre);
-            for (const block of blocks) block.remove();
+            if (preRef) preRef.parentNode.insertBefore(pre, preRef);
+            else if (otherBlocks.length) otherBlocks[0].before(pre);
+            else this.#node.appendChild(pre);
+            for (const block of otherBlocks) block.remove();
             firstTarget = pre;
           }
         } else if (blocks.length === 1 && blocks[0].tagName === "PRE") {
@@ -594,56 +741,97 @@ class Rich extends Component {
           const list = document.createElement(targetType === "ol" ? "ol" : "ul");
           if (targetType === "tl") list.setAttribute("data-task-list", "true");
 
-          blocks[0].before(list);
+          // Group consecutive LI blocks from the same parent for batch extraction
+          const liBlocks = blocks.filter((b) => b.tagName === "LI");
+          const nonLiBlocks = blocks.filter((b) => b.tagName !== "LI");
 
-          for (const block of blocks) {
-            if (block.tagName === "UL" || block.tagName === "OL") {
-              for (const item of Array.from(block.children)) {
-                const li = document.createElement("li");
+          if (liBlocks.length && !nonLiBlocks.length) {
+            // All blocks are LIs — extract from parent and re-wrap in new list type
+            const ref = extractLIsFromList(liBlocks);
+            if (ref) ref.parentNode.insertBefore(list, ref);
+            else if (liBlocks[0].parentElement) liBlocks[0].parentElement.appendChild(list);
+            else this.#node.appendChild(list);
+
+            for (const li of liBlocks) {
+              const newLi = document.createElement("li");
+              // Remove old checkboxes
+              for (const input of li.querySelectorAll("input[type='checkbox']")) input.remove();
+              if (targetType === "tl") {
+                const checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                newLi.appendChild(checkbox);
+              }
+              moveNodeChildren(newLi, li, true);
+              list.appendChild(newLi);
+              if (!firstTarget) firstTarget = newLi;
+            }
+          } else {
+            blocks[0].before(list);
+
+            for (const block of blocks) {
+              if (block.tagName === "LI") {
+                const newLi = document.createElement("li");
+                for (const input of block.querySelectorAll("input[type='checkbox']")) input.remove();
                 if (targetType === "tl") {
                   const checkbox = document.createElement("input");
                   checkbox.setAttribute("type", "checkbox");
-                  li.appendChild(checkbox);
+                  newLi.appendChild(checkbox);
                 }
-                moveNodeChildren(li, item, true);
-                list.appendChild(li);
-                if (!firstTarget) firstTarget = li;
-              }
-              block.remove();
-              continue;
-            }
-
-            if (block.tagName === "PRE") {
-              const lines = (block.textContent || "").split("\n");
-              for (const line of lines) {
-                const li = document.createElement("li");
-                if (targetType === "tl") {
-                  const checkbox = document.createElement("input");
-                  checkbox.setAttribute("type", "checkbox");
-                  li.appendChild(checkbox);
-                }
-
-                if (line) li.appendChild(document.createTextNode(line));
-                else li.appendChild(document.createElement("br"));
-
-                list.appendChild(li);
-                if (!firstTarget) firstTarget = li;
+                moveNodeChildren(newLi, block, true);
+                list.appendChild(newLi);
+                if (!firstTarget) firstTarget = newLi;
+                block.remove();
+                continue;
               }
 
-              block.remove();
-              continue;
-            }
+              if (block.tagName === "UL" || block.tagName === "OL") {
+                for (const item of Array.from(block.children)) {
+                  const li = document.createElement("li");
+                  if (targetType === "tl") {
+                    const checkbox = document.createElement("input");
+                    checkbox.setAttribute("type", "checkbox");
+                    li.appendChild(checkbox);
+                  }
+                  moveNodeChildren(li, item, true);
+                  list.appendChild(li);
+                  if (!firstTarget) firstTarget = li;
+                }
+                block.remove();
+                continue;
+              }
 
-            const li = document.createElement("li");
-            if (targetType === "tl") {
-              const checkbox = document.createElement("input");
-              checkbox.setAttribute("type", "checkbox");
-              li.appendChild(checkbox);
+              if (block.tagName === "PRE") {
+                const lines = (block.textContent || "").split("\n");
+                for (const line of lines) {
+                  const li = document.createElement("li");
+                  if (targetType === "tl") {
+                    const checkbox = document.createElement("input");
+                    checkbox.setAttribute("type", "checkbox");
+                    li.appendChild(checkbox);
+                  }
+
+                  if (line) li.appendChild(document.createTextNode(line));
+                  else li.appendChild(document.createElement("br"));
+
+                  list.appendChild(li);
+                  if (!firstTarget) firstTarget = li;
+                }
+
+                block.remove();
+                continue;
+              }
+
+              const li = document.createElement("li");
+              if (targetType === "tl") {
+                const checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                li.appendChild(checkbox);
+              }
+              moveNodeChildren(li, block, true);
+              list.appendChild(li);
+              if (!firstTarget) firstTarget = li;
+              block.remove();
             }
-            moveNodeChildren(li, block, true);
-            list.appendChild(li);
-            if (!firstTarget) firstTarget = li;
-            block.remove();
           }
 
           if (!list.children.length) {
@@ -662,7 +850,27 @@ class Rich extends Component {
         }
       } else {
         const tagName = targetType.toLowerCase();
-        for (const block of blocks) {
+
+        // Handle LI blocks: extract from parent list, then convert
+        const liBlocks = blocks.filter((b) => b.tagName === "LI");
+        const otherBlocks = blocks.filter((b) => b.tagName !== "LI");
+
+        if (liBlocks.length) {
+          const ref = extractLIsFromList(liBlocks);
+          const parent = ref?.parentNode || this.#node;
+          for (const li of liBlocks) {
+            const target = document.createElement(tagName);
+            // Remove checkboxes from extracted content
+            for (const input of li.querySelectorAll("input[type='checkbox']")) input.remove();
+            moveNodeChildren(target, li, true);
+            if (!target.childNodes.length) target.appendChild(document.createElement("br"));
+            if (ref) parent.insertBefore(target, ref);
+            else parent.appendChild(target);
+            if (!firstTarget) firstTarget = target;
+          }
+        }
+
+        for (const block of otherBlocks) {
           if (block.tagName === "UL" || block.tagName === "OL") {
             for (const item of Array.from(block.children)) {
               const target = document.createElement(tagName);
@@ -1129,6 +1337,45 @@ function normalizeParagraphBase(container) {
     if (child.tagName === "P" && !child.childNodes.length) child.appendChild(document.createElement("br"));
 }
 
+/**
+ * Extract selected LI elements from their parent list, splitting the list as needed.
+ * Returns an insertion reference node (the node before which extracted content should be placed).
+ * After this call the selected LIs are detached and the surrounding siblings remain in their own lists.
+ */
+function extractLIsFromList(selectedLIs) {
+  if (!selectedLIs.length) return null;
+  const list = selectedLIs[0].parentElement;
+  if (!list) return null;
+
+  const allItems = Array.from(list.children);
+  const firstIdx = allItems.indexOf(selectedLIs[0]);
+  const lastIdx = allItems.indexOf(selectedLIs[selectedLIs.length - 1]);
+
+  // Items after the selection → trailing list
+  const trailing = allItems.slice(lastIdx + 1);
+  if (trailing.length) {
+    const after = document.createElement(list.tagName.toLowerCase());
+    for (const attr of list.attributes) after.setAttribute(attr.name, attr.value);
+    for (const item of trailing) after.appendChild(item);
+    list.after(after);
+  }
+
+  // Detach selected items
+  for (const li of selectedLIs) li.remove();
+
+  // Reference node for inserting new content
+  const ref = trailing.length ? list.nextSibling : list.nextSibling;
+
+  // Remove original list if empty
+  if (!list.children.length) {
+    const r = list.nextSibling;
+    list.remove();
+    return r;
+  }
+
+  return ref;
+}
+
 function getSelectedLineBlocks(range, container) {
   if (!range || !container) return [];
   if (!container.contains(range.startContainer) && range.startContainer !== container) return [];
@@ -1152,6 +1399,8 @@ function getSelectedLineBlocks(range, container) {
 
     let current = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
     while (current && current !== container) {
+      // Return LI directly instead of walking up to UL/OL
+      if (current.tagName === "LI") return current;
       if (BLOCK_TAGS.has(current.tagName)) return current;
       current = current.parentElement;
     }
@@ -1161,8 +1410,14 @@ function getSelectedLineBlocks(range, container) {
 
   const selector = Array.from(BLOCK_TAGS)
     .map((tag) => tag.toLowerCase())
+    .concat("li")
     .join(",");
-  const blocks = Array.from(container.querySelectorAll(selector));
+  const allElements = Array.from(container.querySelectorAll(selector));
+  // Filter out UL/OL that contain LI children (prefer LI granularity)
+  const blocks = allElements.filter((el) => {
+    if (el.tagName === "UL" || el.tagName === "OL") return !el.querySelector("li");
+    return true;
+  });
   if (!blocks.length) return [];
 
   if (range.collapsed) {

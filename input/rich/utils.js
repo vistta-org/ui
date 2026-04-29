@@ -14,10 +14,9 @@ export function htmlToMarkdown(html) {
 
   const container = document.createElement("div");
   container.innerHTML = source;
-  const markdown = nodeToMarkdown(container, { inCode: false })
-    .replace(/\u00A0/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  let markdown = "";
+  for (const child of container.childNodes) markdown += nodeToMarkdown(child, { inCode: false });
+  markdown = markdown.replace(/\u00A0/g, " ").replace(/\n$/, "");
   return markdown;
 }
 
@@ -91,7 +90,8 @@ export function markdownToHtml(markdown) {
     if (headingMatch) {
       const level = headingMatch[1].length;
       const text = headingMatch[2];
-      htmlParts.push(`<h${level}>${renderInline(text)}</h${level}>`);
+      const content = text ? renderInline(text) : "<br/>";
+      htmlParts.push(`<h${level}>${content}</h${level}>`);
       index++;
       continue;
     }
@@ -286,9 +286,8 @@ function nodeToMarkdown(node, state) {
     case "P":
     case "DIV": {
       const content = childrenMarkdown({ inCode });
-      // Keep empty paragraphs as a blank line; non-empty uses a single line break.
       const normalized = content.replace(/\s+/g, "").length ? content : "";
-      return normalized ? `${normalized}\n` : "\n\n";
+      return normalized ? `${normalized}\n` : "\n";
     }
     case "H1":
     case "H2":
@@ -298,7 +297,7 @@ function nodeToMarkdown(node, state) {
     case "H6": {
       const level = Number(tag.slice(1));
       const content = childrenMarkdown({ inCode }).trim();
-      return `${"#".repeat(level)} ${content}\n\n`;
+      return `${"#".repeat(level)} ${content}\n`;
     }
     case "STRONG":
     case "B":
@@ -314,7 +313,7 @@ function nodeToMarkdown(node, state) {
       // Markdown has no underline; preserve as inline HTML for round-trip.
       return `<u>${childrenMarkdown({ inCode })}</u>`;
     case "HR":
-      return "\n\n---\n\n";
+      return "---\n";
     case "A": {
       const href = el.getAttribute("href") || "";
       const safeHref = sanitizeUrl(href);
@@ -325,7 +324,7 @@ function nodeToMarkdown(node, state) {
     case "PRE": {
       // Use textContent to avoid bringing nested tags.
       const code = (el.textContent ?? "").replace(/\n+$/g, "");
-      return `\n\n\`\`\`\n${code}\n\`\`\`\n\n`;
+      return `\`\`\`\n${code}\n\`\`\`\n`;
     }
     case "CODE": {
       // If nested within <pre>, <pre> handler already uses textContent.
@@ -333,16 +332,16 @@ function nodeToMarkdown(node, state) {
       return inCode ? content : `\`${content.replace(/`/g, "\\`")}\``;
     }
     case "UL": {
-      let out = "\n";
+      let out = "";
       for (const li of el.children) {
         if (li.tagName?.toUpperCase() !== "LI") continue;
         const item = nodeToMarkdown(li, { inCode }).trim();
         out += `- ${item}\n`;
       }
-      return out + "\n";
+      return out;
     }
     case "OL": {
-      let out = "\n";
+      let out = "";
       let n = 1;
       for (const li of el.children) {
         if (li.tagName?.toUpperCase() !== "LI") continue;
@@ -350,7 +349,7 @@ function nodeToMarkdown(node, state) {
         out += `${n}. ${item}\n`;
         n++;
       }
-      return out + "\n";
+      return out;
     }
     case "LI": {
       let checked = null;
@@ -378,7 +377,7 @@ function nodeToMarkdown(node, state) {
     case "BLOCKQUOTE": {
       const content = childrenMarkdown({ inCode }).trimEnd();
       const lines = content.split("\n");
-      return lines.map((l) => (l ? `> ${l}` : "> ")).join("\n") + "\n\n";
+      return lines.map((l) => (l ? `> ${l}` : "> ")).join("\n") + "\n";
     }
     default:
       return childrenMarkdown({ inCode });
