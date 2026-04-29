@@ -6,6 +6,7 @@ import { Style } from "../utils";
  * @property {string} [id]
  * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
  * @property {boolean} [open]
+ * @property {boolean} [manual]
  * @property {boolean} [inert]
  * @property {JSX.Style} [style]
  * @property {(event: MouseEvent) => void} [onOutsideClick]
@@ -19,6 +20,7 @@ class Popover extends Component {
   #handler;
 
   onConnect() {
+    if (this.manual) return;
     this.#handler = (event) => {
       if (!this.#node || !this.open || this.#node.contains(event.target)) return;
       this.onOutsideClick?.(event);
@@ -27,16 +29,18 @@ class Popover extends Component {
   }
 
   onDisconnect() {
+    if (this.manual) return;
     this.onOutsideClick && document.removeEventListener("click", this.#handler);
   }
 
   register(element) {
+    if (this.manual) return;
     this.#node = element;
     if (this.open) requestAnimationFrame(() => this.#node.isConnected && this.#node.showPopover());
   }
 
   onUpdate(prev) {
-    if (prev.open === this.open) return;
+    if (this.manual || prev.open === this.open) return;
     if (this.open) this.#node?.showPopover();
     else this.#node?.hidePopover();
   }
@@ -56,6 +60,7 @@ class Popover extends Component {
             this.style,
           )}
           popover="manual"
+          open={this.manual ? this.open : undefined}
         >
           {this.children}
         </aside>
@@ -73,6 +78,7 @@ class Popover extends Component {
           this.style,
         )}
         popover="manual"
+        open={this.manual ? this.open : undefined}
       >
         {this.children}
       </dialog>
