@@ -6,36 +6,43 @@ const ICON_POSITION = {
   right: { pr: "10rem", ":before": { position: "absolute", right: "2rem", top: "50%", translate: "0 -50%" } },
 };
 
+const HANDLED_PROPS = [
+  "id",
+  "ref",
+  "name",
+  "label",
+  "variant",
+  "active",
+  "icon",
+  "loading",
+  "style",
+  "tooltip",
+  "disabled",
+  "hidden",
+  "type",
+];
+
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
  * @typedef {any} Icon
  *
  * @typedef {"primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error"} Colors
  *
- * @typedef {object} ButtonProps
- * @property {string} [id]
- * @property {Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void)} [ref]
- * @property {string} [name]
- * @property {string} [label]
- * @property {"" | "default" | "basic" | "raw" | Colors | `raw ${Colors}` | `${Colors} raw`} [variant]
- * @property {boolean} [active]
- * @property {Icon} [icon]
- * @property {boolean} [loading]
- * @property {JSX.Style} [style]
- * @property {Tooltip} [tooltip]
- * @property {boolean} [disabled]
- * @property {boolean} [hidden]
- * @property {HTMLButtonElement["type"]} [type]
- * @property {(event: MouseEvent) => any} [onClick]
- * @property {(event: MouseEvent) => any} [onContextMenu]
- * @property {(event: MouseEvent) => any} [onDblClick]
- * @property {(event: MouseEvent) => any} [onMouseDown]
- * @property {(event: MouseEvent) => any} [onMouseEnter]
- * @property {(event: MouseEvent) => any} [onMouseMove]
- * @property {(event: MouseEvent) => any} [onMouseLeave]
- * @property {(event: MouseEvent) => any} [onMouseOver]
- * @property {(event: MouseEvent) => any} [onMouseOut]
- * @property {(event: MouseEvent) => any} [onMouseUp]
+ * @typedef {JSX.EventHandlers & {
+ *  id?: string,
+ *  ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
+ *  name?: string,
+ *  label?: string,
+ *  variant?: "" | "default" | "basic" | "raw" | Colors | `raw ${Colors}` | `${Colors} raw`,
+ *  active?: boolean,
+ *  icon?: Icon,
+ *  loading?: boolean,
+ *  style?: JSX.Style,
+ *  tooltip?: Tooltip,
+ *  disabled?: boolean,
+ *  hidden?: boolean,
+ *  type?: HTMLButtonElement["type"],
+ * }} ButtonProps
  */
 
 /**
@@ -60,19 +67,10 @@ export class Button extends Component {
           iconToStyle(this.loading ? "loading" : this.icon, !this.label),
           this.style,
         )}
-        onClick={this.onClick}
-        onContextMenu={this.onContextMenu}
-        onDblClick={this.onDblClick}
-        onMouseDown={this.onMouseDown}
-        onMouseEnter={this.onMouseEnter}
-        onMouseMove={this.onMouseMove}
-        onMouseLeave={this.onMouseLeave}
-        onMouseOver={this.onMouseOver}
-        onMouseOut={this.onMouseOut}
-        onMouseUp={this.onMouseUp}
         active={this.active}
         disabled={this.disabled || this.loading}
         hidden={this.hidden}
+        {...Component.forwardProps(this, HANDLED_PROPS)}
       >
         {this.label || this.children}
       </button>

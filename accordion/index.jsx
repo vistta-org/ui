@@ -1,17 +1,19 @@
 import { Component, Ref } from "@vistta/js";
 import { Style } from "../utils";
 
+const HANDLED_PROPS = ["id", "ref", "style", "open", "title", "icon", "iconPosition", "onClick"];
+
 /**
- * @typedef {object} AccordionProps
- * @property {Ref<HTMLDivElement> | ((element: HTMLDivElement) => void)} [ref] - Ref for the accordion container element.
- * @property {string} [id] - The unique identifier for the accordion element.
- * @property {JSX.Style} [style] - Style object or array of style objects to apply to the accordion container.
- * @property {boolean} [open] - Determines whether the accordion content is visible (expanded) or hidden (collapsed). Default is false (collapsed).
- * @property {string | JSX.Element} title - The title of the accordion, which is always visible and acts as the toggle for the content.
- * @property {boolean | string} [icon] - Default is "e313". Set to false to disable.
- * @property {"left" | "right"} [iconPosition] - Position of the toggle icon. Default is "left".
- * @property {(event: MouseEvent) => void} [onClick] - Event handler for when the accordion title is clicked. This can be used to toggle the open state of the accordion.
- *
+ * @typedef {JSX.EventHandlers & {
+ *  ref?: Ref<HTMLDivElement> | ((element: HTMLDivElement) => void),
+ *  id?: string,
+ *  style?: JSX.Style,
+ *  open?: boolean,
+ *  title: string | JSX.Element,
+ *  icon?: boolean | string,
+ *  iconPosition?: "left" | "right",
+ *  onClick?: (event: MouseEvent) => void,
+ * }} AccordionProps
  */
 
 /**
@@ -90,6 +92,7 @@ class Accordion extends Component {
           },
           this.style,
         )}
+        {...Component.forwardProps(this, HANDLED_PROPS)}
       >
         <div
           style={{

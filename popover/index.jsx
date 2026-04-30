@@ -1,15 +1,18 @@
 import { Component, Ref } from "@vistta/js";
 import { Style } from "../utils";
 
+const HANDLED_PROPS = ["id", "ref", "open", "manual", "inert", "style", "onOutsideClick"];
+
 /**
- * @typedef {object} PopoverProps
- * @property {string} [id]
- * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
- * @property {boolean} [open]
- * @property {boolean} [manual]
- * @property {boolean} [inert]
- * @property {JSX.Style} [style]
- * @property {(event: MouseEvent) => void} [onOutsideClick]
+ * @typedef {JSX.EventHandlers & {
+ *  id?: string,
+ *  ref?: Ref<HTMLElement> | ((element: HTMLElement) => void),
+ *  open?: boolean,
+ *  manual?: boolean,
+ *  inert?: boolean,
+ *  style?: JSX.Style,
+ *  onOutsideClick?: (event: MouseEvent) => void,
+ * }} PopoverProps
  */
 
 /**
@@ -61,6 +64,7 @@ class Popover extends Component {
           )}
           popover="manual"
           open={this.manual ? this.open : undefined}
+          {...Component.forwardProps(this, HANDLED_PROPS)}
         >
           {this.children}
         </aside>
@@ -79,6 +83,7 @@ class Popover extends Component {
         )}
         popover="manual"
         open={this.manual ? this.open : undefined}
+        {...Component.forwardProps(this, HANDLED_PROPS)}
       >
         {this.children}
       </dialog>

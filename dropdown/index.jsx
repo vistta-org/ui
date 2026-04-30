@@ -2,12 +2,39 @@ import { Anchor, Component, Ref, Style } from "@vistta/js";
 import Button, { iconToStyle } from "../button";
 import Popover from "../popover";
 
+const HANDLED_PROPS = [
+  "id",
+  "ref",
+  "name",
+  "label",
+  "variant",
+  "active",
+  "icon",
+  "loading",
+  "style",
+  "tooltip",
+  "disabled",
+  "hidden",
+  "items",
+  "height",
+  "width",
+  "position",
+  "trigger",
+  "close",
+  "buttonVariant",
+  "onOpen",
+  "onClose",
+  "onClick",
+  "onMouseEnter",
+  "onMouseLeave",
+];
+
 /**
  * @typedef {Omit<import("../button").ButtonProps, "type">} ButtonProps
  *
- * @typedef {Omit<ButtonProps, "ref"> & { items?: DropdownItem[], divider?: boolean }} DropdownItem
+ * @typedef {Omit<ButtonProps, "ref" | "onClose" | "onOpen"> & { items?: DropdownItem[], divider?: boolean, onOpen?: () => void, onClose?: () => void }} DropdownItem
  *
- * @typedef {ButtonProps & {
+ * @typedef {Omit<ButtonProps, "onClose"> & {
  *  items: DropdownItem[],
  *  height?: number | string,
  *  width?: number | string,
@@ -62,23 +89,17 @@ class Dropdown extends Component {
           this.onClick?.(e);
           if (this.trigger === "click" && !this.#preventClose && !e.defaultPrevented) this.#setVisible(!this.visible);
         }}
-        onContextMenu={this.onContextMenu}
-        onDblClick={this.onDblClick}
-        onMouseDown={this.onMouseDown}
         onMouseEnter={
           this.trigger === "hover"
             ? (e) => (this.onMouseEnter?.(e), (this.visible = true), clearTimeout(this.#timeout))
             : this.onMouseEnter
         }
-        onMouseMove={this.onMouseMove}
         onMouseLeave={
           this.trigger === "hover"
             ? (e) => (this.onMouseLeave?.(e), (this.#timeout = setTimeout(() => this.#setVisible(false), 100)))
             : this.onMouseLeave
         }
-        onMouseOver={this.onMouseOver}
-        onMouseOut={this.onMouseOut}
-        onMouseUp={this.onMouseUp}
+        {...Component.forwardProps(this, HANDLED_PROPS)}
       >
         {this.label || ""}
         <Popover

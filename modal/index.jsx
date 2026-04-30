@@ -2,17 +2,20 @@ import { Component, Ref } from "@vistta/js";
 import Button from "../button/index.jsx";
 import { Style } from "../utils.js";
 
+const HANDLED_PROPS = ["id", "ref", "open", "inert", "title", "actions", "style", "onClose"];
+
 /**
  * @typedef {import("../button/index.jsx").ButtonProps} ButtonProps
- * @typedef {object} ModalProps
- * @property {string} [id]
- * @property {Ref<HTMLDialogElement> | ((element: HTMLDialogElement) => void)} [ref]
- * @property {boolean} [open]
- * @property {boolean} [inert]
- * @property {string | undefined} [title]
- * @property {ButtonProps[]} [actions]
- * @property {JSX.Style} [style]
- * @property {() => void} [onClose]
+ * @typedef {Omit<JSX.EventHandlers, "onClose"> & {
+ *  id?: string,
+ *  ref?: Ref<HTMLDialogElement> | ((element: HTMLDialogElement) => void),
+ *  open?: boolean,
+ *  inert?: boolean,
+ *  title?: string | undefined,
+ *  actions?: ButtonProps[],
+ *  style?: JSX.Style,
+ *  onClose?: () => void,
+ * }} ModalProps
  */
 
 /**
@@ -21,7 +24,7 @@ import { Style } from "../utils.js";
 class Modal extends Component {
   #node;
 
-  register(element) {
+  #register(element) {
     this.#node = element;
     if (this.open) requestAnimationFrame(() => this.#node.isConnected && this.#node.showModal());
     element.show = () => ((this.open = true), this.#node.showModal());
@@ -41,7 +44,7 @@ class Modal extends Component {
   render() {
     return (
       <dialog
-        ref={Ref.forward(this.ref, this.register.bind(this))}
+        ref={Ref.forward(this.ref, this.#register.bind(this))}
         id={this.id}
         inert={this.inert}
         style={Style.assign(
@@ -55,6 +58,7 @@ class Modal extends Component {
           },
           this.style,
         )}
+        {...Component.forwardProps(this, HANDLED_PROPS)}
       >
         {this.title && <h5 style="col:full; mb:2rem; p:0 2rem 2rem; border:bottom">{this.title}</h5>}
         {this.children}

@@ -2,16 +2,19 @@ import { Component, Ref } from "@vistta/js";
 import Button from "../button";
 import { Style } from "../utils";
 
+const HANDLED_PROPS = ["id", "ref", "style", "items", "active", "controls", "renderOffset", "onChange"];
+
 /**
- * @typedef {object} CarouselProps
- * @property {string} [id]
- * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
- * @property {JSX.Style} [style]
- * @property {JSX.Element[] | ((active: any, offset: number) => JSX.Element)} [items] - Array of elements (fixed mode) or a function returning the element at a given offset from active (virtual mode).
- * @property {any} [active] - The currently active item (index for fixed mode, any value for virtual mode).
- * @property {"all" | "gesture" | "none"} [controls] - Navigation controls mode. Defaults to "all".
- * @property {number} [renderOffset] - How many panels away from active to render. Defaults to 1.
- * @property {(event: Event & { item: any, index: number }) => void} [onChange] - Called when the active item changes via navigation.
+ * @typedef {Omit<JSX.EventHandlers, "onChange"> & {
+ *  id?: string,
+ *  ref?: Ref<HTMLElement> | ((element: HTMLElement) => void),
+ *  style?: JSX.Style,
+ *  items?: JSX.Element[] | ((active: any, offset: number) => JSX.Element),
+ *  active?: any,
+ *  controls?: "all" | "gesture" | "none",
+ *  renderOffset?: number,
+ *  onChange?: (event: Event & { item: any, index: number }) => void,
+ * }} CarouselProps
  */
 
 /**
@@ -145,6 +148,7 @@ export default class Carousel extends Component {
           { position: "relative", height: "100%", width: "100%", outline: "none", overflow: "clip" },
           this.style,
         )}
+        {...Component.forwardProps(this, HANDLED_PROPS)}
       >
         <div
           ref={this.registerBody.bind(this)}

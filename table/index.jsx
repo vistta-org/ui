@@ -1,5 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 
+const HANDLED_PROPS = ["id", "ref", "title", "columns", "data", "style"];
+
 /**
  * @typedef {import("../button/index.jsx").ButtonProps} ButtonProps
  *
@@ -8,13 +10,14 @@ import { Component, Ref } from "@vistta/js";
  * @property {string} label
  * @property {"text" | "number" | "date" | "boolean" | ((value: any) => string)} [type] default: "text"
  *
- * @typedef {object} TableProps
- * @property {string} [id]
- * @property {Ref<HTMLTableElement> | ((element: HTMLTableElement) => void)} [ref]
- * @property {string | undefined} [title]
- * @property {TableColumn[]} columns
- * @property {object[]} data
- * @property {JSX.Style} [style]
+ * @typedef {JSX.EventHandlers & {
+ *  id?: string,
+ *  ref?: Ref<HTMLTableElement> | ((element: HTMLTableElement) => void),
+ *  title?: string | undefined,
+ *  columns: TableColumn[],
+ *  data: object[],
+ *  style?: JSX.Style,
+ * }} TableProps
  */
 
 /**
@@ -32,7 +35,7 @@ class Table extends Component {
 
   render() {
     return (
-      <table ref={this.ref} id={this.id} style={this.style}>
+      <table ref={this.ref} id={this.id} style={this.style} {...Component.forwardProps(this, HANDLED_PROPS)}>
         <thead>
           <tr>
             {this.columns.map((column) => (

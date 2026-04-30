@@ -6,23 +6,38 @@ import { Style } from "../utils";
 
 const DEFAULT_DATE = new DateTime([1996, 0, 14]); // Sunday, 14 January 1996 00:00:00
 const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+const HANDLED_PROPS = [
+  "id",
+  "ref",
+  "name",
+  "type",
+  "starting",
+  "date",
+  "controls",
+  "style",
+  "renderDay",
+  "onChange",
+  "onClick",
+  "onDblClick",
+];
 
 /**
  * @typedef {"month"|"week"|"day"} CalendarType
  *
- * @typedef {object} CalendarProps
- * @property {string} [id]
- * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
- * @property {string} [name]
- * @property {CalendarType} [type] Calendar view type
- * @property {"mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun"} [starting] Starting day of the week
- * @property {Date | DateTime} [date] Current date to display in the calendar
- * @property {"all" | "gesture" | "none"} [controls] Whether to show navigation buttons
- * @property {JSX.Style} [style]
- * @property {(date: Date, enabled: boolean) => JSX.Element[]} [renderDay] Function to render the contents of each day
- * @property {(event: Event) => void} [onChange] Callback function when the displayed date changes
- * @property {(event: MouseEvent) => void} [onClick] Callback function when a click happens on the calendar
- * @property {(event: MouseEvent) => void} [onDblClick] Callback function when a double click happens on the calendar
+ * @typedef {Omit<JSX.EventHandlers, "onChange" | "onClick" | "onDblClick"> & {
+ *  id?: string,
+ *  ref?: Ref<HTMLElement> | ((element: HTMLElement) => void),
+ *  name?: string,
+ *  type?: CalendarType,
+ *  starting?: "mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun",
+ *  date?: Date | DateTime,
+ *  controls?: "all" | "gesture" | "none",
+ *  style?: JSX.Style,
+ *  renderDay?: (date: Date, enabled: boolean) => JSX.Element[],
+ *  onChange?: (event: Event) => void,
+ *  onClick?: (event: MouseEvent) => void,
+ *  onDblClick?: (event: MouseEvent) => void,
+ * }} CalendarProps
  */
 
 /**
@@ -111,6 +126,7 @@ export default class Calendar extends Component {
           },
           this.style,
         )}
+        {...Component.forwardProps(this, HANDLED_PROPS)}
       >
         <div style="relative; col:full; container; gap:0">
           <div style="col:full; container:center; gap:0; p:1rem 1rem 0">

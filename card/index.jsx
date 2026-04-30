@@ -1,13 +1,13 @@
 import { Component, Ref, Style } from "@vistta/js";
 
+const HANDLED_PROPS = ["id", "ref", "style"];
+
 /**
- * @typedef {object} CardProps
- * @property {Ref<HTMLDivElement> | ((element: HTMLDivElement) => void)} [ref] - Ref for the card container element.
- * @property {string} [id] - The unique identifier for the card element.
- * @property {JSX.Style} [style] - Style object or array of style objects to apply to the card container.
- * @property {(event: MouseEvent) => void} [onClick] - Click event handler for the card container.
- * @property {(event: MouseEvent) => void} [onContextMenu] - Context menu event handler for the card container.
- *
+ * @typedef {JSX.EventHandlers & {
+ *  ref?: Ref<HTMLDivElement> | ((element: HTMLDivElement) => void),
+ *  id?: string,
+ *  style?: JSX.Style,
+ * }} CardProps
  */
 
 /**
@@ -33,8 +33,7 @@ export default class Card extends Component {
           },
           this.style,
         )}
-        onClick={this.onClick}
-        onContextMenu={this.onContextMenu}
+        {...Component.forwardProps(this, HANDLED_PROPS)}
       >
         {this.children}
       </div>
