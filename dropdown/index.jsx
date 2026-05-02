@@ -3,16 +3,11 @@ import Button, { iconToStyle } from "../button";
 import Popover from "../popover";
 
 const HANDLED_PROPS = [
-  "id",
   "ref",
-  "name",
   "label",
   "variant",
-  "active",
   "icon",
-  "loading",
   "style",
-  "tooltip",
   "disabled",
   "hidden",
   "items",
@@ -69,15 +64,10 @@ class Dropdown extends Component {
   render() {
     return (
       <Button
-        id={this.id}
         ref={Ref.forward(this.ref, this.button)}
-        name={this.name}
-        tooltip={this.tooltip}
         variant={this.buttonVariant ?? this.variant}
         icon={this.loading ? "loading" : this.icon}
-        active={this.active}
         disabled={this.disabled || this.loading}
-        loading={this.loading}
         style={Style.assign(
           {
             p: !this.label && "2rem!",
@@ -99,7 +89,7 @@ class Dropdown extends Component {
             ? (e) => (this.onMouseLeave?.(e), (this.#timeout = setTimeout(() => this.#setVisible(false), 100)))
             : this.onMouseLeave
         }
-        {...Component.forwardProps(this, HANDLED_PROPS)}
+        {...this.props(...HANDLED_PROPS)}
       >
         {this.label || ""}
         <Popover

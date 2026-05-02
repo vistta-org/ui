@@ -2,7 +2,7 @@ import { Component, Ref } from "@vistta/js";
 import Button from "../button/index.jsx";
 import { Style } from "../utils.js";
 
-const HANDLED_PROPS = ["id", "ref", "open", "inert", "title", "actions", "style", "onClose"];
+const HANDLED_PROPS = ["ref", "open", "title", "actions", "style", "onClose"];
 
 /**
  * @typedef {import("../button/index.jsx").ButtonProps} ButtonProps
@@ -45,8 +45,6 @@ class Modal extends Component {
     return (
       <dialog
         ref={Ref.forward(this.ref, this.#register.bind(this))}
-        id={this.id}
-        inert={this.inert}
         style={Style.assign(
           {
             container: "center",
@@ -58,7 +56,7 @@ class Modal extends Component {
           },
           this.style,
         )}
-        {...Component.forwardProps(this, HANDLED_PROPS)}
+        {...this.props(...HANDLED_PROPS)}
       >
         {this.title && <h5 style="col:full; mb:2rem; p:0 2rem 2rem; border:bottom">{this.title}</h5>}
         {this.children}

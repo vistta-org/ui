@@ -6,21 +6,7 @@ const ICON_POSITION = {
   right: { pr: "10rem", ":before": { position: "absolute", right: "2rem", top: "50%", translate: "0 -50%" } },
 };
 
-const HANDLED_PROPS = [
-  "id",
-  "ref",
-  "name",
-  "label",
-  "variant",
-  "active",
-  "icon",
-  "loading",
-  "style",
-  "tooltip",
-  "disabled",
-  "hidden",
-  "type",
-];
+const HANDLED_PROPS = ["name", "label", "variant", "icon", "loading", "style", "tooltip", "disabled", "type"];
 
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
@@ -52,8 +38,6 @@ export class Button extends Component {
   render() {
     return (
       <button
-        id={this.id}
-        ref={this.ref}
         aria-label={this.label || this.name}
         name={this.label || this.name}
         tooltip={getTooltipLabel(this.tooltip)}
@@ -67,10 +51,8 @@ export class Button extends Component {
           iconToStyle(this.loading ? "loading" : this.icon, !this.label),
           this.style,
         )}
-        active={this.active}
         disabled={this.disabled || this.loading}
-        hidden={this.hidden}
-        {...Component.forwardProps(this, HANDLED_PROPS)}
+        {...this.props(...HANDLED_PROPS)}
       >
         {this.label || this.children}
       </button>

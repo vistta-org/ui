@@ -6,20 +6,7 @@ import { Style } from "../utils";
 
 const DEFAULT_DATE = new DateTime([1996, 0, 14]); // Sunday, 14 January 1996 00:00:00
 const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
-const HANDLED_PROPS = [
-  "id",
-  "ref",
-  "name",
-  "type",
-  "starting",
-  "date",
-  "controls",
-  "style",
-  "renderDay",
-  "onChange",
-  "onClick",
-  "onDblClick",
-];
+const HANDLED_PROPS = ["ref", "name", "type", "starting", "date", "controls", "style", "renderDay", "onClick", "onDblClick"];
 
 /**
  * @typedef {"month"|"week"|"day"} CalendarType
@@ -113,8 +100,6 @@ export default class Calendar extends Component {
     return (
       <div
         ref={Ref.forward(this.ref, this.register.bind(this))}
-        id={this.id}
-        onChange={this.onChange}
         style={Style.assign(
           {
             position: "relative",
@@ -126,7 +111,7 @@ export default class Calendar extends Component {
           },
           this.style,
         )}
-        {...Component.forwardProps(this, HANDLED_PROPS)}
+        {...this.props(...HANDLED_PROPS)}
       >
         <div style="relative; col:full; container; gap:0">
           <div style="col:full; container:center; gap:0; p:1rem 1rem 0">

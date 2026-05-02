@@ -2,7 +2,7 @@ import { Component, Ref } from "@vistta/js";
 import Button from "../button";
 import { Style } from "../utils";
 
-const HANDLED_PROPS = ["id", "ref", "style", "items", "active", "controls", "renderOffset", "onChange"];
+const HANDLED_PROPS = ["ref", "style", "items", "active", "controls", "renderOffset"];
 
 /**
  * @typedef {Omit<JSX.EventHandlers, "onChange"> & {
@@ -54,14 +54,14 @@ export default class Carousel extends Component {
     return this.#itemAt(1) != null;
   }
 
-  register(element) {
+  #register(element) {
     this.#main = element;
     element.next = this.next.bind(this);
     element.previous = this.previous.bind(this);
     element.focus?.();
   }
 
-  registerBody(body) {
+  #registerBody(body) {
     this.#body = body;
     const init = () => {
       const count = this.#isVirtual ? 3 : Array.isArray(this.items) ? this.items.length : 0;
@@ -85,7 +85,7 @@ export default class Carousel extends Component {
     this.active = this.#isVirtual ? item : event.index;
   }
 
-  onScrollEnd({ target: body }) {
+  #onScrollEnd({ target: body }) {
     if (this.#isVirtual) {
       const page = Math.round(body.scrollLeft / body.clientWidth);
       if (page === 1) return;
@@ -139,19 +139,17 @@ export default class Carousel extends Component {
   render() {
     return (
       <div
-        ref={Ref.forward(this.ref, this.register.bind(this))}
-        id={this.id}
+        ref={Ref.forward(this.ref, this.#register.bind(this))}
         tabIndex={0}
-        onChange={this.onChange}
         onKeyDown={this.#onKeyDown.bind(this)}
         style={Style.assign(
           { position: "relative", height: "100%", width: "100%", outline: "none", overflow: "clip" },
           this.style,
         )}
-        {...Component.forwardProps(this, HANDLED_PROPS)}
+        {...this.props(...HANDLED_PROPS)}
       >
         <div
-          ref={this.registerBody.bind(this)}
+          ref={this.#registerBody.bind(this)}
           style={{
             position: "relative",
             height: "100%",
@@ -162,7 +160,7 @@ export default class Carousel extends Component {
             scrollSnapType: "x mandatory",
             scrollbar: "hidden",
           }}
-          onScrollEnd={this.controls !== "none" && this.onScrollEnd.bind(this)}
+          onScrollEnd={this.controls !== "none" && this.#onScrollEnd.bind(this)}
         >
           {this.#isVirtual ? (
             <>

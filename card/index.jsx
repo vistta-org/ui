@@ -1,7 +1,5 @@
 import { Component, Ref, Style } from "@vistta/js";
 
-const HANDLED_PROPS = ["id", "ref", "style"];
-
 /**
  * @typedef {JSX.EventHandlers & {
  *  ref?: Ref<HTMLDivElement> | ((element: HTMLDivElement) => void),
@@ -17,8 +15,6 @@ export default class Card extends Component {
   render() {
     return (
       <div
-        id={this.id}
-        ref={this.ref}
         style={Style.assign(
           {
             position: "relative",
@@ -33,7 +29,7 @@ export default class Card extends Component {
           },
           this.style,
         )}
-        {...Component.forwardProps(this, HANDLED_PROPS)}
+        {...this.props("style")}
       >
         {this.children}
       </div>

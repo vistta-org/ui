@@ -1,7 +1,5 @@
 import { Component, Ref } from "@vistta/js";
 
-const HANDLED_PROPS = ["id", "ref", "title", "columns", "data", "style"];
-
 /**
  * @typedef {import("../button/index.jsx").ButtonProps} ButtonProps
  *
@@ -35,7 +33,7 @@ class Table extends Component {
 
   render() {
     return (
-      <table ref={this.ref} id={this.id} style={this.style} {...Component.forwardProps(this, HANDLED_PROPS)}>
+      <table {...this.props("title", "columns", "data")}>
         <thead>
           <tr>
             {this.columns.map((column) => (

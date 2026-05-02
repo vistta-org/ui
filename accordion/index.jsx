@@ -1,7 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 import { Style } from "../utils";
 
-const HANDLED_PROPS = ["id", "ref", "style", "open", "title", "icon", "iconPosition", "onClick"];
+const HANDLED_PROPS = ["style", "open", "title", "icon", "iconPosition", "onClick"];
 
 /**
  * @typedef {JSX.EventHandlers & {
@@ -44,14 +44,13 @@ class Accordion extends Component {
     render() {
       return (
         <div
-          ref={this.ref}
-          id={this.id}
           style={Style.assign(
             {
               container: "default",
             },
             this.style,
           )}
+          {...this.props("style")}
         >
           {this.items.map(({ content, ...props }, index) => (
             <Accordion
@@ -79,8 +78,6 @@ class Accordion extends Component {
   render() {
     return (
       <div
-        ref={this.ref}
-        id={this.id}
         style={Style.assign(
           {
             container: "default",
@@ -92,7 +89,7 @@ class Accordion extends Component {
           },
           this.style,
         )}
-        {...Component.forwardProps(this, HANDLED_PROPS)}
+        {...this.props(...HANDLED_PROPS)}
       >
         <div
           style={{

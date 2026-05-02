@@ -1,7 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 import { Style } from "../utils";
 
-const HANDLED_PROPS = ["id", "ref", "open", "manual", "inert", "style", "onOutsideClick"];
+const HANDLED_PROPS = ["ref", "open", "manual", "inert", "style", "onOutsideClick"];
 
 /**
  * @typedef {JSX.EventHandlers & {
@@ -36,7 +36,7 @@ class Popover extends Component {
     this.onOutsideClick && document.removeEventListener("click", this.#handler);
   }
 
-  register(element) {
+  #register(element) {
     if (this.manual) return;
     this.#node = element;
     if (this.open) requestAnimationFrame(() => this.#node.isConnected && this.#node.showPopover());
@@ -52,8 +52,7 @@ class Popover extends Component {
     if (this.inert)
       return (
         <aside
-          ref={Ref.forward(this.ref, this.register.bind(this))}
-          id={this.id}
+          ref={Ref.forward(this.ref, this.#register.bind(this))}
           style={Style.assign(
             {
               container: "center",
@@ -64,15 +63,14 @@ class Popover extends Component {
           )}
           popover="manual"
           open={this.manual ? this.open : undefined}
-          {...Component.forwardProps(this, HANDLED_PROPS)}
+          {...this.props(...HANDLED_PROPS)}
         >
           {this.children}
         </aside>
       );
     return (
       <dialog
-        ref={Ref.forward(this.ref, this.register.bind(this))}
-        id={this.id}
+        ref={Ref.forward(this.ref, this.#register.bind(this))}
         style={Style.assign(
           {
             container: "center",
@@ -83,7 +81,7 @@ class Popover extends Component {
         )}
         popover="manual"
         open={this.manual ? this.open : undefined}
-        {...Component.forwardProps(this, HANDLED_PROPS)}
+        {...this.props(...HANDLED_PROPS)}
       >
         {this.children}
       </dialog>
