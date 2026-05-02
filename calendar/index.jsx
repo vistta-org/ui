@@ -6,7 +6,7 @@ import { Style } from "../utils";
 
 const DEFAULT_DATE = new DateTime([1996, 0, 14]); // Sunday, 14 January 1996 00:00:00
 const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
-const HANDLED_PROPS = ["ref", "name", "type", "starting", "date", "controls", "style", "renderDay", "onClick", "onDblClick"];
+const HANDLED_PROPS = ["ref", "name", "type", "starting", "date", "controls", "style", "items", "onClick", "onDblClick"];
 
 /**
  * @typedef {"month"|"week"|"day"} CalendarType
@@ -20,7 +20,7 @@ const HANDLED_PROPS = ["ref", "name", "type", "starting", "date", "controls", "s
  *  date?: Date | DateTime,
  *  controls?: "all" | "gesture" | "none",
  *  style?: JSX.Style,
- *  renderDay?: (date: Date, enabled: boolean) => JSX.Element[],
+ *  items?: (date: Date, enabled: boolean) => JSX.Element[],
  *  onChange?: (event: Event) => void,
  *  onClick?: (event: MouseEvent) => void,
  *  onDblClick?: (event: MouseEvent) => void,
@@ -50,13 +50,13 @@ export default class Calendar extends Component {
     this.#main = element;
   }
 
-  #getItem(active, offset) {
+  #getItem(_, offset) {
     if (offset === 0)
       return (
         <View
           type={this.type}
           date={new DateTime(this.date)}
-          renderDay={this.renderDay}
+          items={this.items}
           starting={this.starting}
           onClick={this.onClick}
           onDblClick={this.onDblClick}
@@ -65,7 +65,7 @@ export default class Calendar extends Component {
     const date = new DateTime(this.date);
     if (offset < 0) for (let i = 0; i > offset; i--) date.previous(/** @type {any} */ (this.type));
     else for (let i = 0; i < offset; i++) date.next(/** @type {any} */ (this.type));
-    return <View type={this.type} date={date} renderDay={this.renderDay} starting={this.starting} />;
+    return <View type={this.type} date={date} items={this.items} starting={this.starting} />;
   }
 
   #onChange(event) {
