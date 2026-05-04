@@ -37,7 +37,6 @@ export default class Calendar extends Component {
   type = "month";
   /** @type {"mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun"} */
   starting = "mon";
-  events = [];
   /** @type {DateTime} */
   date = new DateTime();
   /** @type {"all" | "gesture" | "none"} */
@@ -170,13 +169,7 @@ class View extends Component {
     const weekStartIndex = WEEKDAY_TO_INDEX[this.starting] ?? 1;
     if (this.type === "day")
       body.push(
-        <Day
-          type={this.type}
-          date={this.date}
-          renderDay={this.renderDay}
-          onClick={this.onClick}
-          onDblClick={this.onDblClick}
-        />,
+        <Day type={this.type} date={this.date} items={this.items} onClick={this.onClick} onDblClick={this.onDblClick} />,
       );
     else if (this.type === "week") {
       let delta = weekStartIndex - this.date.weekday;
@@ -185,7 +178,7 @@ class View extends Component {
         const day = this.date.clone();
         day.day += delta + i;
         body.push(
-          <Day type={this.type} date={day} renderDay={this.renderDay} onClick={this.onClick} onDblClick={this.onDblClick} />,
+          <Day type={this.type} date={day} items={this.items} onClick={this.onClick} onDblClick={this.onDblClick} />,
         );
       }
     } else {
@@ -199,7 +192,7 @@ class View extends Component {
           <Day
             type={this.type}
             date={new DateTime([this.date.year, this.date.month - 1, lastDayFromPreviousMonth - len + 1 + i])}
-            renderDay={this.renderDay}
+            items={this.items}
             disabled
           />,
         );
@@ -208,19 +201,14 @@ class View extends Component {
           <Day
             type={this.type}
             date={new DateTime([this.date.year, this.date.month, i])}
-            renderDay={this.renderDay}
+            items={this.items}
             onClick={this.onClick}
             onDblClick={this.onDblClick}
           />,
         );
       for (let i = 1, len = 42 - body.length; i <= len; i++)
         body.push(
-          <Day
-            type={this.type}
-            date={new DateTime([this.date.year, this.date.month + 1, i])}
-            renderDay={this.renderDay}
-            disabled
-          />,
+          <Day type={this.type} date={new DateTime([this.date.year, this.date.month + 1, i])} items={this.items} disabled />,
         );
     }
     return (
@@ -288,7 +276,7 @@ class Day extends Component {
         onClick={this.onClick}
         onDblClick={this.onDblClick}
       >
-        {this.renderDay?.(this.date, !this.disabled)}
+        {this.items?.(this.date, !this.disabled)}
       </div>
     );
   }
