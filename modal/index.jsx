@@ -23,13 +23,14 @@ const HANDLED_PROPS = ["ref", "open", "title", "actions", "style", "onClose"];
  */
 class Modal extends Component {
   #node;
+  #close;
 
   #register(element) {
     this.#node = element;
     if (this.open) requestAnimationFrame(() => this.#node.isConnected && this.#node.showModal());
-    element.show = () => ((this.open = true), this.#node.showModal());
-    const close = element.close?.bind?.(element);
-    element.close = () => ((this.open = false), close());
+    element.show = () => (this.open = true);
+    this.#close = element.close?.bind?.(element);
+    element.close = () => (this.open = false);
     element.addEventListener("close", () => {
       if (this.onClose) this.onClose();
     });
@@ -37,8 +38,10 @@ class Modal extends Component {
 
   onUpdate(prev) {
     if (prev.open === this.open) return;
-    if (this.open) this.#node?.showModal();
-    else this.#node?.close();
+    if (this.open) {
+      Style.stopExit(this.#node);
+      this.#node?.showModal();
+    } else Style.waitForExit(this.#node).then(() => this.#close());
   }
 
   render() {

@@ -34,25 +34,32 @@ export default (config, result) => {
   result.vars["animate-transform"] = "none";
   result.vars["animate-duration"] = config.animation?.duration ?? config.duration ?? "0.35s";
   result.vars["animate-range"] = config.animation?.range ?? "contain -5% contain 15%";
-  result.animations["animate-property"] = {
+  result.animations["animate-from-property"] = {
     from: {
       opacity: "0",
       transform: "$animate-transform",
     },
+    to: {
+      opacity: "1",
+    },
   };
-  const animate = (transform, onScroll) =>
-    onScroll
-      ? {
-          "$animate-transform": transform,
-          "view-timeline-name": "--item-timeline",
-          animation: "animate-property both",
-          "animation-timeline": "--item-timeline",
-          "animation-range": "$animate-range",
-        }
-      : {
-          "$animate-transform": transform,
-          animation: "animate-property $animate-duration linear",
-        };
+  result.animations["animate-to-property"] = {
+    from: {
+      opacity: "1",
+    },
+    to: {
+      opacity: "0",
+      transform: "$animate-transform",
+    },
+  };
+  const animate = (transform) => ({
+    "$animate-transform": transform,
+    animation: "animate-from-property $animate-duration linear",
+    ":exit": {
+      animation: "animate-to-property $animate-duration linear",
+      opacity: "0",
+    },
+  });
   result.properties["animate"] = {
     "fade-in": animate("none"),
     "zoom-in": animate("scale(2)"),
@@ -63,15 +70,22 @@ export default (config, result) => {
     "slide-left": animate("translateX(50%)"),
     "*": animate("${}"),
   };
+  const animateScroll = (transform) => ({
+    "$animate-transform": transform,
+    "view-timeline-name": "--item-timeline",
+    animation: "animate-from-property both",
+    "animation-timeline": "--item-timeline",
+    "animation-range": "$animate-range",
+  });
   result.properties["animate-scroll"] = {
-    "fade-in": animate("none", true),
-    "zoom-in": animate("scale(2)", true),
-    "zoom-out": animate("scale(0)", true),
-    "slide-top": animate("translateY(50%)", true),
-    "slide-right": animate("translateX(-50%)", true),
-    "slide-bottom": animate("translateY(-50%)", true),
-    "slide-left": animate("translateX(50%)", true),
-    "*": animate("${}", true),
+    "fade-in": animateScroll("none"),
+    "zoom-in": animateScroll("scale(2)"),
+    "zoom-out": animateScroll("scale(0)"),
+    "slide-top": animateScroll("translateY(50%)"),
+    "slide-right": animateScroll("translateX(-50%)"),
+    "slide-bottom": animateScroll("translateY(-50%)"),
+    "slide-left": animateScroll("translateX(50%)"),
+    "*": animateScroll("${}"),
   };
 
   /* Border */

@@ -44,8 +44,10 @@ class Popover extends Component {
 
   onUpdate(prev) {
     if (this.manual || prev.open === this.open) return;
-    if (this.open) this.#node?.showPopover();
-    else this.#node?.hidePopover();
+    if (this.open) {
+      Style.stopExit(this.#node);
+      this.#node?.showPopover();
+    } else Style.waitForExit(this.#node).then(() => this.#node?.hidePopover());
   }
 
   render() {
