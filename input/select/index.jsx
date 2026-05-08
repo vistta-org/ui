@@ -180,6 +180,9 @@ class Select extends Component {
 export default Select;
 
 function normalizeOption(option) {
-  if (typeof option === "string") return { label: option, value: option };
+  if (typeof option === "string") {
+    if (!option) return { label: "None", value: option };
+    return { label: option, value: option };
+  }
   return option;
 }
