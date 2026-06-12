@@ -111,7 +111,7 @@ class Dropdown extends Component {
             background: this.variant !== "raw" && "inherit",
           }}
         >
-          {this.items?.reduce((acc, props) => {
+          {this.items?.reduce?.((acc, props) => {
             if (!props) return acc;
             if (props.divider) return [...acc, <div style="divider; my:1rem" />];
             if (props?.items)
