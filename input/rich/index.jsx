@@ -1115,6 +1115,8 @@ class Rich extends Component {
               paddingLeft: "6rem",
               marginTop: "1rem",
             },
+            pre: { "white-space": "pre-wrap", "overflow-wrap": "break-word" },
+            code: { "white-space": "pre-wrap" },
             "li:has(> input[type=checkbox])": {
               position: "relative",
               listStyle: "none",
