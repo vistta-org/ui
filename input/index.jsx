@@ -35,7 +35,7 @@ import Select from "./select";
  * }} BaseInputProps
  *
  * @typedef {BaseInputProps & FieldsetProps & { type?: BaseInputs | "textarea" }} StandardInputProps
- * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio" | "switch", variant?: "default" | "inverted" }} CheckInputProps
+ * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio" | "switch" | "toggle", variant?: "default" | "inverted" }} CheckInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
  * @typedef {ColorProps & FieldsetProps & { type: "color" }} ColorInputProps
@@ -133,11 +133,19 @@ class Input extends Component {
         id={this.id}
         name={this.name}
         aria-label={this.label}
-        type={this.type === "switch" ? "checkbox" : this.type}
-        role={this.type === "switch" ? "switch" : undefined}
+        type={this.type === "switch" || this.type === "toggle" ? "checkbox" : this.type}
+        role={this.type === "switch" || this.type === "toggle" ? this.type : undefined}
         placeholder={this.placeholder || " "}
-        value={this.type === "checkbox" || this.type === "radio" || this.type === "switch" ? undefined : this.value}
-        checked={this.type === "checkbox" || this.type === "radio" || this.type === "switch" ? this.value : undefined}
+        value={
+          this.type === "checkbox" || this.type === "radio" || this.type === "switch" || this.type === "toggle"
+            ? undefined
+            : this.value
+        }
+        checked={
+          this.type === "checkbox" || this.type === "radio" || this.type === "switch" || this.type === "toggle"
+            ? this.value
+            : undefined
+        }
         required={this.required}
         disabled={this.disabled}
         readonly={this.readonly}
@@ -155,7 +163,8 @@ class Input extends Component {
       this.type === "color" ||
       this.type === "checkbox" ||
       this.type === "radio" ||
-      this.type === "switch"
+      this.type === "switch" ||
+      this.type === "toggle"
     )
       this.#node?.click();
   }
@@ -191,7 +200,7 @@ class Input extends Component {
 
   get #labelStyle() {
     if (!this.label) return {};
-    if (this.type === "checkbox" || this.type === "radio" || this.type === "switch")
+    if (this.type === "checkbox" || this.type === "radio" || this.type === "switch" || this.type === "toggle")
       return {
         "> label": { width: "auto", background: "transparent", userSelect: "none" },
       };
@@ -245,7 +254,7 @@ class Input extends Component {
             border: this.readonly ? "none" : "default",
             radius: "rounded",
             cursor: TEXT_BASED.includes(this.type) && "text",
-            ...(this.type === "radio" || this.type === "checkbox" || this.type === "switch"
+            ...(this.type === "radio" || this.type === "checkbox" || this.type === "switch" || this.type === "toggle"
               ? {
                   background: "none",
                   border: "none",
@@ -273,7 +282,7 @@ class Input extends Component {
                     scale: "1.5",
                   }
                 : {}),
-              ...(this.type === "switch"
+              ...(this.type === "switch" || this.type === "toggle"
                 ? {
                     col: "auto",
                     [this.variant !== "inverted" ? "margin-left" : "margin-right"]: "1rem",
