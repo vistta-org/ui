@@ -112,7 +112,7 @@ export default class Calendar extends Component {
         )}
         {...this.props(...HANDLED_PROPS)}
       >
-        <div style="relative; col:full; container; gap:0">
+        <div style="relative; col:full; container:default; gap:0">
           <div style="col:full; container:center; gap:0; p:1rem 1rem 0">
             {this.controls === "all" && (
               <Button variant="raw" style="col:auto; mr:11rem" icon="e5cb" onClick={this.previous.bind(this)} />
@@ -136,7 +136,7 @@ export default class Calendar extends Component {
               const date = DEFAULT_DATE.clone();
               date.day += (i + (WEEKDAY_TO_INDEX[this.starting] ?? 1)) % 7;
               return (
-                <div style="col; p: 2rem 0; text:center; text-transform: uppercase">
+                <div style="col:default; p: 2rem 0; text:center; text-transform: uppercase">
                   {date.format({
                     locales: "en-US",
                     weekday: "short",
@@ -212,7 +212,7 @@ class View extends Component {
         );
     }
     return (
-      <div style="relative; col:full; height:100%; container; gap:0; overflow:clip; scroll-snap-align: center; user-select: none">
+      <div style="relative; col:full; height:100%; container:default; gap:0; overflow:clip; scroll-snap-align: center; user-select: none">
         {body}
       </div>
     );

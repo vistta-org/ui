@@ -311,7 +311,7 @@ class ColorPopover extends Component {
             }}
           />
         </div>
-        <div style="col:full; container; gap:2rem; align-items:center">
+        <div style="col:full; container:default; gap:2rem; align-items:center">
           <span
             style={{
               width: "8rem",
@@ -347,7 +347,7 @@ class ColorPopover extends Component {
           ))}
         </div>
         {this.presets?.length > 0 && (
-          <div style="col:full; container; gap:1rem; flex-wrap:wrap; align-items:center">
+          <div style="col:full; container:default; gap:1rem; flex-wrap:wrap; align-items:center">
             {this.presets.map((color) => (
               <button
                 type="button"
@@ -364,7 +364,7 @@ class ColorPopover extends Component {
         {this.#recentFiltered.length > 0 && (
           <>
             <span style="col:full; font:small; opacity:.6">Recent</span>
-            <div style="col:full; container; gap:1rem; flex-wrap:wrap; align-items:center">
+            <div style="col:full; container:default; gap:1rem; flex-wrap:wrap; align-items:center">
               {this.#recentFiltered.map((color) => (
                 <button
                   type="button"
