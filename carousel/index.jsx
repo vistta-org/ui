@@ -2,7 +2,7 @@ import { Component, Ref } from "@vistta/js";
 import Button from "../button";
 import { Style } from "../utils";
 
-const HANDLED_PROPS = ["ref", "style", "items", "active", "controls", "renderOffset"];
+const HANDLED_PROPS = ["ref", "style", "items", "active", "controls", "renderOffset", "direction"];
 
 /**
  * @typedef {Omit<JSX.EventHandlers, "onChange"> & {
@@ -13,6 +13,7 @@ const HANDLED_PROPS = ["ref", "style", "items", "active", "controls", "renderOff
  *  active?: any,
  *  controls?: "all" | "gesture" | "none",
  *  renderOffset?: number,
+ *  direction?: "horizontal" | "vertical",
  *  onChange?: (event: Event & { item: any, index: number }) => void,
  * }} CarouselProps
  */
@@ -26,6 +27,24 @@ export default class Carousel extends Component {
   items = undefined;
   /** @type {"all" | "gesture" | "none"} */
   controls = "all";
+  /** @type {"horizontal" | "vertical"} */
+  direction = "horizontal";
+
+  get #isVertical() {
+    return this.direction === "vertical";
+  }
+
+  get isVertical() {
+    return this.#isVertical;
+  }
+
+  get #scrollProp() {
+    return this.#isVertical ? "scrollTop" : "scrollLeft";
+  }
+
+  get #sizeProp() {
+    return this.#isVertical ? "clientHeight" : "clientWidth";
+  }
 
   get #isVirtual() {
     return typeof this.items === "function";
@@ -58,6 +77,7 @@ export default class Carousel extends Component {
     this.#main = element;
     element.next = this.next.bind(this);
     element.previous = this.previous.bind(this);
+    element.scrollTo = this.scrollTo.bind(this);
     element.focus?.();
   }
 
@@ -65,8 +85,8 @@ export default class Carousel extends Component {
     this.#body = body;
     const init = () => {
       const count = this.#isVirtual ? 3 : Array.isArray(this.items) ? this.items.length : 0;
-      if (!body.clientWidth || !count) return false;
-      body.scrollLeft = this.#isVirtual ? body.clientWidth : this.index * body.clientWidth;
+      if (!body[this.#sizeProp] || !count) return false;
+      body[this.#scrollProp] = this.#isVirtual ? body[this.#sizeProp] : this.index * body[this.#sizeProp];
       return true;
     };
     if (init()) return;
@@ -85,14 +105,22 @@ export default class Carousel extends Component {
     this.active = this.#isVirtual ? item : event.index;
   }
 
+  scrollTo(index, behavior = "smooth") {
+    if (!this.#body) return;
+    const size = this.#body[this.#sizeProp];
+    const pos = this.#isVirtual ? size : index * size;
+    this.#body.scrollTo({ [this.#isVertical ? "top" : "left"]: pos, behavior });
+  }
+
   #onScrollEnd({ target: body }) {
+    const size = body[this.#sizeProp];
     if (this.#isVirtual) {
-      const page = Math.round(body.scrollLeft / body.clientWidth);
+      const page = Math.round(body[this.#scrollProp] / size);
       if (page === 1) return;
       this.#navigate(page === 0 ? -1 : 1);
-      body.scrollTo({ left: body.clientWidth, behavior: "instant" });
+      body.scrollTo({ [this.#isVertical ? "top" : "left"]: size, behavior: "instant" });
     } else {
-      const page = Math.round(body.scrollLeft / body.clientWidth);
+      const page = Math.round(body[this.#scrollProp] / size);
       if (page === this.index) return;
       const item = this.items[page];
       if (item == null) return;
@@ -101,7 +129,7 @@ export default class Carousel extends Component {
       event.index = page;
       this.#main?.dispatchEvent(event);
       if (event.defaultPrevented) {
-        body.scrollTo({ left: this.index * body.clientWidth, behavior: "instant" });
+        body.scrollTo({ [this.#isVertical ? "top" : "left"]: this.index * size, behavior: "instant" });
         return;
       }
       this.active = page;
@@ -110,29 +138,41 @@ export default class Carousel extends Component {
 
   next() {
     if (!this.#body || !this.hasNext) return;
+    const size = this.#body[this.#sizeProp];
     if (this.#isVirtual) {
-      this.#body.scrollTo({ left: this.#body.clientWidth * 2, behavior: "smooth" });
+      this.#body.scrollTo({ [this.#isVertical ? "top" : "left"]: size * 2, behavior: "smooth" });
     } else {
-      this.#body.scrollTo({ left: (this.index + 1) * this.#body.clientWidth, behavior: "smooth" });
+      this.#body.scrollTo({ [this.#isVertical ? "top" : "left"]: (this.index + 1) * size, behavior: "smooth" });
     }
   }
 
   previous() {
     if (!this.#body || !this.hasPrev) return;
+    const size = this.#body[this.#sizeProp];
     if (this.#isVirtual) {
-      this.#body.scrollTo({ left: 0, behavior: "smooth" });
+      this.#body.scrollTo({ [this.#isVertical ? "top" : "left"]: 0, behavior: "smooth" });
     } else {
-      this.#body.scrollTo({ left: (this.index - 1) * this.#body.clientWidth, behavior: "smooth" });
+      this.#body.scrollTo({ [this.#isVertical ? "top" : "left"]: (this.index - 1) * size, behavior: "smooth" });
     }
   }
 
   #onKeyDown(e) {
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      this.previous();
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      this.next();
+    if (this.#isVertical) {
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        this.previous();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        this.next();
+      }
+    } else {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        this.previous();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        this.next();
+      }
     }
   }
 
@@ -157,19 +197,20 @@ export default class Carousel extends Component {
             display: "flex",
             flexWrap: "nowrap",
             overflow: "auto clip",
-            scrollSnapType: "x mandatory",
+            scrollSnapType: this.#isVertical ? "y mandatory" : "x mandatory",
             scrollbar: "hidden",
+            flexDirection: this.#isVertical ? "column" : "row",
           }}
           onScrollEnd={this.controls !== "none" && this.#onScrollEnd.bind(this)}
         >
           {this.#isVirtual ? (
             <>
-              <Panel carousel={this} offset={-1} />
-              <Panel carousel={this} offset={0} />
-              <Panel carousel={this} offset={1} />
+              <Panel carousel={this} offset={-1} key="prev" />
+              <Panel carousel={this} offset={0} key="active" />
+              <Panel carousel={this} offset={1} key="next" />
             </>
           ) : (
-            this.items.map((_, i) => <Panel carousel={this} offset={i - this.index} />)
+            this.items.map((_, i) => <Panel carousel={this} offset={i - this.index} key={i} />)
           )}
         </div>
         {this.controls === "all" && (
@@ -197,14 +238,20 @@ export default class Carousel extends Component {
 
 class Panel extends Component {
   #rendered = false;
+  #item = null;
 
   render() {
     const item = this.carousel.itemAt(this.offset);
     const near = Math.abs(this.offset) <= (this.carousel.renderOffset ?? 1);
-    if (near) this.#rendered = true;
+    if (near && !this.#rendered) {
+      this.#rendered = true;
+      this.#item = item;
+    }
     return (
-      <div style="flex:none; width:100%; height:100%; scroll-snap-align:center">
-        {this.#rendered && item != null && item}
+      <div
+        style={`flex:none; scroll-snap-align:center; ${this.carousel.isVertical ? "height:100%; width:auto" : "width:100%; height:auto"}`}
+      >
+        {this.#rendered && this.#item != null && this.#item}
       </div>
     );
   }

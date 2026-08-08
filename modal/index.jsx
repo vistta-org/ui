@@ -65,9 +65,10 @@ class Modal extends Component {
         {this.children}
         {this.actions && this.actions.length > 0 && (
           <div style="col:full; container:end; gap:inherit;">
-            {this.actions.map((action) => (
-              <Button {...action} />
-            ))}
+            {this.actions.reduce((acc, action) => {
+              if (action) acc.push(<Button {...action} />);
+              return acc;
+            }, [])}
           </div>
         )}
       </dialog>

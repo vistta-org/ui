@@ -137,7 +137,7 @@ export class CustomGlobalDialogs extends Component {
           <Modal
             title={this.confirm.title}
             actions={[
-              {
+              this.confirm.cancel !== false && {
                 variant: "raw",
                 label: this.confirm.labels?.cancel || "Cancel",
                 onClick: () => this.confirm.callback(false),
