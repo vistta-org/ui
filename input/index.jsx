@@ -35,7 +35,7 @@ import Select from "./select";
  * }} BaseInputProps
  *
  * @typedef {BaseInputProps & FieldsetProps & { type?: BaseInputs | "textarea" }} StandardInputProps
- * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio" | "switch" | "toggle", variant?: "default" | "inverted" }} CheckInputProps
+ * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio" | "switch" | "toggle", variant?: "default" | "inverted" | "primary" | "primary inverted" }} CheckInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
  * @typedef {ColorProps & FieldsetProps & { type: "color" }} ColorInputProps
@@ -277,16 +277,20 @@ class Input extends Component {
               ...(this.type === "radio" || this.type === "checkbox"
                 ? {
                     col: "auto",
-                    [this.variant !== "inverted" ? "margin-left" : "margin-right"]: "1rem",
-                    order: this.variant === "inverted" && "-1",
+                    [this.variant !== "inverted" && this.variant !== "primary inverted" ? "margin-left" : "margin-right"]:
+                      "1rem",
+                    order: (this.variant === "inverted" || this.variant === "primary inverted") && "-1",
+                    accentColor:
+                      this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color",
                     scale: "1.5",
                   }
                 : {}),
               ...(this.type === "switch" || this.type === "toggle"
                 ? {
                     col: "auto",
-                    [this.variant !== "inverted" ? "margin-left" : "margin-right"]: "1rem",
-                    order: this.variant === "inverted" && "-1",
+                    [this.variant !== "inverted" && this.variant !== "primary inverted" ? "margin-left" : "margin-right"]:
+                      "1rem",
+                    order: (this.variant === "inverted" || this.variant === "primary inverted") && "-1",
                     appearance: "none",
                     width: "10rem",
                     height: "5.5rem",
@@ -296,7 +300,8 @@ class Input extends Component {
                     cursor: "pointer",
                     transition: "background $duration ease-in-out",
                     "&:checked": {
-                      background: "$primary-color",
+                      background:
+                        this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color",
                     },
                     "&::before": {
                       content: "''",
