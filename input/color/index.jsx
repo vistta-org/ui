@@ -8,6 +8,7 @@ import Popover from "../../popover";
  * @property {import("@vistta/js").Anchor} [anchor]
  * @property {string} [name]
  * @property {string} [value]
+ * @property {"default" | "basic" | "flat"} [variant]
  * @property {string[]} [presets]
  * @property {string[]} [recent]
  * @property {boolean} [required]
@@ -43,9 +44,14 @@ class Color extends Component {
   }
 
   #select(color) {
-    if (!this.#node || this.disabled || this.readonly) return;
-    this.#node.value = color;
-    this.#node.dispatchEvent(new Event("input", { bubbles: true }));
+    if (this.disabled || this.readonly) return;
+    if (this.value !== color) {
+      this.value = color;
+      const event = /** @type {any} */ ({ target: this });
+      if (this.onChange) this.onChange(event);
+      if (this.onInput) this.onInput(event);
+    }
+    if (this.#node) this.#node.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   #selectHSV(color) {
@@ -86,6 +92,32 @@ class Color extends Component {
   }
 
   render() {
+    if (this.variant === "flat") {
+      return (
+        <ColorPicker
+          ref={Ref.forward(this.ref, this.#register.bind(this))}
+          current={this.current}
+          hue={this.hue}
+          sat={this.sat}
+          val={this.val}
+          hueColor={hsvToHex(this.hue, 100, 100)}
+          presets={this.presets}
+          recent={this.recent}
+          onSelect={(color) => this.#select(color)}
+          onSelectHSV={(color) => this.#selectHSV(color)}
+          onAreaChange={(sat, val) => {
+            this.sat = sat;
+            this.val = val;
+            this.#select(hsvToHex(this.hue, sat, val));
+          }}
+          onHueChange={(hue) => {
+            this.hue = hue;
+            this.#select(hsvToHex(hue, this.sat, this.val));
+          }}
+          onHexInput={(hex) => this.#selectHSV(hex)}
+        />
+      );
+    }
     return (
       <>
         <div
@@ -154,25 +186,67 @@ class Color extends Component {
 }
 
 class ColorPopover extends Component {
+  #popover;
+  #boundClose;
+
+  onConnect() {
+    this.#boundClose = (e) => {
+      if (this.#popover && !this.#popover.contains(e.target)) this.onClose?.();
+    };
+    requestAnimationFrame(() => document.addEventListener("pointerdown", this.#boundClose));
+  }
+
+  onDisconnect() {
+    document.removeEventListener("pointerdown", this.#boundClose);
+  }
+
+  render() {
+    return (
+      <Popover
+        ref={(el) => (this.#popover = el)}
+        open
+        style={{
+          ...this.anchor("bottom", { gap: "2rem" }),
+          container: "default",
+          gap: "2rem",
+          padding: "3rem",
+          width: "min-content",
+        }}
+        inert
+      >
+        <ColorPicker
+          current={this.current}
+          hue={this.hue}
+          sat={this.sat}
+          val={this.val}
+          hueColor={hsvToHex(this.hue, 100, 100)}
+          presets={this.presets}
+          recent={this.recent}
+          onSelect={this.onSelect}
+          onSelectHSV={this.onSelectHSV}
+          onAreaChange={this.onAreaChange}
+          onHueChange={this.onHueChange}
+          onHexInput={this.onHexInput}
+        />
+      </Popover>
+    );
+  }
+}
+
+class ColorPicker extends Component {
   #canvas;
   #hueBar;
-  #popover;
   #dragging = null;
   #boundMove;
   #boundUp;
-  #boundClose;
 
   onConnect() {
     this.#boundMove = (e) => this.#onMove(e);
     this.#boundUp = () => (this.#dragging = null);
-    this.#boundClose = (e) => {
-      if (this.#popover && !this.#popover.contains(e.target)) this.onClose?.();
-    };
     document.addEventListener("mousemove", this.#boundMove);
     document.addEventListener("mouseup", this.#boundUp);
     document.addEventListener("touchmove", this.#boundMove, { passive: false });
     document.addEventListener("touchend", this.#boundUp);
-    requestAnimationFrame(() => document.addEventListener("pointerdown", this.#boundClose));
   }
 
   onDisconnect() {
@@ -180,7 +254,6 @@ class ColorPopover extends Component {
     document.removeEventListener("mouseup", this.#boundUp);
     document.removeEventListener("touchmove", this.#boundMove);
     document.removeEventListener("touchend", this.#boundUp);
-    document.removeEventListener("pointerdown", this.#boundClose);
   }
 
   #onMove(e) {
@@ -226,18 +299,7 @@ class ColorPopover extends Component {
 
   render() {
     return (
-      <Popover
-        ref={(el) => (this.#popover = el)}
-        open
-        style={{
-          ...this.anchor("bottom", { gap: "2rem" }),
-          container: "default",
-          gap: "2rem",
-          padding: "3rem",
-          width: "min-content",
-        }}
-        inert
-      >
+      <>
         <div
           ref={(el) => (this.#canvas = el)}
           onMouseDown={(e) => {
@@ -379,7 +441,7 @@ class ColorPopover extends Component {
             </div>
           </>
         )}
-      </Popover>
+      </>
     );
   }
 }

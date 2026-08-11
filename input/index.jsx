@@ -38,7 +38,7 @@ import Select from "./select";
  * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio" | "switch" | "toggle", variant?: "default" | "inverted" | "primary" | "primary inverted" }} CheckInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
- * @typedef {ColorProps & FieldsetProps & { type: "color" }} ColorInputProps
+ * @typedef {Omit<ColorProps, "variant"> & Omit<FieldsetProps, "variant"> & { type: "color", variant?: ColorProps["variant"] }} ColorInputProps
  * @typedef {StandardInputProps | CheckInputProps | SelectInputProps | RichInputProps | ColorInputProps} InputProps
  */
 
@@ -93,6 +93,8 @@ class Input extends Component {
           id={this.id}
           name={this.name}
           value={this.value}
+          // @ts-ignore - narrowed by type check above
+          variant={this.variant}
           // @ts-ignore - narrowed by type check above
           presets={this.presets}
           // @ts-ignore - narrowed by type check above
