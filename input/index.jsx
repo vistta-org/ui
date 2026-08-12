@@ -35,11 +35,12 @@ import Select from "./select";
  * }} BaseInputProps
  *
  * @typedef {BaseInputProps & FieldsetProps & { type?: BaseInputs | "textarea" }} StandardInputProps
- * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio" | "switch" | "toggle", variant?: "default" | "inverted" | "primary" | "primary inverted" }} CheckInputProps
+ * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio", variant?: "default" | "inverted" | "primary" | "primary inverted", indeterminate?: boolean }} CheckInputProps
+ * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "switch" | "toggle", variant?: "default" | "inverted" | "primary" | "primary inverted" }} ToggleInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
  * @typedef {Omit<ColorProps, "variant"> & Omit<FieldsetProps, "variant"> & { type: "color", variant?: ColorProps["variant"] }} ColorInputProps
- * @typedef {StandardInputProps | CheckInputProps | SelectInputProps | RichInputProps | ColorInputProps} InputProps
+ * @typedef {StandardInputProps | CheckInputProps | ToggleInputProps | SelectInputProps | RichInputProps | ColorInputProps} InputProps
  */
 
 const TEXT_BASED = ["text", "password", "email", "url", "tel", "search", "textarea", "rich", "richtext"];
@@ -50,6 +51,15 @@ const TEXT_BASED = ["text", "password", "email", "url", "tel", "search", "textar
 class Input extends Component {
   #node;
   anchor = new Anchor();
+
+  onConnect() {
+    if ((this.type === "checkbox" || this.type === "radio") && this.indeterminate) this.#node.indeterminate = true;
+  }
+
+  onUpdate() {
+    if ((this.type === "checkbox" || this.type === "radio") && this.indeterminate !== this.#node.indeterminate)
+      this.#node.indeterminate = this.indeterminate;
+  }
 
   #input() {
     if (this.type === "textarea")
