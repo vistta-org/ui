@@ -107,30 +107,31 @@ export default class Calendar extends Component {
             background: "default",
             border: "default",
             radius: "rounded",
+            gap: 0,
           },
           this.style,
         )}
         {...this.props(...HANDLED_PROPS)}
       >
-        <div style="relative; col:full; container:default; gap:0">
-          <div style="col:full; container:center; gap:0; p:1rem 1rem 0">
-            {this.controls === "all" && (
-              <Button variant="raw" style="col:auto; mr:11rem" icon="e5cb" onClick={this.previous.bind(this)} />
-            )}
-            <h5 style={["col", "text:center", this.controls === "all" && " pt:2rem"]}>
-              {formatDate(this.date, {
-                locales: "en-US",
-                month: "long",
-                year: "numeric",
-              })}
-            </h5>
-            {this.controls === "all" && (
-              <>
-                <Button variant="raw" style="col:auto" icon="e8df" onClick={this.select.bind(this, new DateTime())} />
-                <Button variant="raw" style="col:auto; ml:1rem" icon="e5cc" onClick={this.next.bind(this)} />
-              </>
-            )}
-          </div>
+        <div style="col:full; container:center; gap:0; p:1rem 1rem 0">
+          {this.controls === "all" && (
+            <Button variant="raw" style="col:auto; mr:11rem" icon="e5cb" onClick={this.previous.bind(this)} />
+          )}
+          <h5 style={["col", "text:center", this.controls === "all" && " pt:2rem"]}>
+            {formatDate(this.date, {
+              locales: "en-US",
+              month: "long",
+              year: "numeric",
+            })}
+          </h5>
+          {this.controls === "all" && (
+            <>
+              <Button variant="raw" style="col:auto" icon="e8df" onClick={this.select.bind(this, new DateTime())} />
+              <Button variant="raw" style="col:auto; ml:1rem" icon="e5cc" onClick={this.next.bind(this)} />
+            </>
+          )}
+        </div>
+        <div style="col:full; container:default; gap:0">
           {this.type !== "day" &&
             Array.from({ length: 7 }, (_, i) => {
               const date = DEFAULT_DATE.clone();
@@ -153,7 +154,7 @@ export default class Calendar extends Component {
           onChange={this.#onChange.bind(this)}
           style={{
             col: "full",
-            height: "calc(100% - 23rem)",
+            height: "calc(100% - 21rem)",
           }}
         />
       </div>
