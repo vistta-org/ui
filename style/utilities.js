@@ -196,7 +196,7 @@ export default (config, result) => {
     ">*": {
       flex: "none",
       [vertical ? "height" : "width"]: "auto",
-      "border-radius": "0",
+      "border-radius": "calc($default-radius / 2)",
       border: "none",
 
       "&:not(:first-child)": {
