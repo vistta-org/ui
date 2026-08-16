@@ -1269,7 +1269,7 @@ class Rich extends Component {
             ]}
             style={{
               position: "absolute",
-              inset: "$space-top 1rem auto",
+              inset: "0 1rem auto",
               col: "full",
               width: "calc(100% - 2rem)",
               background: "light-dark(shade($back-color, 5%), shade($back-color, 25%))",

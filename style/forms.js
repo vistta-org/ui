@@ -6,7 +6,7 @@ export default (_, result) =>
       color: "default",
       background: "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
       border: "$border-size solid $border-color",
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
       "accent-color": "$primary-color",
       cursor: "text",
 
@@ -42,7 +42,7 @@ export default (_, result) =>
         "accent-color": "$primary-color",
         color: "default",
         border: "$border-size solid $border-color",
-        "border-radius": "$radius",
+        "border-radius": "$default-radius",
         "list-style": "none",
         outline: "none",
       },
@@ -117,7 +117,7 @@ export default (_, result) =>
         cursor: "pointer",
         "&::-webkit-color-swatch, &::-moz-color-swatch": {
           border: "none",
-          "border-radius": "$radius",
+          "border-radius": "$default-radius",
         },
       },
 

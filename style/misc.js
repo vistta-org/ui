@@ -38,7 +38,7 @@ export default (_, result) => {
       margin: "auto",
       padding: "2rem",
       border: "none",
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
       color: "$fore-color",
       background: "light-dark(transparent(tint($back-color, 5%), 10%), transparent(tint($back-color, 5%), 10%))",
       "backdrop-filter": "$blur",
@@ -56,18 +56,18 @@ export default (_, result) => {
       color: "$primary-color",
       background: "$back-color",
       border: "none",
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
       "vertical-align": "baseline",
       appearance: "none",
 
       "&::-webkit-progress-bar": {
         background: "transparent",
-        "border-radius": "$radius",
+        "border-radius": "$default-radius",
       },
 
       "&::-webkit-progress-value, &::-moz-progress-bar": {
         background: "$primary-color",
-        "border-radius": "$radius",
+        "border-radius": "$default-radius",
       },
 
       indeterminate: {
@@ -85,7 +85,7 @@ export default (_, result) => {
       height: "3rem",
       width: "100%",
       border: "none",
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
       background: "$back-color",
       display: "block",
 
@@ -101,7 +101,7 @@ export default (_, result) => {
       "&:-moz-meter-optimum," +
       "&:-moz-meter-sub-optimum," +
       "&:-moz-meter-sub-sub-optimum"]: {
-        "border-radius": "$radius",
+        "border-radius": "$default-radius",
       },
 
       "&::-webkit-meter-optimum-value, &:-moz-meter-optimum::-moz-meter-bar": {
@@ -122,7 +122,7 @@ export default (_, result) => {
       border: "$border-size solid $border-color",
       "border-collapse": "separate",
       "border-spacing": 0,
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
       background: "$back-color",
 
       "th, td": {

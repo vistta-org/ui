@@ -113,7 +113,7 @@ class Dropdown extends Component {
         >
           {this.items?.reduce?.((acc, props) => {
             if (!props) return acc;
-            if (props.divider) return [...acc, <div style="divider; my:1rem" />];
+            if (props.divider) return [...acc, <div style="divider; my:0" />];
             if (props?.items)
               return [
                 ...acc,

@@ -110,7 +110,10 @@ export default (config, result) => {
   };
 
   /* Border Radius */
-  result.vars.radius = config.radius ?? "8px";
+  result.vars["default-radius"] = config.radius ?? "8px";
+  result.vars.rounded = parseInt(result.vars["default-radius"]) > 0 ? result.vars["default-radius"] : "8px";
+  result.vars.edged = "0";
+  result.vars.circular = "50%";
   const radius = (value) => ({
     "border-radius": value,
     "> *": {
@@ -118,7 +121,7 @@ export default (config, result) => {
     },
   });
   result.properties["rounded"] = {
-    default: radius("$radius"),
+    default: radius("$default-radius"),
   };
   result.properties["edged"] = {
     default: radius("0"),
@@ -128,7 +131,7 @@ export default (config, result) => {
   };
   result.properties["radius"] = {
     edged: radius("0"),
-    rounded: radius("$radius"),
+    rounded: radius("$default-radius"),
     circular: radius("50%"),
     "*": radius("${}"),
   };
@@ -185,7 +188,7 @@ export default (config, result) => {
     display: "flex",
     "flex-flow": vertical ? "column nowrap" : "row nowrap",
     "align-items": "stretch",
-    "border-radius": "$radius",
+    "border-radius": "$default-radius",
     border: "$border-size solid $border-color",
     gap: "0",
     overflow: "clip",
@@ -360,7 +363,7 @@ export default (config, result) => {
       color: "$fore-color",
       background: "light-dark(transparent(tint($back-color, 5%), 5%), transparent(tint($back-color, 5%), 5%))",
       backdropFilter: "$blur",
-      borderRadius: "$radius",
+      borderRadius: "$default-radius",
       boxShadow: "$shadow",
       translate: "-50% -50%",
       opacity: "0",

@@ -24,7 +24,7 @@ export default (_, result) =>
       color: "$back-color",
       background: "$fore-color",
       border: "none",
-      radius: "$radius",
+      radius: "$default-radius",
       "-webkit-appearance": "button",
       "text-transform": "none",
       overflow: "visible",

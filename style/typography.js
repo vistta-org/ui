@@ -83,7 +83,7 @@ export default (config, result) => {
       margin: "4rem 0 8rem",
       padding: "2rem",
       border: "$border-size solid $border-color",
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
       background: "color-mix(in srgb, $back-color, black 5%)",
       overflow: "clip",
       "font-family": "monospace, monospace",
@@ -112,7 +112,7 @@ export default (config, result) => {
       padding: ".5rem 2rem",
       color: "$fore-color",
       background: "$back-color",
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
     },
 
     "a, ins, u": {
@@ -155,7 +155,7 @@ export default (config, result) => {
 
     cite: {
       "font-style": "italic",
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
       background: "color-mix(in srgb, $back-color, $fore-color, 5%)",
       padding: "0 .5rem",
     },
@@ -163,7 +163,7 @@ export default (config, result) => {
     kbd: {
       color: "white",
       background: "black",
-      "border-radius": "$radius",
+      "border-radius": "$default-radius",
       "font-size": "$font-size-small",
     },
 
