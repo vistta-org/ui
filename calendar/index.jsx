@@ -132,7 +132,7 @@ export default class Calendar extends Component {
           )}
         </div>
         <div style="col:full; container:default; gap:0">
-          {this.type !== "day" &&
+          {this.type !== "day" ? (
             Array.from({ length: 7 }, (_, i) => {
               const date = DEFAULT_DATE.clone();
               date.day += (i + (WEEKDAY_TO_INDEX[this.starting] ?? 1)) % 7;
@@ -144,7 +144,15 @@ export default class Calendar extends Component {
                   })}
                 </div>
               );
-            })}
+            })
+          ) : (
+            <div style="col:default; p: 2rem 0; text:center; text-transform: uppercase">
+              {this.date.format({
+                locales: "en-US",
+                weekday: "long",
+              })}
+            </div>
+          )}
         </div>
         <Carousel
           ref={this.#carousel}
@@ -247,14 +255,7 @@ class Day extends Component {
           text: "left",
           overflow: "clip",
           ":before": {
-            content: `"${
-              (this.type === "day"
-                ? this.date.format({
-                    locales: "en-US",
-                    weekday: "long",
-                  }) + ", "
-                : "") + this.date.day
-            }"`,
+            content: `"${this.date.day}"`,
             position: "absolute",
             top: "0",
             left: this.type !== "day" ? "calc(50% - 2.5rem)" : "0",
