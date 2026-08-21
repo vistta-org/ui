@@ -1,6 +1,7 @@
 import { Anchor, Component, Ref, Style } from "@vistta/js";
 import Button, { iconToStyle } from "../button";
 import Popover from "../popover";
+import { style as globalStyle } from "../utils";
 
 const HANDLED_PROPS = [
   "ref",
@@ -55,6 +56,16 @@ class Dropdown extends Component {
   #timeout;
   #preventClose;
 
+  static set style(value) {
+    globalStyle.update("dropdown", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.dropdown || {};
+  }
+
+  globalStyle = globalStyle();
+
   #setVisible(value) {
     if (value) this.onOpen?.();
     else this.onClose?.();
@@ -73,6 +84,7 @@ class Dropdown extends Component {
             p: !this.label && "2rem!",
           },
           iconToStyle(this.loading ? "loading" : this.icon, !this.label),
+          this.globalStyle.dropdown || {},
           this.style,
         )}
         onClick={(e) => {

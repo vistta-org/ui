@@ -1,6 +1,6 @@
 import { Component, Ref } from "@vistta/js";
 import Button from "../button";
-import { Style } from "../utils";
+import { Style, style as globalStyle } from "../utils";
 
 const HANDLED_PROPS = ["ref", "style", "items", "active", "controls", "renderOffset", "direction"];
 
@@ -29,6 +29,16 @@ export default class Carousel extends Component {
   controls = "all";
   /** @type {"horizontal" | "vertical"} */
   direction = "horizontal";
+
+  static set style(value) {
+    globalStyle.update("carousel", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.carousel || {};
+  }
+
+  globalStyle = globalStyle();
 
   get #isVertical() {
     return this.direction === "vertical";
@@ -184,6 +194,7 @@ export default class Carousel extends Component {
         onKeyDown={this.#onKeyDown.bind(this)}
         style={Style.assign(
           { position: "relative", height: "100%", width: "100%", outline: "none", overflow: "clip" },
+          this.globalStyle.carousel || {},
           this.style,
         )}
         {...this.props(...HANDLED_PROPS)}

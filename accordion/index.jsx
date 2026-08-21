@@ -1,5 +1,5 @@
 import { Component, Ref } from "@vistta/js";
-import { Style } from "../utils";
+import { Style, style as globalStyle } from "../utils";
 
 const HANDLED_PROPS = ["style", "open", "title", "icon", "iconPosition", "onClick"];
 
@@ -41,6 +41,16 @@ class Accordion extends Component {
     // @ts-ignore
     open = -1;
 
+    static set style(value) {
+      globalStyle.update("accordionGroup", value);
+    }
+
+    static get style() {
+      return globalStyle.value?.accordionGroup || {};
+    }
+
+    globalStyle = globalStyle();
+
     render() {
       return (
         <div
@@ -48,6 +58,7 @@ class Accordion extends Component {
             {
               container: "default",
             },
+            this.globalStyle.accordionGroup || {},
             this.style,
           )}
           {...this.props("style")}
@@ -73,10 +84,21 @@ class Accordion extends Component {
     }
   };
 
+  static set style(value) {
+    globalStyle.update("accordion", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.accordion || {};
+  }
+
+  globalStyle = globalStyle();
+
   open = false;
 
   render() {
     return (
+      //@ts-ignore
       <div
         style={Style.assign(
           {
@@ -87,6 +109,7 @@ class Accordion extends Component {
             overflow: "clip",
             background: "$back-color",
           },
+          this.globalStyle.accordion || {},
           this.style,
         )}
         {...this.props(...HANDLED_PROPS)}

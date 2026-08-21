@@ -1,5 +1,5 @@
 import { Component, Ref } from "@vistta/js";
-import { Style } from "../utils";
+import { Style, style as globalStyle } from "../utils";
 
 const HANDLED_PROPS = ["ref", "open", "manual", "inert", "style", "onOutsideClick"];
 
@@ -21,6 +21,16 @@ const HANDLED_PROPS = ["ref", "open", "manual", "inert", "style", "onOutsideClic
 class Popover extends Component {
   #node;
   #handler;
+
+  static set style(value) {
+    globalStyle.update("popover", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.popover || {};
+  }
+
+  globalStyle = globalStyle();
 
   onConnect() {
     if (this.manual) return;
@@ -61,6 +71,7 @@ class Popover extends Component {
               width: "min-content",
               animate: "fade",
             },
+            this.globalStyle.popover || {},
             this.style,
           )}
           popover="manual"
@@ -79,6 +90,7 @@ class Popover extends Component {
             width: "min-content",
             animate: "fade",
           },
+          this.globalStyle.popover || {},
           this.style,
         )}
         popover="manual"

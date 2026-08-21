@@ -1,7 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 import Button from "../button/index.jsx";
 import Popover from "../popover/index.jsx";
-import { Style } from "../utils";
+import { Style, style as globalStyle } from "../utils";
 
 /**
  * @typedef {object} ToastProps
@@ -20,6 +20,16 @@ import { Style } from "../utils";
  */
 class Toast extends Component {
   variant = /** @type {"basic"} */ ("basic");
+
+  static set style(value) {
+    globalStyle.update("toast", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.toast || {};
+  }
+
+  globalStyle = globalStyle();
 
   render() {
     return (
@@ -40,6 +50,7 @@ class Toast extends Component {
             backdropFilter: "$blur",
             shadow: "default",
           },
+          this.globalStyle.toast || {},
           this.style,
         )}
       >

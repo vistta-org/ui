@@ -1,4 +1,5 @@
 import { Component, Ref } from "@vistta/js";
+import { Style, style as globalStyle } from "../utils";
 
 /**
  * @typedef {import("../button/index.jsx").ButtonProps} ButtonProps
@@ -31,9 +32,19 @@ class Table extends Component {
   // filter
   // search
 
+  static set style(value) {
+    globalStyle.update("table", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.table || {};
+  }
+
+  globalStyle = globalStyle();
+
   render() {
     return (
-      <table {...this.props("title", "columns", "data")}>
+      <table style={Style.assign(this.globalStyle.table || {}, this.style)} {...this.props("title", "columns", "data")}>
         <thead>
           <tr>
             {this.columns.map((column) => (

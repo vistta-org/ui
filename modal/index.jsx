@@ -1,6 +1,6 @@
 import { Component, Ref } from "@vistta/js";
 import Button from "../button/index.jsx";
-import { Style } from "../utils.js";
+import { Style, style as globalStyle } from "../utils.js";
 
 const HANDLED_PROPS = ["ref", "open", "title", "actions", "style", "onClose"];
 
@@ -24,6 +24,16 @@ const HANDLED_PROPS = ["ref", "open", "title", "actions", "style", "onClose"];
 class Modal extends Component {
   #node;
   #close;
+
+  static set style(value) {
+    globalStyle.update("modal", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.modal || {};
+  }
+
+  globalStyle = globalStyle();
 
   #register(element) {
     this.#node = element;
@@ -57,11 +67,12 @@ class Modal extends Component {
             gap: "4rem",
             animate: "fade",
           },
+          this.globalStyle.modal || {},
           this.style,
         )}
         {...this.props(...HANDLED_PROPS)}
       >
-        {this.title && <h5 style="col:full; mb:2rem; p:0 2rem 2rem; border:bottom">{this.title}</h5>}
+        {this.title && <h5 style="col:full; mb:2rem; p:0 2rem 2rem">{this.title}</h5>}
         {this.children}
         {this.actions && this.actions.length > 0 && (
           <div style="col:full; container:end; gap:inherit;">

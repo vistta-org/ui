@@ -2,7 +2,7 @@ import { Component, Ref } from "@vistta/js";
 import { DateTime, formatDate } from "@vistta/utils";
 import Button from "../button";
 import Carousel from "../carousel";
-import { Style } from "../utils";
+import { Style, style as globalStyle } from "../utils";
 
 const DEFAULT_DATE = new DateTime([1996, 0, 14]); // Sunday, 14 January 1996 00:00:00
 const WEEKDAY_TO_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
@@ -41,6 +41,16 @@ export default class Calendar extends Component {
   date = new DateTime();
   /** @type {"all" | "gesture" | "none"} */
   controls = "all";
+
+  static set style(value) {
+    globalStyle.update("calendar", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.calendar || {};
+  }
+
+  globalStyle = globalStyle();
 
   register(element) {
     element.next = this.next.bind(this);
@@ -109,6 +119,7 @@ export default class Calendar extends Component {
             radius: "rounded",
             gap: 0,
           },
+          this.globalStyle.calendar || {},
           this.style,
         )}
         {...this.props(...HANDLED_PROPS)}

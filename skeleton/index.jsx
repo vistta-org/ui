@@ -1,4 +1,5 @@
 import { Component, Style } from "@vistta/js";
+import { style as globalStyle } from "../utils";
 
 /**
  * @typedef {object} SkeletonProps
@@ -14,6 +15,16 @@ import { Component, Style } from "@vistta/js";
  * @extends {Component<SkeletonProps>}
  */
 export default class Skeleton extends Component {
+  static set style(value) {
+    globalStyle.update("skeleton", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.skeleton || {};
+  }
+
+  globalStyle = globalStyle();
+
   render() {
     const animation = this.animate !== false && {
       "0%": { opacity: "0" },
@@ -37,6 +48,7 @@ export default class Skeleton extends Component {
               height: this.height,
               overflow: "hidden",
             },
+            this.globalStyle.skeleton || {},
             this.style,
           )}
         >
@@ -80,6 +92,7 @@ export default class Skeleton extends Component {
             opacity: animation ? "0" : ".4",
             animation,
           },
+          this.globalStyle.skeleton || {},
           this.style,
         )}
       />

@@ -1,7 +1,7 @@
 import { Component, Ref } from "@vistta/js";
 import Button from "../button";
 import Dropdown from "../dropdown";
-import { Style } from "../utils";
+import { Style, style as globalStyle } from "../utils";
 
 /**
  * @typedef {Omit<import("../button").ButtonProps, "type">} ButtonProps
@@ -26,6 +26,16 @@ class Menu extends Component {
   visibleIndex = -1;
   dropdownPosition;
   itemRefs = [];
+
+  static set style(value) {
+    globalStyle.update("menu", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.menu || {};
+  }
+
+  globalStyle = globalStyle();
 
   #registerContainer(element) {
     this.observer = new ResizeObserver(() => this.#checkOverflow(element));
@@ -80,6 +90,7 @@ class Menu extends Component {
               },
             },
           },
+          this.globalStyle.menu || {},
           this.style,
         )}
       >

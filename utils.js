@@ -1,4 +1,6 @@
-export { Style } from "@vistta/js";
+import { Context, Style } from "@vistta/js";
+
+export { Style };
 
 /**
  * @typedef {"left" | "right" | "center"} HorizontalPosition
@@ -10,3 +12,33 @@ export { Style } from "@vistta/js";
  */
 export const getIconCode = (icon) => (typeof icon === "object" ? icon.code : icon);
 export const getTooltipLabel = (tooltip) => (typeof tooltip === "object" ? tooltip.label : tooltip);
+export const style = new Context(
+  "vistta.ui.style",
+  {
+    accordion: {},
+    accordionGroup: {},
+    button: {},
+    calendar: {},
+    card: {},
+    carousel: {},
+    dropdown: {},
+    icon: {},
+    input: {},
+    menu: {},
+    modal: {},
+    popover: {},
+    skeleton: {},
+    table: {},
+    toast: {},
+  },
+  {
+    cache: "local",
+    actions: {
+      update: (prev, key, value) => {
+        if (typeof value !== "object") return prev;
+        prev[key] = value;
+        return prev;
+      },
+    },
+  },
+);

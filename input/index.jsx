@@ -1,5 +1,5 @@
 import { Anchor, Component, Ref } from "@vistta/js";
-import { Style, getTooltipLabel } from "../utils";
+import { Style, getTooltipLabel, style as globalStyle } from "../utils";
 import Color from "./color";
 import Rich from "./rich";
 import Select from "./select";
@@ -52,13 +52,27 @@ class Input extends Component {
   #node;
   anchor = new Anchor();
 
+  static set style(value) {
+    globalStyle.update("input", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.input || {};
+  }
+
+  globalStyle = globalStyle();
+
   onConnect() {
+    // @ts-ignore - narrowed by type check above
     if ((this.type === "checkbox" || this.type === "radio") && this.indeterminate) this.#node.indeterminate = true;
   }
 
   onUpdate() {
-    if ((this.type === "checkbox" || this.type === "radio") && this.indeterminate !== this.#node.indeterminate)
+    // @ts-ignore - narrowed by type check above
+    if ((this.type === "checkbox" || this.type === "radio") && this.indeterminate !== this.#node.indeterminate) {
+      // @ts-ignore - narrowed by type check above
       this.#node.indeterminate = this.indeterminate;
+    }
   }
 
   #input() {
@@ -69,6 +83,7 @@ class Input extends Component {
           id={this.id}
           name={this.name}
           aria-label={this.label}
+          // @ts-ignore - narrowed by type check above
           placeholder={this.placeholder || " "}
           value={this.value}
           required={this.required}
@@ -84,6 +99,7 @@ class Input extends Component {
           ref={Ref.forward(this.ref, (el) => (this.#node = el))}
           id={this.id}
           name={this.name}
+          // @ts-ignore - narrowed by type check above
           placeholder={this.placeholder}
           value={this.value}
           // @ts-ignore - narrowed by type check above
@@ -124,6 +140,7 @@ class Input extends Component {
           anchor={this.anchor}
           id={this.id}
           name={this.name}
+          // @ts-ignore - narrowed by type check above
           placeholder={this.placeholder}
           // @ts-ignore - narrowed by type check above
           options={this.options}
@@ -147,6 +164,7 @@ class Input extends Component {
         aria-label={this.label}
         type={this.type === "switch" || this.type === "toggle" ? "checkbox" : this.type}
         role={this.type === "switch" || this.type === "toggle" ? this.type : undefined}
+        // @ts-ignore - narrowed by type check above
         placeholder={this.placeholder || " "}
         value={
           this.type === "checkbox" || this.type === "radio" || this.type === "switch" || this.type === "toggle"
@@ -336,6 +354,7 @@ class Input extends Component {
               transition: "color $duration",
             },
           },
+          this.globalStyle.input || {},
           this.style,
           this.#labelStyle,
           this.readonly && {

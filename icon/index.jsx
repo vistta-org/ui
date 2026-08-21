@@ -1,5 +1,5 @@
 import { Component, Ref } from "@vistta/js";
-import { getTooltipLabel, Style } from "../utils";
+import { getTooltipLabel, style as globalStyle, Style } from "../utils";
 
 /**
  * @extends {Component<{
@@ -12,6 +12,16 @@ import { getTooltipLabel, Style } from "../utils";
  * }>}
  */
 class Icon extends Component {
+  static set style(value) {
+    globalStyle.update("icon", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.icon || {};
+  }
+
+  globalStyle = globalStyle();
+
   render() {
     if (!this.code) return null;
     return (
@@ -19,7 +29,7 @@ class Icon extends Component {
         id={this.id}
         ref={this.ref}
         tooltip={getTooltipLabel(this.tooltip)}
-        style={Style.assign(this.style, {
+        style={Style.assign(this.style, this.globalStyle.icon || {}, {
           icon: this.code,
           iconStyle: this.outlined && "outlined",
           tooltip: typeof this.tooltip === "object" && this.tooltip?.position,

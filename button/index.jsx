@@ -1,5 +1,5 @@
 import { Component, Ref } from "@vistta/js";
-import { Style, getTooltipLabel } from "../utils";
+import { Style, getTooltipLabel, style as globalStyle } from "../utils";
 
 const ICON_POSITION = {
   left: { pl: "10rem", ":before": { position: "absolute", left: "2rem", top: "50%", translate: "0 -50%" } },
@@ -35,6 +35,16 @@ const HANDLED_PROPS = ["name", "label", "variant", "icon", "loading", "style", "
  * @extends {Component<ButtonProps>}
  */
 export class Button extends Component {
+  static set style(value) {
+    globalStyle.update("button", value);
+  }
+
+  static get style() {
+    return globalStyle.value?.button || {};
+  }
+
+  globalStyle = globalStyle();
+
   render() {
     return (
       <button
@@ -49,6 +59,7 @@ export class Button extends Component {
           },
           variantToStyle(this.variant),
           iconToStyle(this.loading ? "loading" : this.icon, !this.label),
+          this.globalStyle.button || {},
           this.style,
         )}
         disabled={this.disabled || this.loading}
