@@ -35,31 +35,11 @@ const SWATCH_STYLE = {
 class Color extends Component {
   #node;
   open = false;
-  hue = 0;
-  sat = 100;
-  val = 100;
-
-  get current() {
-    return this.#node?.value || this.value;
-  }
 
   #select(color) {
-    if (this.disabled || this.readonly) return;
-    if (this.value !== color) {
-      this.value = color;
-      const event = /** @type {any} */ ({ target: this });
-      if (this.onChange) this.onChange(event);
-      if (this.onInput) this.onInput(event);
-    }
-    if (this.#node) this.#node.dispatchEvent(new Event("input", { bubbles: true }));
-  }
-
-  #selectHSV(color) {
-    const [h, s, v] = hexToHSV(color);
-    this.hue = h;
-    this.sat = s;
-    this.val = v;
-    this.#select(color);
+    if (this.disabled || this.readonly || this.value === color) return;
+    this.value = color;
+    this.#node.dispatchEvent(new Event("change", { bubbles: false }));
   }
 
   #register(element) {
@@ -82,39 +62,15 @@ class Color extends Component {
     });
   }
 
-  onConnect() {
-    if (this.value) {
-      const [h, s, v] = hexToHSV(this.value);
-      this.hue = h;
-      this.sat = s;
-      this.val = v;
-    }
-  }
-
   render() {
     if (this.variant === "flat") {
       return (
         <ColorPicker
           ref={Ref.forward(this.ref, this.#register.bind(this))}
-          current={this.current}
-          hue={this.hue}
-          sat={this.sat}
-          val={this.val}
-          hueColor={hsvToHex(this.hue, 100, 100)}
+          current={this.value}
           presets={this.presets}
           recent={this.recent}
           onSelect={(color) => this.#select(color)}
-          onSelectHSV={(color) => this.#selectHSV(color)}
-          onAreaChange={(sat, val) => {
-            this.sat = sat;
-            this.val = val;
-            this.#select(hsvToHex(this.hue, sat, val));
-          }}
-          onHueChange={(hue) => {
-            this.hue = hue;
-            this.#select(hsvToHex(hue, this.sat, this.val));
-          }}
-          onHexInput={(hex) => this.#selectHSV(hex)}
         />
       );
     }
@@ -125,10 +81,9 @@ class Color extends Component {
           role="select"
           id={this.id}
           name={this.name}
-          value={this.value}
           aria-label={this.name}
           aria-expanded={this.open}
-          aria-selected={!!this.current}
+          aria-selected={!!this.value}
           required={this.required}
           disabled={this.disabled}
           onChange={this.onChange}
@@ -148,36 +103,21 @@ class Color extends Component {
               height: "6rem",
               minWidth: "6rem",
               radius: "circular",
-              backgroundColor: this.current || "$neutral-color",
+              backgroundColor: this.value || "$neutral-color",
               border: ".5rem solid $fore-color",
               display: "inline-block",
             }}
           />
-          <span style={{ col: "default", opacity: this.current ? 1 : 0.5 }}>{this.current || "Select color"}</span>
+          <span style={{ col: "default", opacity: this.value ? 1 : 0.5 }}>{this.value || "Select color"}</span>
         </div>
         {this.open && (
           <ColorPopover
             anchor={this.anchor}
-            current={this.current}
-            hue={this.hue}
-            sat={this.sat}
-            val={this.val}
-            hueColor={hsvToHex(this.hue, 100, 100)}
+            current={this.value}
             presets={this.presets}
             recent={this.recent}
             onClose={() => (this.open = false)}
             onSelect={(color) => this.#select(color)}
-            onSelectHSV={(color) => this.#selectHSV(color)}
-            onAreaChange={(sat, val) => {
-              this.sat = sat;
-              this.val = val;
-              this.#select(hsvToHex(this.hue, sat, val));
-            }}
-            onHueChange={(hue) => {
-              this.hue = hue;
-              this.#select(hsvToHex(hue, this.sat, this.val));
-            }}
-            onHexInput={(hex) => this.#selectHSV(hex)}
           />
         )}
       </>
@@ -208,26 +148,13 @@ class ColorPopover extends Component {
         style={{
           ...this.anchor("bottom", { gap: "2rem" }),
           container: "default",
-          gap: "2rem",
-          padding: "3rem",
+          gap: "0",
+          padding: "0",
           width: "min-content",
         }}
         inert
       >
-        <ColorPicker
-          current={this.current}
-          hue={this.hue}
-          sat={this.sat}
-          val={this.val}
-          hueColor={hsvToHex(this.hue, 100, 100)}
-          presets={this.presets}
-          recent={this.recent}
-          onSelect={this.onSelect}
-          onSelectHSV={this.onSelectHSV}
-          onAreaChange={this.onAreaChange}
-          onHueChange={this.onHueChange}
-          onHexInput={this.onHexInput}
-        />
+        <ColorPicker current={this.current} presets={this.presets} recent={this.recent} onSelect={this.onSelect} />
       </Popover>
     );
   }
@@ -239,14 +166,26 @@ class ColorPicker extends Component {
   #dragging = null;
   #boundMove;
   #boundUp;
+  hue = 0;
+  sat = 100;
+  val = 100;
 
   onConnect() {
     this.#boundMove = (e) => this.#onMove(e);
-    this.#boundUp = () => (this.#dragging = null);
+    this.#boundUp = () => {
+      if (this.#dragging) this.onSelect?.(hsvToHex(this.hue, this.sat, this.val));
+      this.#dragging = null;
+    };
     document.addEventListener("mousemove", this.#boundMove);
     document.addEventListener("mouseup", this.#boundUp);
     document.addEventListener("touchmove", this.#boundMove, { passive: false });
     document.addEventListener("touchend", this.#boundUp);
+    if (this.current) {
+      const [h, s, v] = hexToHSV(this.current);
+      this.hue = h;
+      this.sat = s;
+      this.val = v;
+    }
   }
 
   onDisconnect() {
@@ -254,6 +193,10 @@ class ColorPicker extends Component {
     document.removeEventListener("mouseup", this.#boundUp);
     document.removeEventListener("touchmove", this.#boundMove);
     document.removeEventListener("touchend", this.#boundUp);
+  }
+
+  get #currentHex() {
+    return hsvToHex(this.hue, this.sat, this.val);
   }
 
   #onMove(e) {
@@ -268,28 +211,34 @@ class ColorPicker extends Component {
     if (!rect) return;
     const x = (e.touches?.[0]?.clientX ?? e.clientX) - rect.left;
     const y = (e.touches?.[0]?.clientY ?? e.clientY) - rect.top;
-    const sat = Math.round(Math.min(100, Math.max(0, (x / rect.width) * 100)));
-    const val = Math.round(Math.min(100, Math.max(0, 100 - (y / rect.height) * 100)));
-    this.onAreaChange?.(sat, val);
+    this.sat = Math.round(Math.min(100, Math.max(0, (x / rect.width) * 100)));
+    this.val = Math.round(Math.min(100, Math.max(0, 100 - (y / rect.height) * 100)));
   }
 
   #updateHue(e) {
     const rect = this.#hueBar?.getBoundingClientRect();
     if (!rect) return;
     const x = (e.touches?.[0]?.clientX ?? e.clientX) - rect.left;
-    const hue = Math.round(Math.min(360, Math.max(0, (x / rect.width) * 360)));
-    this.onHueChange?.(hue);
+    this.hue = Math.round(Math.min(360, Math.max(0, (x / rect.width) * 360)));
   }
 
   #onRGBInput(channel, e) {
     const val = parseInt(e.target.value, 10);
     if (isNaN(val)) return;
     const clamped = Math.min(255, Math.max(0, val));
-    const [r, g, b] = hexToRGB(this.current || "#000000");
+    const [r, g, b] = hexToRGB(this.#currentHex);
     const rgb = [r, g, b];
     rgb[channel] = clamped;
     const hex = "#" + rgb.map((c) => c.toString(16).padStart(2, "0")).join("");
-    this.onHexInput?.(hex);
+    this.#selectHex(hex);
+  }
+
+  #selectHex(hex) {
+    const [h, s, v] = hexToHSV(hex);
+    this.hue = h;
+    this.sat = s;
+    this.val = v;
+    this.onSelect?.(hex);
   }
 
   get #recentFiltered() {
@@ -313,11 +262,12 @@ class ColorPicker extends Component {
           style={{
             col: "full",
             position: "relative",
-            width: "100%",
+            width: "calc(100% - 4rem)",
             height: "40rem",
+            margin: "2rem",
             radius: "rounded",
             cursor: "crosshair",
-            backgroundImage: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${this.hueColor})`,
+            backgroundImage: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${hsvToHex(this.hue, 100, 100)})`,
             touchAction: "none",
           }}
         >
@@ -349,8 +299,9 @@ class ColorPicker extends Component {
           style={{
             col: "full",
             position: "relative",
-            width: "100%",
+            width: "calc(100% - 4rem)",
             height: "5rem",
+            margin: "2rem",
             radius: "rounded",
             cursor: "pointer",
             backgroundImage:
@@ -373,26 +324,26 @@ class ColorPicker extends Component {
             }}
           />
         </div>
-        <div style="col:full; container:default; gap:2rem; align-items:center">
+        <div style="col:full; container:default; gap:1rem; padding:2rem; align-items:center">
           <span
             style={{
               width: "8rem",
               height: "8rem",
               minWidth: "8rem",
               radius: "circular",
-              backgroundColor: this.current || "$neutral-color",
+              backgroundColor: this.#currentHex,
               border: ".5rem solid $fore-color",
             }}
           />
           {["R", "G", "B"].map((label, i) => (
-            <div style="container:center; width: 16rem; gap:.5rem; align-items:center">
+            <div style="container:center; col:default; width: 16rem; gap:.5rem; align-items:center">
               <span style="font:small; opacity:.6">{label}</span>
               <input
                 type="number"
                 role="part"
                 min={0}
                 max={255}
-                value={hexToRGB(this.current || "#000000")[i]}
+                value={hexToRGB(this.#currentHex)[i]}
                 onInput={(e) => this.#onRGBInput(i, e)}
                 style={{
                   width: "13rem",
@@ -413,11 +364,11 @@ class ColorPicker extends Component {
             {this.presets.map((color) => (
               <button
                 type="button"
-                onClick={() => this.onSelectHSV?.(color)}
+                onClick={() => this.#selectHex(color)}
                 style={{
                   ...SWATCH_STYLE,
                   backgroundColor: color,
-                  border: this.current === color ? ".5rem solid $fore-color" : ".5rem solid transparent",
+                  border: this.#currentHex === color ? ".5rem solid $fore-color" : ".5rem solid transparent",
                 }}
               />
             ))}
@@ -430,11 +381,11 @@ class ColorPicker extends Component {
               {this.#recentFiltered.map((color) => (
                 <button
                   type="button"
-                  onClick={() => this.onSelectHSV?.(color)}
+                  onClick={() => this.#selectHex(color)}
                   style={{
                     ...SWATCH_STYLE,
                     backgroundColor: color,
-                    border: this.current === color ? ".5rem solid $fore-color" : ".5rem solid transparent",
+                    border: this.#currentHex === color ? ".5rem solid $fore-color" : ".5rem solid transparent",
                   }}
                 />
               ))}
