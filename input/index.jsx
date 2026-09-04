@@ -199,19 +199,39 @@ class Input extends Component {
       this.#node?.click();
   }
 
-  get #iconStyle() {
+  get #style() {
+    const style = {
+      position: "relative",
+      background: this.readonly ? "none" : "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
+      container: "default",
+      alignItems: this.type !== "rich" && this.type !== "richtext" && "center",
+      gap: "0",
+      border: this.readonly ? "none" : "default",
+      radius: "rounded",
+      cursor: TEXT_BASED.includes(this.type) && "text",
+      $placeholderColor: "transparent",
+      ":has(input:focus, [role=input]:focus, [role=select][aria-expanded])": {
+        $placeholderColor: "shade($neutral-color, 35%)",
+      },
+      ":has([role=select])": {
+        cursor: "pointer",
+      },
+      "input:placeholder, [role=input]:before": {
+        color: "$placeholder-color",
+        transition: "color $duration",
+      },
+    };
+
     if (this.icon !== "") {
-      const style = {
-        ":before": {
-          color: "$placeholder-color",
-          width: "6rem",
-          height: "6rem",
-          margin: "0 0 0 2rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          transition: "color $duration",
-        },
+      style[":before"] = {
+        color: "$placeholder-color",
+        width: "6rem",
+        height: "6rem",
+        margin: "0 0 0 2rem",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "color $duration",
       };
       if (this.type === "search") style.icon = this.icon || "e8b6";
       else if (this.type === "select") {
@@ -223,49 +243,86 @@ class Input extends Component {
         };
         style.icon = this.icon || "e5c5";
       } else style.icon = this.icon;
-      return style;
     }
-    return {};
-  }
 
-  get #labelStyle() {
-    if (!this.label) return {};
-    if (this.type === "checkbox" || this.type === "radio" || this.type === "switch" || this.type === "toggle")
-      return {
-        "> label": { width: "auto", background: "transparent", userSelect: "none" },
-      };
-    if (this.variant === "basic")
-      return {
-        marginTop: "7rem",
-        "> label": {
-          position: "absolute",
-          left: "1rem",
-          top: "-7rem",
-        },
-      };
-    return {
-      marginTop: "2rem",
-      "> label": {
+    const input = /** @type {JSX.Style} */ (
+      style["> input, > [role=input], > [role=select]"] = {
+        col: "default",
+        border: "none",
+        background: "inherit",
+        color: "inherit",
+      }
+    );
+
+    if (this.type === "radio" || this.type === "checkbox" || this.type === "switch" || this.type === "toggle") {
+      style.padding = "0";
+      style.border = "none";
+      style.background = "none";
+
+      input.col = "auto";
+      input[this.variant !== "inverted" && this.variant !== "primary inverted" ? "margin-left" : "margin-right"] = "1rem";
+      if (this.variant === "inverted" || this.variant === "primary inverted") input.order = "-1";
+      if (this.label) {
+        style["> label"] = { width: "auto", background: "transparent", userSelect: "none" };
+      }
+
+      if (this.type === "radio" || this.type === "checkbox") {
+        input.accentColor =
+          this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color";
+        input.scale = "1.35";
+      } else {
+        input.appearance = "none";
+        input.width = "10rem";
+        input.height = "5.5rem";
+        input.padding = "0.5rem";
+        input.borderRadius = "3rem";
+        input.background = "shade($neutral-color, 35%)";
+        input.cursor = "pointer";
+        input.transition = "background $duration ease-in-out";
+        input["&:checked"] = {
+          background: this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color",
+        };
+        input["&:before"] = {
+          content: "''",
+          display: "block",
+          width: "4.5rem",
+          height: "4.5rem",
+          borderRadius: "50%",
+          background: "$back-color",
+          transform: "translateX(0)",
+          transition: "transform $duration ease-in-out",
+        };
+        input["&:checked::before"] = {
+          transform: "translateX(4.5rem)",
+        };
+      }
+    } else if (this.label) {
+      const animate = !(this.variant === "basic" || this.readonly || this.type === "color");
+      input.padding = "6rem 4rem 2rem";
+      input.height = "14rem";
+      style["> label"] = {
         position: "absolute",
-        top: this.readonly ? "-3rem" : "2rem",
+        top: !animate ? ".5rem" : "4rem",
         left: "1rem",
         width: "auto",
         padding: "0 1rem",
-        fontSize: this.readonly && "3.5rem",
+        fontSize: !animate && "3rem",
         transition: "top $duration, font-size $duration",
         background: "transparent",
         backdropFilter: !this.readonly && "$blur",
         pointerEvents: "none",
         z: 1,
-      },
-      ":has(input:not(:placeholder-shown), input:focus, [role=input]:not(:empty), [role=input]:focus, [role=select][aria-selected], [role=select][aria-expanded])":
-        !this.readonly && {
-          "> label": {
-            top: "-3rem",
-            fontSize: "3.5rem",
-          },
-        },
-    };
+      };
+      if (animate) {
+        style[
+          ":has(input:not(:placeholder-shown), input:focus, [role=input]:not(:empty), [role=input]:focus, [role=select][aria-selected], [role=select][aria-expanded]) > label"
+        ] = {
+          top: ".5rem",
+          fontSize: "3rem",
+        };
+      }
+    }
+    return style;
   }
 
   render() {
@@ -275,88 +332,9 @@ class Input extends Component {
         tooltip={getTooltipLabel(this.tooltip)}
         onClick={(e) => this.#focus(e)}
         style={Style.assign(
-          {
-            position: "relative",
-            background: this.readonly ? "none" : "light-dark(shade($back-color, 5%), shade($back-color, 25%))",
-            container: "default",
-            alignItems: this.type !== "rich" && this.type !== "richtext" && "center",
-            gap: "0",
-            border: this.readonly ? "none" : "default",
-            radius: "rounded",
-            cursor: TEXT_BASED.includes(this.type) && "text",
-            ...(this.type === "radio" || this.type === "checkbox" || this.type === "switch" || this.type === "toggle"
-              ? {
-                  background: "none",
-                  border: "none",
-                  padding: "0",
-                }
-              : {}),
-            $placeholderColor: "transparent",
-            ...this.#iconStyle,
-            ":has(input:focus, [role=input]:focus, [role=select][aria-expanded])": {
-              $placeholderColor: "shade($neutral-color, 35%)",
-            },
-            ":has([role=select])": {
-              cursor: "pointer",
-            },
-            "> input, > [role=input], > [role=select]": {
-              col: "default",
-              border: "none",
-              background: "inherit",
-              color: "inherit",
-              ...(this.type === "radio" || this.type === "checkbox"
-                ? {
-                    col: "auto",
-                    [this.variant !== "inverted" && this.variant !== "primary inverted" ? "margin-left" : "margin-right"]:
-                      "1rem",
-                    order: (this.variant === "inverted" || this.variant === "primary inverted") && "-1",
-                    accentColor:
-                      this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color",
-                    scale: "1.5",
-                  }
-                : {}),
-              ...(this.type === "switch" || this.type === "toggle"
-                ? {
-                    col: "auto",
-                    [this.variant !== "inverted" && this.variant !== "primary inverted" ? "margin-left" : "margin-right"]:
-                      "1rem",
-                    order: (this.variant === "inverted" || this.variant === "primary inverted") && "-1",
-                    appearance: "none",
-                    width: "10rem",
-                    height: "5.5rem",
-                    padding: "0.5rem",
-                    borderRadius: "3rem",
-                    background: "shade($neutral-color, 35%)",
-                    cursor: "pointer",
-                    transition: "background $duration ease-in-out",
-                    "&:checked": {
-                      background:
-                        this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color",
-                    },
-                    "&::before": {
-                      content: "''",
-                      display: "block",
-                      width: "4.5rem",
-                      height: "4.5rem",
-                      borderRadius: "50%",
-                      background: "$back-color",
-                      transform: "translateX(0)",
-                      transition: "transform $duration ease-in-out",
-                    },
-                    "&:checked::before": {
-                      transform: "translateX(4.5rem)",
-                    },
-                  }
-                : {}),
-            },
-            "input:placeholder, [role=input]:before": {
-              color: "$placeholder-color",
-              transition: "color $duration",
-            },
-          },
+          this.#style,
           this.globalStyle.input || {},
           this.style,
-          this.#labelStyle,
           this.readonly && {
             pointerEvents: "none",
           },

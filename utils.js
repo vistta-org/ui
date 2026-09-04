@@ -32,7 +32,7 @@ export const style = new Context(
     toast: {},
   },
   {
-    cache: "local",
+    cache: "none",
     actions: {
       update: (prev, key, value) => {
         if (typeof value !== "object") return prev;
