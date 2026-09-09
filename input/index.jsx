@@ -277,7 +277,8 @@ class Input extends Component {
         input.padding = "0.5rem";
         input.borderRadius = "3rem";
         input.background = "shade($neutral-color, 35%)";
-        input.cursor = "pointer";
+        input.cursor = this.disabled ? "default" : "pointer";
+        input.opacity = this.disabled ? "0.5" : "1";
         input.transition = "background $duration ease-in-out";
         input["&:checked"] = {
           background: this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color",
