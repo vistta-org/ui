@@ -127,10 +127,10 @@ class Select extends Component {
             paddingRight: "2rem!",
             container: "default",
             gap: "0",
-            flexWrap: "nowrap",
+            flexWrap: "wrap",
           }}
         >
-          {this.#label}
+          <div style="col:default; text-wrap: wrap">{this.#label}</div>
           {!this.readonly && !this.disabled && this.filterable && (
             <input
               ref={(el) => (this.#input = el)}
@@ -139,12 +139,11 @@ class Select extends Component {
               placeholder={this.placeholder}
               onKeyDown={this.#onKeyDown.bind(this)}
               style={{
-                col: "default",
+                col: "auto",
                 padding: "0",
                 margin: "-2rem 0",
                 border: "none",
                 background: "none",
-                maxWidth: "50%",
               }}
             />
           )}
