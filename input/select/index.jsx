@@ -121,8 +121,12 @@ class Select extends Component {
           onInput={this.onInput}
           style={{
             position: "relative",
-            minHeight: "10rem",
+            height: "auto!",
+            minHeight: "14rem",
+            maxWidth: "calc(100% - 8rem)!",
+            paddingRight: "2rem!",
             container: "default",
+            gap: "0",
             flexWrap: "nowrap",
           }}
         >
@@ -134,7 +138,14 @@ class Select extends Component {
               onInput={(e) => (this.search = e.target.value)}
               placeholder={this.placeholder}
               onKeyDown={this.#onKeyDown.bind(this)}
-              style={{ col: "default", padding: "0", margin: "-2rem 0", border: "none", background: "none" }}
+              style={{
+                col: "default",
+                padding: "0",
+                margin: "-2rem 0",
+                border: "none",
+                background: "none",
+                maxWidth: "50%",
+              }}
             />
           )}
         </div>
