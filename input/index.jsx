@@ -35,12 +35,13 @@ import Select from "./select";
  * }} BaseInputProps
  *
  * @typedef {BaseInputProps & FieldsetProps & { type?: BaseInputs | "textarea" }} StandardInputProps
+ * @typedef {BaseInputProps & FieldsetProps & { type?: "number", min?: string | number, max?: string | number }} NumberInputProps
  * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio", variant?: "default" | "inverted" | "primary" | "primary inverted", indeterminate?: boolean }} CheckInputProps
  * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "switch" | "toggle", variant?: "default" | "inverted" | "primary" | "primary inverted" }} ToggleInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
  * @typedef {Omit<ColorProps, "variant"> & Omit<FieldsetProps, "variant"> & { type: "color", variant?: ColorProps["variant"] }} ColorInputProps
- * @typedef {StandardInputProps | CheckInputProps | ToggleInputProps | SelectInputProps | RichInputProps | ColorInputProps} InputProps
+ * @typedef {StandardInputProps | NumberInputProps | CheckInputProps | ToggleInputProps | SelectInputProps | RichInputProps | ColorInputProps} InputProps
  */
 
 const TEXT_BASED = ["text", "password", "email", "url", "tel", "search", "textarea", "rich", "richtext"];
@@ -299,13 +300,14 @@ class Input extends Component {
       }
     } else if (this.label) {
       const animate = !(this.variant === "basic" || this.readonly || this.type === "color");
-      input.padding = "6rem 4rem 2rem";
-      input.height = "14rem";
+      input.padding = "2rem 4rem";
+      input.marginTop = "4rem";
+      input.height = "10rem";
       style["> label"] = {
         position: "absolute",
         top: !animate ? ".5rem" : "4rem",
         left: "1rem",
-        width: "auto",
+        width: "calc(100% - 2rem)",
         padding: "0 1rem",
         fontSize: !animate && "3rem",
         transition: "top $duration, font-size $duration",

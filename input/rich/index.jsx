@@ -1108,9 +1108,9 @@ class Rich extends Component {
             height: "auto",
             maxHeight: this.format && !this.disabled && !this.readonly ? "calc(100% - 10rem)" : "100%",
             overflow: "auto",
-            p: "2rem!",
             marginTop: this.format && !this.disabled && !this.readonly && "10rem!",
             listStylePosition: "inside",
+            wordBreak: "break-word",
             "li > ul, li > ol": {
               paddingLeft: "6rem",
               marginTop: "1rem",

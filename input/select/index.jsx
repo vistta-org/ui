@@ -122,7 +122,7 @@ class Select extends Component {
           style={{
             position: "relative",
             height: "auto!",
-            minHeight: "14rem",
+            minHeight: "10rem",
             maxWidth: "calc(100% - 8rem)!",
             paddingRight: "2rem!",
             container: "default",
