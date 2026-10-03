@@ -211,13 +211,13 @@ class Input extends Component {
       radius: "rounded",
       cursor: TEXT_BASED.includes(this.type) && "text",
       $placeholderColor: "transparent",
-      ":has(input:focus, [role=input]:focus, [role=select][aria-expanded])": {
+      ":has(input:focus, textarea:focus, [role=input]:focus, [role=select][aria-expanded])": {
         $placeholderColor: "shade($neutral-color, 35%)",
       },
       ":has([role=select])": {
         cursor: "pointer",
       },
-      "input:placeholder, [role=input]:before": {
+      "input:placeholder, textarea:placeholder, [role=input]:before": {
         color: "$placeholder-color",
         transition: "color $duration",
       },
@@ -247,7 +247,7 @@ class Input extends Component {
     }
 
     const input = /** @type {JSX.Style} */ (
-      style["> input, > [role=input], > [role=select]"] = {
+      style["> input, > textarea, > [role=input], > [role=select]"] = {
         col: "default",
         border: "none",
         background: "inherit",
@@ -318,7 +318,7 @@ class Input extends Component {
       };
       if (animate) {
         style[
-          ":has(input:not(:placeholder-shown), input:focus, [role=input]:not(:empty), [role=input]:focus, [role=select][aria-selected], [role=select][aria-expanded]) > label"
+          ":has(input:not(:placeholder-shown), input:focus, textarea:not(:placeholder-shown), textarea:focus, [role=input]:not(:empty), [role=input]:focus, [role=select][aria-selected], [role=select][aria-expanded]) > label"
         ] = {
           top: ".5rem",
           fontSize: "3rem",
