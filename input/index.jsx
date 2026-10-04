@@ -279,7 +279,7 @@ class Input extends Component {
         input.borderRadius = "3rem";
         input.background = "shade($neutral-color, 35%)";
         input.cursor = this.disabled ? "default" : "pointer";
-        input.opacity = this.disabled ? "0.5" : "1";
+        input.opacity = this.disabled ? "0.8" : "1";
         input.transition = "background $duration ease-in-out";
         input["&:checked"] = {
           background: this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color",
@@ -291,6 +291,7 @@ class Input extends Component {
           height: "4.5rem",
           borderRadius: "50%",
           background: "$back-color",
+          opacity: this.disabled ? "0.8" : "1",
           transform: "translateX(0)",
           transition: "transform $duration ease-in-out",
         };
