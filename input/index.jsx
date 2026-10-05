@@ -35,7 +35,7 @@ import Select from "./select";
  * }} BaseInputProps
  *
  * @typedef {BaseInputProps & FieldsetProps & { type?: BaseInputs | "textarea" }} StandardInputProps
- * @typedef {BaseInputProps & FieldsetProps & { type?: "number", min?: string | number, max?: string | number }} NumberInputProps
+ * @typedef {BaseInputProps & FieldsetProps & { type?: "number", min?: string | number, max?: string | number, step?: string | number }} NumberInputProps
  * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio", variant?: "default" | "inverted" | "primary" | "primary inverted", indeterminate?: boolean }} CheckInputProps
  * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "switch" | "toggle", variant?: "default" | "inverted" | "primary" | "primary inverted" }} ToggleInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
@@ -180,6 +180,12 @@ class Input extends Component {
         required={this.required}
         disabled={this.disabled}
         readonly={this.readonly}
+        // @ts-ignore - narrowed by type check above
+        min={this.min}
+        // @ts-ignore - narrowed by type check above
+        max={this.max}
+        // @ts-ignore - narrowed by type check above
+        step={this.step}
         onChange={this.onChange}
         onInput={this.onInput}
       />
