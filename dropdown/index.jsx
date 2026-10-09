@@ -8,6 +8,7 @@ const HANDLED_PROPS = [
   "label",
   "icon",
   "style",
+  "button",
   "disabled",
   "hidden",
   "items",
@@ -24,16 +25,26 @@ const HANDLED_PROPS = [
 ];
 
 /**
+ * @typedef {import("../utils").Tooltip} Tooltip
+ * @typedef {import("../utils").Icon} Icon
  * @typedef {Omit<import("../button").ButtonProps, "type">} ButtonProps
  * @typedef {import("../button").Variants} ButtonVariants
  *
  * @typedef {Omit<ButtonProps, "ref" | "onClose" | "onOpen"> & { items?: DropdownItem[], divider?: boolean, onOpen?: () => void, onClose?: () => void }} DropdownItem
  *
- * @typedef {Omit<ButtonProps, "onClose" | "style"> & {
+ * @typedef {JSX.EventHandlers & {
+ *  id?: string,
+ *  ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
+ *  label?: string,
  *  items: DropdownItem[],
  *  trigger?: "click" | "hover",
  *  close?: "auto" | ((e: MouseEvent) => boolean),
- *  style?: JSX.Style & { variant?: ButtonVariants, button?: (JSX.Style & { variant?: ButtonVariants }), align?: "top" | "bottom" | "left" | "right", height?: number | string, width?: number | string },
+ *  icon?: Icon,
+ *  loading?: boolean,
+ *  style?: JSX.StyleObject & { variant?: ButtonVariants, align?: "top" | "bottom" | "left" | "right" },
+ *  button?: ButtonProps,
+ *  disabled?: boolean,
+ *  hidden?: boolean,
  *  onOpen?: () => void,
  *  onClose?: () => void,
  * }} DropdownProps
@@ -48,7 +59,7 @@ class Dropdown extends Component {
   /** @type {"auto" | ((e: MouseEvent) => boolean)} */
   close = "auto";
   visible = false;
-  button = new Anchor();
+  #button = new Anchor();
   #timeout;
   #preventClose;
 
@@ -71,35 +82,53 @@ class Dropdown extends Component {
   render() {
     return (
       <Button
-        ref={Ref.forward(this.ref, this.button)}
-        icon={this.loading ? "loading" : this.icon}
-        disabled={this.disabled || this.loading}
+        {...(this.button || {})}
+        ref={Ref.forward(this.ref, this.button?.ref, this.#button)}
+        label={this.label || this.button?.label}
+        icon={this.loading || this.button?.loading ? "loading" : this.icon || this.button?.icon}
+        loading={this.loading || this.button?.loading}
+        disabled={this.disabled || this.button?.disabled || this.loading || this.button?.loading}
+        hidden={this.hidden ?? this.button?.hidden}
         style={Style.assign(
           {
-            p: !this.label && "2rem!",
-            variant: this.style?.variant || this.style?.button?.variant,
+            p: !(this.label || this.button?.label) && "2rem!",
+            variant: this.button?.style?.variant || this.style?.variant,
+            width: this.style?.width,
           },
-          iconToStyle(this.loading ? "loading" : this.icon, !this.label),
-          this.globalStyle.dropdown || {},
-          this.style,
+          iconToStyle(
+            this.loading || this.button?.loading ? "loading" : this.icon || this.button?.icon,
+            !(this.label || this.button?.label),
+          ),
+          /** @type {any} */ (this.globalStyle.dropdown)?.button || {},
+          this.button?.style,
         )}
         onClick={(e) => {
+          this.button?.onClick?.(e);
           this.onClick?.(e);
           if (this.trigger === "click" && !this.#preventClose && !e.defaultPrevented) this.#setVisible(!this.visible);
         }}
         onMouseEnter={
           this.trigger === "hover"
-            ? (e) => (this.onMouseEnter?.(e), (this.visible = true), clearTimeout(this.#timeout))
-            : this.onMouseEnter
+            ? (e) => (
+                this.button?.onMouseEnter?.(e),
+                this.onMouseEnter?.(e),
+                (this.visible = true),
+                clearTimeout(this.#timeout)
+              )
+            : (e) => (this.button?.onMouseEnter?.(e), this.onMouseEnter?.(e))
         }
         onMouseLeave={
           this.trigger === "hover"
-            ? (e) => (this.onMouseLeave?.(e), (this.#timeout = setTimeout(() => this.#setVisible(false), 100)))
-            : this.onMouseLeave
+            ? (e) => (
+                this.button?.onMouseLeave?.(e),
+                this.onMouseLeave?.(e),
+                (this.#timeout = setTimeout(() => this.#setVisible(false), 100))
+              )
+            : (e) => (this.button?.onMouseLeave?.(e), this.onMouseLeave?.(e))
         }
         {...this.props(...HANDLED_PROPS)}
       >
-        {this.label || ""}
+        {this.label || this.button?.label || ""}
         <Popover
           open={this.visible}
           onOutsideClick={(e) =>
@@ -107,17 +136,21 @@ class Dropdown extends Component {
               ? /** @type {any} */ (this.close)(e)
               : this.close === "auto" && this.#setVisible(false)
           }
-          style={{
-            ...this.button(this.style?.align || "bottom", { gap: "2rem" }),
-            container: "default",
-            gap: "1rem",
-            padding: "1rem",
-            "> *": { col: "full", text: "left" },
-            height: this.style?.height,
-            width: this.style?.width || `min-content`,
-            minWidth: !this.style?.width && this.button.width,
-            background: this.style?.variant !== "raw" && "inherit",
-          }}
+          style={Style.assign(
+            {
+              ...this.#button(this.style?.align || "bottom", { gap: "2rem" }),
+              container: "default",
+              gap: "1rem",
+              padding: "1rem",
+              "> *": { col: "full", text: "left" },
+              height: this.style?.height,
+              width: this.style?.width || `min-content`,
+              minWidth: !this.style?.width && this.#button.width,
+              background: this.style?.variant !== "raw" && "inherit",
+            },
+            this.globalStyle.dropdown || {},
+            this.style,
+          )}
         >
           {this.items?.reduce?.((acc, props) => {
             if (!props) return acc;
@@ -126,13 +159,13 @@ class Dropdown extends Component {
               return [
                 ...acc,
                 <Dropdown
+                  {...props}
                   onOpen={() => (this.#preventClose = true)}
                   onClose={() => (this.#preventClose = false)}
-                  style:variant={this.style?.variant}
-                  {...props}
+                  style={Style.assign({ variant: this.style?.variant }, props.style)}
                 />,
               ];
-            return [...acc, <Button style:variant={this.style?.variant} {...props} />];
+            return [...acc, <Button {...props} style={Style.assign({ variant: this.style?.variant }, props.style)} />];
           }, [])}
         </Popover>
       </Button>

@@ -10,7 +10,7 @@ const HANDLED_PROPS = ["name", "label", "icon", "loading", "style", "tooltip", "
 
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
- * @typedef {any} Icon
+ * @typedef {import("../utils").Icon} Icon
  *
  * @typedef {"primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error"} Colors
  * @typedef {"" | "default" | "basic" | "raw" | Colors | `raw ${Colors}` | `${Colors} raw`} Variants

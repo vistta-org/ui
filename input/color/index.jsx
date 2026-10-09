@@ -13,7 +13,7 @@ import Popover from "../../popover";
  * @property {boolean} [required]
  * @property {boolean} [disabled]
  * @property {boolean} [readonly]
- * @property {JSX.Style & { variant: "default" | "basic" | "flat" }} [style]
+ * @property {JSX.Style & { variant?: "default" | "basic" | "flat" }} [style]
  * @property {(event?: any) => any} [onChange]
  * @property {(event?: InputEvent) => any} [onInput]
  */
