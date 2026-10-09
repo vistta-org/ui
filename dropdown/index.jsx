@@ -41,7 +41,7 @@ const HANDLED_PROPS = [
  *  close?: "auto" | ((e: MouseEvent) => boolean),
  *  icon?: Icon,
  *  loading?: boolean,
- *  style?: JSX.StyleObject & { variant?: ButtonVariants, align?: "top" | "bottom" | "left" | "right" },
+ *  style?: JSX.Style | JSX.StyleObject & { variant?: ButtonVariants, align?: "top" | "bottom" | "left" | "right" },
  *  button?: ButtonProps,
  *  disabled?: boolean,
  *  hidden?: boolean,
@@ -71,6 +71,8 @@ class Dropdown extends Component {
     return globalStyle.value?.dropdown || {};
   }
 
+  /** @type {any} */
+  style = undefined;
   globalStyle = globalStyle();
 
   #setVisible(value) {
@@ -92,8 +94,7 @@ class Dropdown extends Component {
         style={Style.assign(
           {
             p: !(this.label || this.button?.label) && "2rem!",
-            variant: this.button?.style?.variant || this.style?.variant,
-            width: this.style?.width,
+            variant: /** @type {any} */ (this.button?.style)?.variant || this.style?.variant,
           },
           iconToStyle(
             this.loading || this.button?.loading ? "loading" : this.icon || this.button?.icon,

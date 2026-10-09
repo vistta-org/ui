@@ -4,7 +4,7 @@ import { style as globalStyle } from "../utils";
 /**
  * @typedef {object} SkeletonProps
  * @property {string} [id] - The unique identifier for the skeleton element.
- * @property {JSX.Style & { variant?: "text" | "circle" | "rect"; height?: string; width?: string }} [style] - Style object or array of style objects to apply to the skeleton.
+ * @property {JSX.Style | JSX.StyleObject & { variant?: "text" | "circle" | "rect"; height?: string; width?: string }} [style] - Style object or array of style objects to apply to the skeleton.
  * @property {boolean} [animate] - Whether to show the pulse animation. Defaults to true.
  */
 
@@ -19,7 +19,8 @@ export default class Skeleton extends Component {
   static get style() {
     return globalStyle.value?.skeleton || {};
   }
-
+  /** @type {any} */
+  style = undefined;
   globalStyle = globalStyle();
 
   render() {
@@ -41,8 +42,7 @@ export default class Skeleton extends Component {
               display: "flex",
               flexDirection: "column",
               gap: ".4em",
-              width: this.style?.width ?? "100%",
-              height: this.style?.height,
+              width: "100%",
               overflow: "hidden",
             },
             this.globalStyle.skeleton || {},

@@ -23,7 +23,7 @@ const HANDLED_PROPS = ["name", "label", "icon", "loading", "style", "tooltip", "
  *  active?: boolean,
  *  icon?: Icon,
  *  loading?: boolean,
- *  style?: JSX.Style & { variant?: Variants },
+ *  style?: JSX.Style | JSX.StyleObject & { variant?: Variants },
  *  tooltip?: Tooltip,
  *  disabled?: boolean,
  *  hidden?: boolean,
@@ -43,6 +43,8 @@ export class Button extends Component {
     return globalStyle.value?.button || {};
   }
 
+  /** @type {any} */
+  style = undefined;
   globalStyle = globalStyle();
 
   render() {
