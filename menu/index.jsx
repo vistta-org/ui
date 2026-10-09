@@ -123,8 +123,8 @@ class Menu extends Component {
               ...acc,
               // @ts-ignore
               <Dropdown
-                variant="basic"
-                position="bottom"
+                style:variant="basic"
+                style:align="bottom"
                 {...props}
                 ref={
                   props["ref"]
@@ -136,7 +136,7 @@ class Menu extends Component {
           return [
             ...acc,
             <Button
-              variant="basic"
+              style:variant="basic"
               {...props}
               ref={
                 props["ref"]
@@ -148,10 +148,10 @@ class Menu extends Component {
         }, [])}
         {this.visibleIndex >= 0 && this.visibleIndex < this.items.length && (
           <Dropdown
-            variant="basic"
-            position="bottom"
             style={{
+              variant: "basic",
               position: "absolute",
+              align: "bottom",
               inset:
                 this.type === "horizontal" ? `0 auto 0 ${this.dropdownPosition}px` : `auto 0 ${this.dropdownPosition}px 0`,
               icon: this.type === "horizontal" ? "e5d3" : "e5d3",

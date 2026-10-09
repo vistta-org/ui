@@ -6,7 +6,6 @@ import { style as globalStyle } from "../utils";
 const HANDLED_PROPS = [
   "ref",
   "label",
-  "variant",
   "icon",
   "style",
   "disabled",
@@ -17,7 +16,6 @@ const HANDLED_PROPS = [
   "position",
   "trigger",
   "close",
-  "buttonVariant",
   "onOpen",
   "onClose",
   "onClick",
@@ -27,17 +25,15 @@ const HANDLED_PROPS = [
 
 /**
  * @typedef {Omit<import("../button").ButtonProps, "type">} ButtonProps
+ * @typedef {import("../button").Variants} ButtonVariants
  *
  * @typedef {Omit<ButtonProps, "ref" | "onClose" | "onOpen"> & { items?: DropdownItem[], divider?: boolean, onOpen?: () => void, onClose?: () => void }} DropdownItem
  *
- * @typedef {Omit<ButtonProps, "onClose"> & {
+ * @typedef {Omit<ButtonProps, "onClose" | "style"> & {
  *  items: DropdownItem[],
- *  height?: number | string,
- *  width?: number | string,
- *  position?: "top" | "bottom" | "left" | "right",
  *  trigger?: "click" | "hover",
  *  close?: "auto" | ((e: MouseEvent) => boolean),
- *  buttonVariant?: ButtonProps["variant"],
+ *  style?: JSX.Style & { variant?: ButtonVariants, button?: (JSX.Style & { variant?: ButtonVariants }), align?: "top" | "bottom" | "left" | "right", height?: number | string, width?: number | string },
  *  onOpen?: () => void,
  *  onClose?: () => void,
  * }} DropdownProps
@@ -76,12 +72,12 @@ class Dropdown extends Component {
     return (
       <Button
         ref={Ref.forward(this.ref, this.button)}
-        variant={this.buttonVariant ?? this.variant}
         icon={this.loading ? "loading" : this.icon}
         disabled={this.disabled || this.loading}
         style={Style.assign(
           {
             p: !this.label && "2rem!",
+            variant: this.style?.variant || this.style?.button?.variant,
           },
           iconToStyle(this.loading ? "loading" : this.icon, !this.label),
           this.globalStyle.dropdown || {},
@@ -112,15 +108,15 @@ class Dropdown extends Component {
               : this.close === "auto" && this.#setVisible(false)
           }
           style={{
-            ...this.button(this.position || "bottom", { gap: "2rem" }),
+            ...this.button(this.style?.align || "bottom", { gap: "2rem" }),
             container: "default",
             gap: "1rem",
             padding: "1rem",
             "> *": { col: "full", text: "left" },
-            height: this.height,
-            width: this.width || `min-content`,
-            minWidth: !this.width && this.button.width,
-            background: this.variant !== "raw" && "inherit",
+            height: this.style?.height,
+            width: this.style?.width || `min-content`,
+            minWidth: !this.style?.width && this.button.width,
+            background: this.style?.variant !== "raw" && "inherit",
           }}
         >
           {this.items?.reduce?.((acc, props) => {
@@ -132,11 +128,11 @@ class Dropdown extends Component {
                 <Dropdown
                   onOpen={() => (this.#preventClose = true)}
                   onClose={() => (this.#preventClose = false)}
-                  variant={this.variant}
+                  style:variant={this.style?.variant}
                   {...props}
                 />,
               ];
-            return [...acc, <Button variant={this.variant} {...props} />];
+            return [...acc, <Button style:variant={this.style?.variant} {...props} />];
           }, [])}
         </Popover>
       </Button>

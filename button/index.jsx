@@ -6,24 +6,24 @@ const ICON_POSITION = {
   right: { pr: "10rem", ":before": { position: "absolute", right: "2rem", top: "50%", translate: "0 -50%" } },
 };
 
-const HANDLED_PROPS = ["name", "label", "variant", "icon", "loading", "style", "tooltip", "disabled", "type"];
+const HANDLED_PROPS = ["name", "label", "icon", "loading", "style", "tooltip", "disabled", "type"];
 
 /**
  * @typedef {import("../utils").Tooltip} Tooltip
  * @typedef {any} Icon
  *
  * @typedef {"primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error"} Colors
+ * @typedef {"" | "default" | "basic" | "raw" | Colors | `raw ${Colors}` | `${Colors} raw`} Variants
  *
  * @typedef {JSX.EventHandlers & {
  *  id?: string,
  *  ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
  *  name?: string,
  *  label?: string,
- *  variant?: "" | "default" | "basic" | "raw" | Colors | `raw ${Colors}` | `${Colors} raw`,
  *  active?: boolean,
  *  icon?: Icon,
  *  loading?: boolean,
- *  style?: JSX.Style,
+ *  style?: JSX.Style & { variant?: Variants },
  *  tooltip?: Tooltip,
  *  disabled?: boolean,
  *  hidden?: boolean,
@@ -57,7 +57,7 @@ export class Button extends Component {
             p: !this.label && "2rem!",
             tooltip: typeof this.tooltip === "object" && this.tooltip?.position,
           },
-          variantToStyle(this.variant),
+          variantToStyle(this.style?.variant),
           iconToStyle(this.loading ? "loading" : this.icon, !this.label),
           this.globalStyle.button || {},
           this.style,

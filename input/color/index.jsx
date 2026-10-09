@@ -8,12 +8,12 @@ import Popover from "../../popover";
  * @property {import("@vistta/js").Anchor} [anchor]
  * @property {string} [name]
  * @property {string} [value]
- * @property {"default" | "basic" | "flat"} [variant]
  * @property {string[]} [presets]
  * @property {string[]} [recent]
  * @property {boolean} [required]
  * @property {boolean} [disabled]
  * @property {boolean} [readonly]
+ * @property {JSX.Style & { variant: "default" | "basic" | "flat" }} [style]
  * @property {(event?: any) => any} [onChange]
  * @property {(event?: InputEvent) => any} [onInput]
  */
@@ -63,7 +63,7 @@ class Color extends Component {
   }
 
   render() {
-    if (this.variant === "flat") {
+    if (this.style?.variant === "flat") {
       return (
         <ColorPicker
           ref={Ref.forward(this.ref, this.#register.bind(this))}

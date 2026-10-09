@@ -10,8 +10,7 @@ const HANDLED_PROPS = ["style", "open", "title", "icon", "iconPosition", "onClic
  *  style?: JSX.Style,
  *  open?: boolean,
  *  title: string | JSX.Element,
- *  icon?: boolean | string,
- *  iconPosition?: "left" | "right",
+ *  icon?: boolean | string | { code: string | boolean; position: "left" | "right" },
  *  onClick?: (event: MouseEvent) => void,
  * }} AccordionProps
  */
@@ -23,8 +22,7 @@ const HANDLED_PROPS = ["style", "open", "title", "icon", "iconPosition", "onClic
  * @property {JSX.Style} [style] - Style object or array of style objects to apply to the accordion container.
  * @property {(Omit<AccordionProps, "children" | "icon" | "open" | "iconPosition"> & { content: JSX.Element})[]} items - An array of accordion items to be rendered within the group.
  * @property {number} [open] - The index of the accordion item that should be open by default. Default is -1 (no items open).
- * @property {boolean | string} [icon] - Default is "e313". Set to false to disable.
- * @property {"left" | "right"} [iconPosition] - Position of the toggle icon. Default is "left".
+ * @property {boolean | string | { code: string | boolean; position: "left" | "right" }} [icon] - Default is "e313". Set to false to disable.
  * @property {boolean} [allowMultipleOpen] - If true, allows multiple accordion items to be open at the same time. Default is false (only one item can be open).
  */
 
@@ -67,7 +65,6 @@ class Accordion extends Component {
             <Accordion
               {...props}
               icon={this.icon}
-              iconPosition={this.iconPosition}
               open={!this.allowMultipleOpen && index === this.open}
               onClick={
                 !this.allowMultipleOpen &&
@@ -96,6 +93,18 @@ class Accordion extends Component {
 
   open = false;
 
+  get iconCode() {
+    if (this.icon === false) return false;
+    if (typeof this.icon === "string") return this.icon;
+    if (typeof this.icon === "object" && this.icon.code !== undefined) return this.icon.code;
+    return "e313";
+  }
+
+  get iconPosition() {
+    if (typeof this.icon === "object" && this.icon.position !== undefined) return this.icon.position;
+    return "left";
+  }
+
   render() {
     return (
       //@ts-ignore
@@ -119,7 +128,7 @@ class Accordion extends Component {
             col: "full",
             cursor: "pointer",
             p: "2rem",
-            icon: this.icon !== false && (typeof this.icon === "string" ? this.icon : "e313"),
+            icon: this.iconCode,
             ":before": {
               float: this.iconPosition === "right" ? "right" : "left",
               rotate: this.open ? "0" : "-90deg",

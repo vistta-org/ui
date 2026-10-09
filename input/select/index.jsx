@@ -171,10 +171,10 @@ class Select extends Component {
             return [
               ...result,
               <Button
-                variant={selected ? "raw" : "raw"}
                 label={label}
                 onClick={(e) => (e.stopPropagation(), this.#select(value))}
                 style={{
+                  variant: "raw",
                   background: selected ? "$fore-color" : "none",
                   color: selected ? "$back-color" : "default",
                 }}

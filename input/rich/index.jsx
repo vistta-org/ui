@@ -1145,43 +1145,43 @@ class Rich extends Component {
                   {
                     name: "Heading 1",
                     icon: "f85d",
-                    tooltip: "Heading 1",
+                    tooltip: definedTooltip("Heading 1"),
                     onClick: () => this.#toggleFormat("h1", true),
                   },
                   {
                     name: "Heading 2",
                     icon: "f85e",
-                    tooltip: "Heading 2",
+                    tooltip: definedTooltip("Heading 2"),
                     onClick: () => this.#toggleFormat("h2", true),
                   },
                   {
                     name: "Heading 3",
                     icon: "f85f",
-                    tooltip: "Heading 3",
+                    tooltip: definedTooltip("Heading 3"),
                     onClick: () => this.#toggleFormat("h3", true),
                   },
                   {
                     name: "Heading 4",
                     icon: "f860",
-                    tooltip: "Heading 4",
+                    tooltip: definedTooltip("Heading 4"),
                     onClick: () => this.#toggleFormat("h4", true),
                   },
                   {
                     name: "Heading 5",
                     icon: "f861",
-                    tooltip: "Heading 5",
+                    tooltip: definedTooltip("Heading 5"),
                     onClick: () => this.#toggleFormat("h5", true),
                   },
                   {
                     name: "Heading 6",
                     icon: "f862",
-                    tooltip: "Heading 6",
+                    tooltip: definedTooltip("Heading 6"),
                     onClick: () => this.#toggleFormat("h6", true),
                   },
                   {
                     name: "Regular",
                     icon: "f417",
-                    tooltip: "Regular",
+                    tooltip: definedTooltip("Regular"),
                     onClick: () => this.#toggleFormat("p", true),
                   },
                 ],
@@ -1189,13 +1189,13 @@ class Rich extends Component {
               {
                 name: "Bold",
                 icon: "e238",
-                tooltip: "Bold",
+                tooltip: definedTooltip("Bold"),
                 onClick: () => this.#toggleFormat("b"),
               },
               {
                 name: "Italic",
                 icon: "e23f",
-                tooltip: "Italic",
+                tooltip: definedTooltip("Italic"),
                 onClick: () => this.#toggleFormat("i"),
               },
               /*
@@ -1203,13 +1203,13 @@ class Rich extends Component {
               {
                 name: "Underline",
                 icon: "e249",
-                tooltip: "Underline",
+                tooltip:  definedTooltip("Underline"),
                 onClick: () => this.#toggleFormat("u"),
               },*/
               {
                 name: "Strikethrough",
                 icon: "e257",
-                tooltip: "Strikethrough",
+                tooltip: definedTooltip("Strikethrough"),
                 onClick: () => this.#toggleFormat("s"),
               },
               {
@@ -1218,19 +1218,19 @@ class Rich extends Component {
               {
                 name: "Bullet List",
                 icon: "e241",
-                tooltip: "Bullet List",
+                tooltip: definedTooltip("Bullet List"),
                 onClick: () => this.#toggleFormat("ul", true),
               },
               {
                 name: "Numbered List",
                 icon: "e242",
-                tooltip: "Numbered List",
+                tooltip: definedTooltip("Numbered List"),
                 onClick: () => this.#toggleFormat("ol", true),
               },
               {
                 name: "Task List",
                 icon: "e6b1",
-                tooltip: "Task List",
+                tooltip: definedTooltip("Task List"),
                 onClick: () => this.#toggleFormat("tl", true),
               },
               {
@@ -1239,31 +1239,31 @@ class Rich extends Component {
               {
                 name: "Link",
                 icon: "e250",
-                tooltip: "Link",
+                tooltip: definedTooltip("Link"),
                 onClick: () => this.#insert("link"),
               },
               {
                 name: "Quote",
                 icon: "e244",
-                tooltip: "Quote",
+                tooltip: definedTooltip("Quote"),
                 onClick: () => this.#toggleFormat("blockquote", true),
               },
               {
                 name: "Code Block",
                 icon: "f84d",
-                tooltip: "Code Block",
+                tooltip: definedTooltip("Code Block"),
                 onClick: () => this.#toggleFormat("pre", true),
               },
               {
                 name: "Inline Code",
                 icon: "e86f",
-                tooltip: "Inline Code",
+                tooltip: definedTooltip("Inline Code"),
                 onClick: () => this.#toggleFormat("code"),
               },
               {
                 name: "Divider",
                 icon: "f108",
-                tooltip: "Divider",
+                tooltip: definedTooltip("Divider"),
                 onClick: () => this.#insert("divider"),
               },
             ]}
@@ -1495,4 +1495,8 @@ function moveNodeChildren(target, source, stripTaskCheckbox) {
   }
 
   if (!target.childNodes.length) target.appendChild(document.createElement("br"));
+}
+
+function definedTooltip(label) {
+  return { label: label, position: /** @type {"bottom"} */ ("bottom") };
 }

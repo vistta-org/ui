@@ -126,7 +126,7 @@ export default class Calendar extends Component {
       >
         <div style="col:full; container:center; gap:0; p:1rem 1rem 0">
           {this.controls === "all" && (
-            <Button variant="raw" style="col:auto; mr:11rem" icon="e5cb" onClick={this.previous.bind(this)} />
+            <Button style={{ variant: "raw", col: "auto", mr: "11rem" }} icon="e5cb" onClick={this.previous.bind(this)} />
           )}
           <h5 style={["col", "text:center", this.controls === "all" && " pt:2rem"]}>
             {formatDate(this.date, {
@@ -137,8 +137,8 @@ export default class Calendar extends Component {
           </h5>
           {this.controls === "all" && (
             <>
-              <Button variant="raw" style="col:auto" icon="e8df" onClick={this.select.bind(this, new DateTime())} />
-              <Button variant="raw" style="col:auto; ml:1rem" icon="e5cc" onClick={this.next.bind(this)} />
+              <Button style={{ variant: "raw", col: "auto" }} icon="e8df" onClick={this.select.bind(this, new DateTime())} />
+              <Button style={{ variant: "raw", col: "auto", ml: "1rem" }} icon="e5cc" onClick={this.next.bind(this)} />
             </>
           )}
         </div>

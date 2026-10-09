@@ -229,16 +229,16 @@ export default class Carousel extends Component {
             <Button
               icon="e408"
               onClick={() => this.previous()}
-              variant="raw"
               disabled={!this.hasPrev}
-              style="pointer-events:auto"
+              style:variant="raw"
+              style:pointer-events="auto"
             />
             <Button
               icon="e409"
               onClick={() => this.next()}
-              variant="raw"
               disabled={!this.hasNext}
-              style="pointer-events:auto"
+              style:variant="raw"
+              style:pointer-events="auto"
             />
           </div>
         )}

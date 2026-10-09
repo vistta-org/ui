@@ -4,10 +4,7 @@ import { style as globalStyle } from "../utils";
 /**
  * @typedef {object} SkeletonProps
  * @property {string} [id] - The unique identifier for the skeleton element.
- * @property {JSX.Style} [style] - Style object or array of style objects to apply to the skeleton.
- * @property {string} [width] - Width of the skeleton.
- * @property {string} [height] - Height of the skeleton.
- * @property {"text" | "circle" | "rect"} [variant] - Shape variant of the skeleton.
+ * @property {JSX.Style & { variant?: "text" | "circle" | "rect"; height?: string; width?: string }} [style] - Style object or array of style objects to apply to the skeleton.
  * @property {boolean} [animate] - Whether to show the pulse animation. Defaults to true.
  */
 
@@ -35,7 +32,7 @@ export default class Skeleton extends Component {
       iterationCount: "infinite",
     };
 
-    if (this.variant === "text" && this.height) {
+    if (this.style?.variant === "text" && this.style?.height) {
       return (
         <div
           id={this.id}
@@ -44,8 +41,8 @@ export default class Skeleton extends Component {
               display: "flex",
               flexDirection: "column",
               gap: ".4em",
-              width: this.width ?? "100%",
-              height: this.height,
+              width: this.style?.width ?? "100%",
+              height: this.style?.height,
               overflow: "hidden",
             },
             this.globalStyle.skeleton || {},
@@ -76,19 +73,19 @@ export default class Skeleton extends Component {
           {
             display: "inline-block",
             background: "$neutral-color",
-            radius: this.variant === "circle" ? "circular" : "rounded",
+            radius: this.style?.variant === "circle" ? "circular" : "rounded",
             width:
-              this.variant === "circle"
-                ? this.width && this.height
-                  ? `min(${this.width}, ${this.height})`
-                  : (this.width ?? this.height ?? "3rem")
-                : (this.width ?? "100%"),
+              this.style?.variant === "circle"
+                ? this.style?.width && this.style?.height
+                  ? `min(${this.style?.width}, ${this.style?.height})`
+                  : (this.style?.width ?? this.style?.height ?? "3rem")
+                : (this.style?.width ?? "100%"),
             height:
-              this.variant === "circle"
-                ? this.width && this.height
-                  ? `min(${this.width}, ${this.height})`
-                  : (this.height ?? this.width ?? "3rem")
-                : (this.height ?? (this.variant === "text" ? "1em" : "100%")),
+              this.style?.variant === "circle"
+                ? this.style?.width && this.style?.height
+                  ? `min(${this.style?.width}, ${this.style?.height})`
+                  : (this.style?.height ?? this.style?.width ?? "3rem")
+                : (this.style?.height ?? (this.style?.variant === "text" ? "1em" : "100%")),
             opacity: animation ? "0" : ".4",
             animation,
           },

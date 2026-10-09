@@ -57,17 +57,17 @@ const VARIANTS = ["success", "error", "info", "warning"];
  */
 
 /**
- * @typedef {import("../toast/index.jsx").ToastProps["position"]} AlertPosition
+ * @typedef {import("../toast/index.jsx").ToastProps["style"]["float"]} Placement
  */
 
 /**
- * @extends {Component<{ alertPosition: AlertPosition }>}
+ * @extends {Component<{ placement: Placement }>}
  */
 export class CustomGlobalDialogs extends Component {
   alerts = [];
   confirm;
   prompt;
-  alertPosition = /** @type {AlertPosition} */ ("top");
+  placement = /** @type {Placement} */ ("top");
 
   async onConnect() {
     const appWindow = /** @type {any} */ (window);
@@ -122,15 +122,16 @@ export class CustomGlobalDialogs extends Component {
         {this.alerts.map((alert, index) => (
           <Toast
             key={alert.key}
-            position={this.alertPosition}
-            variant={alert.type}
             message={alert.message}
             onDismiss={alert.close}
-            style={
-              this.alertPosition === "top"
-                ? `translate:-50% calc((${index + 1} * 4rem) + (${index} * 100%))`
-                : `translate:-50% calc(${index + 1} * (-100% - 4rem))`
-            }
+            style={{
+              variant: alert.type,
+              float: this.placement,
+              translate:
+                this.placement === "top"
+                  ? `-50% calc((${index + 1} * 4rem) + (${index} * 100%))`
+                  : `-50% calc(${index + 1} * (-100% - 4rem))`,
+            }}
           />
         ))}
         {this.confirm && (
@@ -138,7 +139,7 @@ export class CustomGlobalDialogs extends Component {
             title={this.confirm.title}
             actions={[
               this.confirm.cancel !== false && {
-                variant: "raw",
+                style: { variant: "raw" },
                 label: this.confirm.labels?.cancel || "Cancel",
                 onClick: () => this.confirm.callback(false),
               },
@@ -156,7 +157,11 @@ export class CustomGlobalDialogs extends Component {
           <Modal
             title={this.prompt.title}
             actions={[
-              { variant: "raw", label: this.prompt.labels?.cancel || "Cancel", onClick: () => this.prompt.callback(null) },
+              {
+                style: { variant: "raw" },
+                label: this.prompt.labels?.cancel || "Cancel",
+                onClick: () => this.prompt.callback(null),
+              },
               {
                 label: this.prompt.labels?.submit || "Ok",
                 onClick: () => this.prompt.callback(this.prompt.form.values()),

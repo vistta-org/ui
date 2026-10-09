@@ -7,10 +7,8 @@ import { Style, style as globalStyle } from "../utils";
  * @typedef {object} ToastProps
  * @property {string} [id]
  * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
- * @property {JSX.Style} [style]
+ * @property {JSX.Style & { variant?: "basic" | "success" | "error" | "info" | "warning"; float: "top" | "bottom" }} [style]
  * @property {string} [message]
- * @property {"top" | "bottom"} [position]
- * @property {"basic" | "success" | "error" | "info" | "warning"} [variant]
  * @property {(event: MouseEvent) => void} [onDismiss]
  * @property {(event: MouseEvent) => void} [onOutsideClick]
  */
@@ -19,8 +17,6 @@ import { Style, style as globalStyle } from "../utils";
  * @extends {Component<ToastProps>}
  */
 class Toast extends Component {
-  variant = /** @type {"basic"} */ ("basic");
-
   static set style(value) {
     globalStyle.update("toast", value);
   }
@@ -42,11 +38,11 @@ class Toast extends Component {
         style={Style.assign(
           {
             p: "4rem",
-            inset: this.position === "bottom" ? "100% auto auto 50%" : "0% auto auto 50%",
-            translate: this.position === "bottom" ? "-50% calc(-100% - 4rem)" : "-50% 4rem",
-            animate: this.position === "bottom" ? "slide-top" : "slide-bottom",
+            inset: this.style?.float === "bottom" ? "100% auto auto 50%" : "0% auto auto 50%",
+            translate: this.style?.float === "bottom" ? "-50% calc(-100% - 4rem)" : "-50% 4rem",
+            animate: this.style?.float === "bottom" ? "slide-top" : "slide-bottom",
             width: "max-content",
-            background: getBackgroundColor(this.variant),
+            background: getBackgroundColor(this.style?.variant || "basic"),
             backdropFilter: "$blur",
             shadow: "default",
           },
@@ -58,9 +54,16 @@ class Toast extends Component {
           {`${this.message}`}
           {this.onDismiss && (
             <Button
-              variant="raw"
+              style={{
+                variant: "raw",
+                display: "inline",
+                ml: "4rem",
+                p: "0!",
+                float: "right",
+                color: "inherit!",
+                ":before": { left: "0!" },
+              }}
               icon="e5cd"
-              style="display:inline; ml:4rem; p:0!; float:right; color:inherit!; :before:(left:0!)"
               onClick={this.onDismiss}
             />
           )}

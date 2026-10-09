@@ -11,12 +11,11 @@ import Select from "./select";
  * @typedef {import("./rich").RichProps} RichProps
  *
  * @typedef {{
- *  variant?: "default" | "basic",
  *  icon?: string,
  *  label?: string,
  *  hidden?: boolean,
  *  tooltip?: Tooltip,
- *  style?: JSX.Style,
+ *  style?: JSX.Style & { variant?: "default" | "basic" },
  * }} FieldsetProps
  *
  * @typedef {"button" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week"} BaseInputs
@@ -36,11 +35,11 @@ import Select from "./select";
  *
  * @typedef {BaseInputProps & FieldsetProps & { type?: BaseInputs | "textarea" }} StandardInputProps
  * @typedef {BaseInputProps & FieldsetProps & { type?: "number", min?: string | number, max?: string | number, step?: string | number }} NumberInputProps
- * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "checkbox" | "radio", variant?: "default" | "inverted" | "primary" | "primary inverted", indeterminate?: boolean }} CheckInputProps
- * @typedef {BaseInputProps & Omit<FieldsetProps, "variant"> & { type?: "switch" | "toggle", variant?: "default" | "inverted" | "primary" | "primary inverted" }} ToggleInputProps
+ * @typedef {BaseInputProps & Omit<FieldsetProps, "style"> & { type?: "checkbox" | "radio", style?: JSX.Style & { variant?: "default" | "inverted" | "primary" | "primary inverted" }, indeterminate?: boolean }} CheckInputProps
+ * @typedef {BaseInputProps & Omit<FieldsetProps, "style"> & { type?: "switch" | "toggle", style?: JSX.Style & { variant?: "default" | "inverted" | "primary" | "primary inverted" } }} ToggleInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
- * @typedef {Omit<ColorProps, "variant"> & Omit<FieldsetProps, "variant"> & { type: "color", variant?: ColorProps["variant"] }} ColorInputProps
+ * @typedef {ColorProps & Omit<FieldsetProps, "style"> & { type: "color" }} ColorInputProps
  * @typedef {StandardInputProps | NumberInputProps | CheckInputProps | ToggleInputProps | SelectInputProps | RichInputProps | ColorInputProps} InputProps
  */
 
@@ -121,7 +120,7 @@ class Input extends Component {
           name={this.name}
           value={this.value}
           // @ts-ignore - narrowed by type check above
-          variant={this.variant}
+          style:variant={this.style?.variant}
           // @ts-ignore - narrowed by type check above
           presets={this.presets}
           // @ts-ignore - narrowed by type check above
@@ -252,7 +251,7 @@ class Input extends Component {
       } else style.icon = this.icon;
     }
 
-    const input = /** @type {JSX.Style} */ (
+    const input = /** @type {JSX.StyleObject} */ (
       style["> input, > textarea, > [role=input], > [role=select]"] = {
         col: "default",
         border: "none",
@@ -267,15 +266,17 @@ class Input extends Component {
       style.background = "none";
 
       input.col = "auto";
-      input[this.variant !== "inverted" && this.variant !== "primary inverted" ? "margin-left" : "margin-right"] = "1rem";
-      if (this.variant === "inverted" || this.variant === "primary inverted") input.order = "-1";
+      input[
+        this.style?.variant !== "inverted" && this.style?.variant !== "primary inverted" ? "margin-left" : "margin-right"
+      ] = "1rem";
+      if (this.style?.variant === "inverted" || this.style?.variant === "primary inverted") input.order = "-1";
       if (this.label) {
         style["> label"] = { width: "auto", background: "transparent", userSelect: "none" };
       }
 
       if (this.type === "radio" || this.type === "checkbox") {
         input.accentColor =
-          this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color";
+          this.style?.variant === "primary" || this.style?.variant === "primary inverted" ? "$primary-color" : "$fore-color";
         input.scale = "1.35";
       } else {
         input.appearance = "none";
@@ -288,7 +289,10 @@ class Input extends Component {
         input.opacity = this.disabled ? "0.8" : "1";
         input.transition = "background $duration ease-in-out";
         input["&:checked"] = {
-          background: this.variant === "primary" || this.variant === "primary inverted" ? "$primary-color" : "$fore-color",
+          background:
+            this.style?.variant === "primary" || this.style?.variant === "primary inverted"
+              ? "$primary-color"
+              : "$fore-color",
         };
         input["&:before"] = {
           content: "''",
@@ -306,7 +310,7 @@ class Input extends Component {
         };
       }
     } else if (this.label) {
-      const animate = !(this.variant === "basic" || this.readonly || this.type === "color");
+      const animate = !(this.style?.variant === "basic" || this.readonly || this.type === "color");
       input.padding = "2rem 4rem";
       input.marginTop = "4rem";
       input.height = "10rem";
