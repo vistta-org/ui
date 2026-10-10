@@ -22,6 +22,6 @@
     "@vistta/utils": "latest"
   },
   "peerDependencies": {
-    "@vistta/js": "*"
+    "@vistta/js": "^0.1.0"
   }
 }
