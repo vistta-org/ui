@@ -64,6 +64,10 @@ class Input extends Component {
   style = undefined;
   globalStyle = globalStyle();
 
+  get styleObj() {
+    return Style.ensureObject(this.style);
+  }
+
   onConnect() {
     // @ts-ignore - narrowed by type check above
     if ((this.type === "checkbox" || this.type === "radio") && this.indeterminate) this.#node.indeterminate = true;
@@ -121,7 +125,7 @@ class Input extends Component {
           id={this.id}
           name={this.name}
           value={this.value}
-          style:variant={this.style?.variant}
+          style={this.styleObj?.variant}
           // @ts-ignore - narrowed by type check above
           presets={this.presets}
           // @ts-ignore - narrowed by type check above
@@ -268,16 +272,20 @@ class Input extends Component {
 
       input.col = "auto";
       input[
-        this.style?.variant !== "inverted" && this.style?.variant !== "primary inverted" ? "margin-left" : "margin-right"
+        this.styleObj?.variant !== "inverted" && this.styleObj?.variant !== "primary inverted"
+          ? "margin-left"
+          : "margin-right"
       ] = "1rem";
-      if (this.style?.variant === "inverted" || this.style?.variant === "primary inverted") input.order = "-1";
+      if (this.styleObj?.variant === "inverted" || this.styleObj?.variant === "primary inverted") input.order = "-1";
       if (this.label) {
         style["> label"] = { width: "auto", background: "transparent", userSelect: "none" };
       }
 
       if (this.type === "radio" || this.type === "checkbox") {
         input.accentColor =
-          this.style?.variant === "primary" || this.style?.variant === "primary inverted" ? "$primary-color" : "$fore-color";
+          this.styleObj?.variant === "primary" || this.styleObj?.variant === "primary inverted"
+            ? "$primary-color"
+            : "$fore-color";
         input.scale = "1.35";
       } else {
         input.appearance = "none";
@@ -291,7 +299,7 @@ class Input extends Component {
         input.transition = "background $duration ease-in-out";
         input["&:checked"] = {
           background:
-            this.style?.variant === "primary" || this.style?.variant === "primary inverted"
+            this.styleObj?.variant === "primary" || this.styleObj?.variant === "primary inverted"
               ? "$primary-color"
               : "$fore-color",
         };
@@ -311,7 +319,7 @@ class Input extends Component {
         };
       }
     } else if (this.label) {
-      const animate = !(this.style?.variant === "basic" || this.readonly || this.type === "color");
+      const animate = !(this.styleObj?.variant === "basic" || this.readonly || this.type === "color");
       input.padding = "2rem 4rem";
       input.marginTop = "4rem";
       input.height = "10rem";
@@ -349,7 +357,7 @@ class Input extends Component {
         style={Style.assign(
           this.#style,
           this.globalStyle.input || {},
-          this.style,
+          this.styleObj,
           this.readonly && {
             pointerEvents: "none",
           },

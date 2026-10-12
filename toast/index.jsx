@@ -27,6 +27,10 @@ class Toast extends Component {
 
   globalStyle = globalStyle();
 
+  get styleObj() {
+    return Style.ensureObject(this.style);
+  }
+
   render() {
     return (
       <Popover
@@ -38,16 +42,16 @@ class Toast extends Component {
         style={Style.assign(
           {
             p: "4rem",
-            inset: this.style?.float === "bottom" ? "100% auto auto 50%" : "0% auto auto 50%",
-            translate: this.style?.float === "bottom" ? "-50% calc(-100% - 4rem)" : "-50% 4rem",
-            animate: this.style?.float === "bottom" ? "slide-top" : "slide-bottom",
+            inset: this.styleObj?.float === "bottom" ? "100% auto auto 50%" : "0% auto auto 50%",
+            translate: this.styleObj?.float === "bottom" ? "-50% calc(-100% - 4rem)" : "-50% 4rem",
+            animate: this.styleObj?.float === "bottom" ? "slide-top" : "slide-bottom",
             width: "max-content",
-            background: getBackgroundColor(this.style?.variant || "basic"),
+            background: getBackgroundColor(this.styleObj?.variant || "basic"),
             backdropFilter: "$blur",
             shadow: "default",
           },
           this.globalStyle.toast || {},
-          this.style,
+          this.styleObj,
         )}
       >
         <p>

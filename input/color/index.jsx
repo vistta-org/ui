@@ -13,7 +13,7 @@ import Popover from "../../popover";
  * @property {boolean} [required]
  * @property {boolean} [disabled]
  * @property {boolean} [readonly]
- * @property {JSX.Style | JSX.StyleObject & { variant?: "default" | "basic" | "flat" }} [style]
+ * @property {"default" | "basic" | "flat" } [style]
  * @property {(event?: any) => any} [onChange]
  * @property {(event?: InputEvent) => any} [onInput]
  */
@@ -65,7 +65,7 @@ class Color extends Component {
   }
 
   render() {
-    if (this.style?.variant === "flat") {
+    if (this.style === "flat") {
       return (
         <ColorPicker
           ref={Ref.forward(this.ref, this.#register.bind(this))}

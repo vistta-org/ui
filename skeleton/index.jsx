@@ -19,9 +19,12 @@ export default class Skeleton extends Component {
   static get style() {
     return globalStyle.value?.skeleton || {};
   }
-  /** @type {any} */
-  style = undefined;
+
   globalStyle = globalStyle();
+
+  get styleObj() {
+    return Style.ensureObject(this.style);
+  }
 
   render() {
     const animation = this.animate !== false && {
@@ -33,7 +36,7 @@ export default class Skeleton extends Component {
       iterationCount: "infinite",
     };
 
-    if (this.style?.variant === "text" && this.style?.height) {
+    if (this.styleObj?.variant === "text" && this.styleObj?.height) {
       return (
         <div
           id={this.id}
@@ -46,7 +49,7 @@ export default class Skeleton extends Component {
               overflow: "hidden",
             },
             this.globalStyle.skeleton || {},
-            this.style,
+            this.styleObj,
           )}
         >
           {Array.from({ length: 8 }, (_, i) => (
@@ -73,24 +76,24 @@ export default class Skeleton extends Component {
           {
             display: "inline-block",
             background: "$neutral-color",
-            radius: this.style?.variant === "circle" ? "circular" : "rounded",
+            radius: this.styleObj?.variant === "circle" ? "circular" : "rounded",
             width:
-              this.style?.variant === "circle"
-                ? this.style?.width && this.style?.height
-                  ? `min(${this.style?.width}, ${this.style?.height})`
-                  : (this.style?.width ?? this.style?.height ?? "3rem")
-                : (this.style?.width ?? "100%"),
+              this.styleObj?.variant === "circle"
+                ? this.styleObj?.width && this.styleObj?.height
+                  ? `min(${this.styleObj?.width}, ${this.styleObj?.height})`
+                  : (this.styleObj?.width ?? this.styleObj?.height ?? "3rem")
+                : (this.styleObj?.width ?? "100%"),
             height:
-              this.style?.variant === "circle"
-                ? this.style?.width && this.style?.height
-                  ? `min(${this.style?.width}, ${this.style?.height})`
-                  : (this.style?.height ?? this.style?.width ?? "3rem")
-                : (this.style?.height ?? (this.style?.variant === "text" ? "1em" : "100%")),
+              this.styleObj?.variant === "circle"
+                ? this.styleObj?.width && this.styleObj?.height
+                  ? `min(${this.styleObj?.width}, ${this.styleObj?.height})`
+                  : (this.styleObj?.height ?? this.styleObj?.width ?? "3rem")
+                : (this.styleObj?.height ?? (this.styleObj?.variant === "text" ? "1em" : "100%")),
             opacity: animation ? "0" : ".4",
             animation,
           },
           this.globalStyle.skeleton || {},
-          this.style,
+          this.styleObj,
         )}
       />
     );

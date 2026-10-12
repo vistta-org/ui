@@ -71,9 +71,15 @@ class Dropdown extends Component {
     return globalStyle.value?.dropdown || {};
   }
 
-  /** @type {any} */
-  style = undefined;
   globalStyle = globalStyle();
+
+  get styleObj() {
+    return Style.ensureObject(this.style);
+  }
+
+  get buttonStyleObj() {
+    return Style.ensureObject(this.button?.style);
+  }
 
   #setVisible(value) {
     if (value) this.onOpen?.();
@@ -94,14 +100,14 @@ class Dropdown extends Component {
         style={Style.assign(
           {
             p: !(this.label || this.button?.label) && "2rem!",
-            variant: /** @type {any} */ (this.button?.style)?.variant || this.style?.variant,
+            variant: /** @type {any} */ this.buttonStyleObj?.variant || this.styleObj?.variant,
           },
           iconToStyle(
             this.loading || this.button?.loading ? "loading" : this.icon || this.button?.icon,
             !(this.label || this.button?.label),
           ),
           /** @type {any} */ (this.globalStyle.dropdown)?.button || {},
-          this.button?.style,
+          this.buttonStyleObj,
         )}
         onClick={(e) => {
           this.button?.onClick?.(e);
@@ -139,18 +145,18 @@ class Dropdown extends Component {
           }
           style={Style.assign(
             {
-              ...this.#button(this.style?.align || "bottom", { gap: "2rem" }),
+              ...this.#button(this.styleObj?.align || "bottom", { gap: "2rem" }),
               container: "default",
               gap: "1rem",
               padding: "1rem",
               "> *": { col: "full", text: "left" },
-              height: this.style?.height,
-              width: this.style?.width || `min-content`,
-              minWidth: !this.style?.width && this.#button.width,
-              background: this.style?.variant !== "raw" && "inherit",
+              height: this.styleObj?.height,
+              width: this.styleObj?.width || `min-content`,
+              minWidth: !this.styleObj?.width && this.#button.width,
+              background: this.styleObj?.variant !== "raw" && "inherit",
             },
             this.globalStyle.dropdown || {},
-            this.style,
+            this.styleObj,
           )}
         >
           {this.items?.reduce?.((acc, props) => {
@@ -163,10 +169,10 @@ class Dropdown extends Component {
                   {...props}
                   onOpen={() => (this.#preventClose = true)}
                   onClose={() => (this.#preventClose = false)}
-                  style={Style.assign({ variant: this.style?.variant }, props.style)}
+                  style={Style.assign({ variant: this.styleObj?.variant }, props.style)}
                 />,
               ];
-            return [...acc, <Button {...props} style={Style.assign({ variant: this.style?.variant }, props.style)} />];
+            return [...acc, <Button {...props} style={Style.assign({ variant: this.styleObj?.variant }, props.style)} />];
           }, [])}
         </Popover>
       </Button>

@@ -43,9 +43,11 @@ export class Button extends Component {
     return globalStyle.value?.button || {};
   }
 
-  /** @type {any} */
-  style = undefined;
   globalStyle = globalStyle();
+
+  get styleObj() {
+    return Style.ensureObject(this.style);
+  }
 
   render() {
     return (
@@ -59,10 +61,10 @@ export class Button extends Component {
             p: !this.label && "2rem!",
             tooltip: typeof this.tooltip === "object" && this.tooltip?.position,
           },
-          variantToStyle(this.style?.variant),
+          variantToStyle(this.styleObj?.variant),
           iconToStyle(this.loading ? "loading" : this.icon, !this.label),
           this.globalStyle.button || {},
-          this.style,
+          this.styleObj,
         )}
         disabled={this.disabled || this.loading}
         {...this.props(...HANDLED_PROPS)}

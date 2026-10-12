@@ -7,8 +7,7 @@ import { getTooltipLabel, style as globalStyle, Style } from "../utils";
  *   ref?: Ref<HTMLSpanElement> | ((element: HTMLSpanElement) => void),
  *   code?: string,
  *   tooltip?: import("../utils").Tooltip,
- *   outlined?: boolean,
- *   style?: JSX.Style;
+ *   style?: JSX.Style | JSX.StyleObject & { variant?: "default" | "outlined" },
  * }>}
  */
 class Icon extends Component {
@@ -22,6 +21,10 @@ class Icon extends Component {
 
   globalStyle = globalStyle();
 
+  get styleObj() {
+    return Style.ensureObject(this.style);
+  }
+
   render() {
     if (!this.code) return null;
     return (
@@ -29,9 +32,9 @@ class Icon extends Component {
         id={this.id}
         ref={this.ref}
         tooltip={getTooltipLabel(this.tooltip)}
-        style={Style.assign(this.style, this.globalStyle.icon || {}, {
+        style={Style.assign(this.styleObj, this.globalStyle.icon || {}, {
           icon: this.code,
-          iconStyle: this.outlined && "outlined",
+          iconStyle: this.styleObj?.variant === "outlined" && "outlined",
           tooltip: typeof this.tooltip === "object" && this.tooltip?.position,
         })}
       />
