@@ -45,7 +45,7 @@ import { Button } from "@vistta/ui";
 <Button label="Continue" style:variant="primary" onClick={continueFlow} />;
 ```
 
-`Button` accepts `label`, `name`, `icon`, `loading`, `disabled`, `hidden`, `active`, `tooltip`, `type`, event handlers, and `style.variant`. Variants are `default`, `basic`, `raw`, or a color (`primary`, `secondary`, `tertiary`, `light`, `dark`, `info`, `success`, `warning`, `error`); color variants can also be combined with `raw`. The default HTML button type is `button`. `loading` disables the button and displays a loading icon.
+`Button` accepts `label`, `name`, `icon`, `loading`, `disabled`, `hidden`, `active`, `tooltip`, `type`, event handlers, and `style.variant`. Variants are `default`, `basic`, `outlined`, `raw`, or a color (`primary`, `secondary`, `tertiary`, `light`, `dark`, `info`, `success`, `warning`, `error`); color variants can also be combined with `outlined` or `raw`. The default HTML button type is `button`. `loading` disables the button and displays a loading icon.
 
 ### Icon
 

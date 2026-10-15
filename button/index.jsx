@@ -13,7 +13,7 @@ const HANDLED_PROPS = ["name", "label", "icon", "loading", "style", "tooltip", "
  * @typedef {import("../utils").Icon} Icon
  *
  * @typedef {"primary" | "secondary" | "tertiary" | "light" | "dark" | "info" | "success" | "warning" | "error"} Colors
- * @typedef {"" | "default" | "basic" | "raw" | Colors | `raw ${Colors}` | `${Colors} raw`} Variants
+ * @typedef {"" | "default" | "basic" | "raw" | "outlined" | Colors | `raw ${Colors}` | `${Colors} raw` | `outlined ${Colors}` | `${Colors} outlined`} Variants
  *
  * @typedef {JSX.EventHandlers & {
  *  id?: string,
@@ -90,11 +90,26 @@ export function variantToStyle(variant) {
         background: "none",
         color: "default",
       };
+    case "outlined":
+      return {
+        background: "transparent($fore-color, 90%)",
+        color: "default",
+        border: "$border-size solid transparent($fore-color, 50%)",
+      };
     default: {
-      let raw = false;
+      let raw = false,
+        outlined = false;
       if (variant.startsWith("raw ")) ((raw = true), (variant = variant.slice(4)));
       else if (variant.endsWith(" raw")) ((raw = true), (variant = variant.slice(0, -4)));
+      else if (variant.startsWith("outlined ")) ((outlined = true), (variant = variant.slice(9)));
+      else if (variant.endsWith(" outlined")) ((outlined = true), (variant = variant.slice(0, -9)));
       if (raw) return { background: "none", color: variant };
+      if (outlined)
+        return {
+          background: `transparent($${variant}-color, 90%)`,
+          color: variant,
+          border: `$border-size solid transparent($${variant}-color, 50%)`,
+        };
       if (variant === "light") return { background: "light", color: "dark" };
       if (variant === "dark") return { background: "dark", color: "light" };
       return { background: variant, color: `${variant}-contrast` };
