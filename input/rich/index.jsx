@@ -1,6 +1,6 @@
 import { Component, Ref } from "@vistta/js";
 import Menu from "../../menu";
-import { htmlToMarkdown, markdownToHtml } from "./utils";
+import { htmlToMarkdown, markdownToHtml, sanitizeUrl } from "./utils";
 
 const BLOCK_TAGS = new Set(["P", "H1", "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE", "PRE", "UL", "OL"]);
 const FORMAT_ALLOWED_TAGS = new Set([
@@ -128,8 +128,9 @@ class Rich extends Component {
     const html = event.clipboardData?.getData("text/html");
     const text = event.clipboardData?.getData("text/plain") || "";
 
-    const container = document.createElement("div");
-    if (html) container.innerHTML = html;
+    const template = document.createElement("template");
+    const container = template.content;
+    if (html) template.innerHTML = html;
     else {
       for (const line of text.split("\n")) {
         const p = document.createElement("p");
@@ -141,8 +142,8 @@ class Rich extends Component {
 
     sanitizeNode(container, this.format);
 
-    // execCommand is deprecated but has no replacement for undo-aware contentEditable insertion
-    document.execCommand("insertHTML", false, container.innerHTML);
+    // execCommand is deprecated with no undo-aware replacement; if Chromium removes it, fall back to manual Range insertion (undo must then be restored via beforeinput history)
+    document.execCommand("insertHTML", false, template.innerHTML);
 
     this.#handleInput();
   }
@@ -172,6 +173,7 @@ class Rich extends Component {
 
       if (!li) {
         // Not in a list: insert a tab character (only forward tab, not shift+tab)
+        // execCommand is deprecated; see the paste handler note above for the removal plan
         if (!event.shiftKey) document.execCommand("insertText", false, "\t");
         return;
       }
@@ -981,7 +983,7 @@ class Rich extends Component {
     }
 
     if (type === "b" || type === "i" || type === "u" || type === "s") {
-      // execCommand is deprecated but has no replacement for undo-aware contentEditable mutations
+      // execCommand is deprecated; see the paste handler note above for the removal plan
       const command = type === "b" ? "bold" : type === "i" ? "italic" : type === "u" ? "underline" : "strikeThrough";
       document.execCommand(command, false, null);
 
@@ -1465,7 +1467,9 @@ function sanitizeNode(node, format) {
     const attrs = Array.from(el.attributes);
     for (const attr of attrs) {
       if (el.tagName === "A" && attr.name === "href") {
-        if (/^javascript:/i.test(attr.value)) el.removeAttribute("href");
+        const href = sanitizeUrl(attr.value);
+        if (href) el.setAttribute("href", href);
+        else el.removeAttribute("href");
         continue;
       }
       if (el.tagName === "INPUT" && (attr.name === "type" || attr.name === "checked")) continue;

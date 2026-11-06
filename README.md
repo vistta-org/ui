@@ -31,7 +31,7 @@ import { Button, Card, Input } from "@vistta/ui";
 </Card>;
 ```
 
-Component `style` props accept Vistta JS style objects or shorthand strings where the component type permits them. `style:variant` is the namespaced JSX form of `style={{ variant: "..." }}`. Component state is supplied through props; callbacks such as `onChange` receive events.
+Component `style` props accept Vistta JS style objects or shorthand strings where the component type permits them. `style:variant` is the namespaced-prop form of `style={{ variant: "..." }}`: `name:key={value}` sets a single key of an object prop, and all props sharing the same prefix are grouped into one object (see [Namespaced props](../js/README.md#namespaced-props)). Component state is supplied through props; callbacks such as `onChange` receive events.
 
 ## Components
 
@@ -83,6 +83,14 @@ import { Input } from "@vistta/ui";
 
 Types include standard HTML input types plus `textarea`, `checkbox`, `radio`, `switch`, `toggle`, `select`, `color`, `rich`, and `richtext`. Number inputs accept `min`, `max`, and `step`; checkbox/radio inputs accept `indeterminate`; select accepts `options` (strings or `{ label, value }`), `multiple`, and `filterable`; color accepts `presets` and `recent`; rich text accepts `format`. Switches and toggles use checkbox values.
 
+#### Rich Text Security
+
+Rich-text values are Markdown. Literal, attribute-free `<u>` and `</u>` tags are supported for underline round-tripping; other raw HTML is escaped. Links in Markdown and pasted HTML reject `javascript:`, `vbscript:`, and `data:` URLs, including mixed-case and control-character variants. Ordinary web, email, relative, and fragment links remain supported.
+
+Pasted HTML is parsed in an inert template before an element and attribute allowlist is applied. Event handlers, styles, link targets, and disallowed elements such as scripts, iframes, SVGs, and images are removed; only checkbox inputs are retained for task lists. Without `format`, only paragraphs, line breaks, and text survive. HTML-to-Markdown conversion also uses inert template parsing. These rules protect the editor, not arbitrary HTML rendered elsewhere in an application.
+
+Run the browser security and component tests from this package directory with `npx vistta test "tests/*.test.jsx" --environment=browser`.
+
 ### Dropdown
 
 ```jsx
@@ -128,7 +136,7 @@ import { Accordion } from "@vistta/ui";
 </Accordion>;
 ```
 
-`Accordion` accepts `title`, `open`, `icon` (set to `false` to hide it), `style`, and `onClick`.
+`Accordion` accepts `title`, `open` (boolean, whether the item starts expanded), `icon` (set to `false` to hide it), `style`, and `onClick`.
 
 ### Accordion.Group
 
@@ -144,7 +152,7 @@ import { Accordion } from "@vistta/ui";
 />;
 ```
 
-`Accordion.Group` accepts `items` with `title` and `content`, initial `open` index (`-1` for none), `icon`, and `allowMultipleOpen` (default `false`).
+`Accordion.Group` accepts `items` with `title` and `content`, initial `open` index (`-1` for none), `icon`, and `allowMultipleOpen` (default `false`). Note the `open` overload: on `Accordion` it is a boolean per-item state, while on `Accordion.Group` it is the zero-based index of the item that starts expanded — the group passes each item the boolean form.
 
 ### Modal
 

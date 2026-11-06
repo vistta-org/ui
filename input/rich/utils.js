@@ -12,10 +12,10 @@ export function htmlToMarkdown(html) {
       .trim();
   }
 
-  const container = document.createElement("div");
+  const container = document.createElement("template");
   container.innerHTML = source;
   let markdown = "";
-  for (const child of container.childNodes) markdown += nodeToMarkdown(child, { inCode: false });
+  for (const child of container.content.childNodes) markdown += nodeToMarkdown(child, { inCode: false });
   markdown = markdown.replace(/\u00A0/g, " ").replace(/\n$/, "");
   return markdown;
 }
@@ -196,10 +196,13 @@ function renderEmphasis(escapedText, { UO, UC }) {
   return text;
 }
 
-function sanitizeUrl(url) {
+export function sanitizeUrl(url) {
   const value = String(url ?? "").trim();
   if (!value) return "";
-  const lower = value.toLowerCase();
+  const normalized = value.replace(/[\t\n\r]/g, "");
+  let start = 0;
+  while (normalized.charCodeAt(start) <= 32) start++;
+  const lower = normalized.slice(start).toLowerCase();
   if (lower.startsWith("javascript:") || lower.startsWith("vbscript:") || lower.startsWith("data:")) return "";
   return value;
 }
