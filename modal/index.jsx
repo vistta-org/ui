@@ -62,7 +62,9 @@ class Modal extends Component {
           {
             container: "center",
             width: "fit-content",
-            "max-width": "min(600px, calc(100vw - 8rem))",
+            maxWidth: "min(600px, calc(100vw - 8rem))",
+            maxHeight: "calc(100vh - 8rem)",
+            overflow: "clip auto",
             p: "4rem",
             gap: "4rem",
             animate: "fade",

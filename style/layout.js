@@ -2,13 +2,13 @@ export default (config, result) => {
   const baseContainer = "display: flex; width: 100%; flex-flow: row wrap; gap: 2rem; >*:($gap: 2rem);";
   result.properties.container = {
     default: baseContainer + " align-content: baseline;",
-    start: baseContainer + " place-content: flex-start;",
-    center: baseContainer + " place-content: center;",
-    end: baseContainer + " place-content: flex-end;",
-    "space-between": baseContainer + " place-content: space-between;",
-    "space-around": baseContainer + " place-content: space-around;",
-    "space-evenly": baseContainer + " place-content: space-evenly;",
-    "*": baseContainer + " place-content: ${};",
+    start: baseContainer + " justify-content: flex-start;",
+    center: baseContainer + " justify-content: center;",
+    end: baseContainer + " justify-content: flex-end;",
+    "space-between": baseContainer + " justify-content: space-between;",
+    "space-around": baseContainer + " justify-content: space-around;",
+    "space-evenly": baseContainer + " justify-content: space-evenly;",
+    "*": baseContainer + " justify-content: ${};",
   };
 
   result.properties.col = {
