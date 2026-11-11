@@ -2,6 +2,8 @@
 
 UI components for [Vistta JS](../js/README.md).
 
+> **Production readiness:** This package has not yet been tested in production. Validate it for your use case before deploying.
+
 ## **Getting Started**
 
 ### **Install**
