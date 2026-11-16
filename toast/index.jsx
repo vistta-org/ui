@@ -1,4 +1,4 @@
-import { Component, Ref } from "@vistta/js";
+import { Component } from "@vistta/js";
 import Button from "../button/index.jsx";
 import Popover from "../popover/index.jsx";
 import { Style, style as globalStyle } from "../utils";
@@ -6,7 +6,7 @@ import { Style, style as globalStyle } from "../utils";
 /**
  * @typedef {object} ToastProps
  * @property {string} [id]
- * @property {Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
+ * @property {import("@vistta/js").Ref<HTMLElement> | ((element: HTMLElement) => void)} [ref]
  * @property {JSX.Style & { variant?: "basic" | "success" | "error" | "info" | "warning"; float: "top" | "bottom" }} [style]
  * @property {string} [message]
  * @property {(event: MouseEvent) => void} [onDismiss]

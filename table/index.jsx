@@ -1,4 +1,4 @@
-import { Component, Ref } from "@vistta/js";
+import { Component } from "@vistta/js";
 import { Style, style as globalStyle } from "../utils";
 
 /**
@@ -11,7 +11,7 @@ import { Style, style as globalStyle } from "../utils";
  *
  * @typedef {JSX.EventHandlers & {
  *  id?: string,
- *  ref?: Ref<HTMLTableElement> | ((element: HTMLTableElement) => void),
+ *  ref?: import("@vistta/js").Ref<HTMLTableElement> | ((element: HTMLTableElement) => void),
  *  title?: string | undefined,
  *  columns: TableColumn[],
  *  data: object[],

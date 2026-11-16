@@ -73,6 +73,7 @@ class Dropdown extends Component {
 
   globalStyle = globalStyle();
 
+  /** @returns {JSX.StyleObject & { align?: import("@vistta/js").AnchorPlacement }} */
   get styleObj() {
     return Style.ensureObject(this.style);
   }

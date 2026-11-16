@@ -125,7 +125,7 @@ class Input extends Component {
           id={this.id}
           name={this.name}
           value={this.value}
-          style={this.styleObj?.variant}
+          style={/** @type {ColorProps["style"]} */ (this.styleObj?.variant)}
           // @ts-ignore - narrowed by type check above
           presets={this.presets}
           // @ts-ignore - narrowed by type check above

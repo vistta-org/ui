@@ -1,10 +1,10 @@
-import { Component, Ref } from "@vistta/js";
+import { Component } from "@vistta/js";
 import { getTooltipLabel, style as globalStyle, Style } from "../utils";
 
 /**
  * @extends {Component<{
  *   id?: string,
- *   ref?: Ref<HTMLSpanElement> | ((element: HTMLSpanElement) => void),
+ *   ref?: import("@vistta/js").Ref<HTMLSpanElement> | ((element: HTMLSpanElement) => void),
  *   code?: string,
  *   tooltip?: import("../utils").Tooltip,
  *   style?: JSX.Style | JSX.StyleObject & { variant?: "default" | "outlined" },

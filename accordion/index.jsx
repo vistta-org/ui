@@ -1,11 +1,11 @@
-import { Component, Ref } from "@vistta/js";
+import { Component } from "@vistta/js";
 import { Style, style as globalStyle } from "../utils";
 
 const HANDLED_PROPS = ["style", "open", "title", "icon", "iconPosition", "onClick"];
 
 /**
  * @typedef {JSX.EventHandlers & {
- *  ref?: Ref<HTMLDivElement> | ((element: HTMLDivElement) => void),
+ *  ref?: import("@vistta/js").Ref<HTMLDivElement> | ((element: HTMLDivElement) => void),
  *  id?: string,
  *  style?: JSX.Style,
  *  open?: boolean,
@@ -17,7 +17,7 @@ const HANDLED_PROPS = ["style", "open", "title", "icon", "iconPosition", "onClic
 
 /**
  * @typedef {object} AccordionGroupProps
- * @property {Ref<HTMLDivElement> | ((element: HTMLDivElement) => void)} [ref] - Ref for the accordion container element.
+ * @property {import("@vistta/js").Ref<HTMLDivElement> | ((element: HTMLDivElement) => void)} [ref] - Ref for the accordion container element.
  * @property {string} [id] - The unique identifier for the accordion element.
  * @property {JSX.Style} [style] - Style object or array of style objects to apply to the accordion container.
  * @property {(Omit<AccordionProps, "children" | "icon" | "open" | "iconPosition"> & { content: JSX.Element})[]} items - An array of accordion items to be rendered within the group.

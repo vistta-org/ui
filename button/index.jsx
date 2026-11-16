@@ -1,4 +1,4 @@
-import { Component, Ref } from "@vistta/js";
+import { Component } from "@vistta/js";
 import { Style, getTooltipLabel, style as globalStyle } from "../utils";
 
 const ICON_POSITION = {
@@ -17,7 +17,7 @@ const HANDLED_PROPS = ["name", "label", "icon", "loading", "style", "tooltip", "
  *
  * @typedef {JSX.EventHandlers & {
  *  id?: string,
- *  ref?: Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
+ *  ref?: import("@vistta/js").Ref<HTMLButtonElement> | ((element: HTMLButtonElement) => void),
  *  name?: string,
  *  label?: string,
  *  active?: boolean,

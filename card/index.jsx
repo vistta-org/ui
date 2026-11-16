@@ -1,9 +1,9 @@
-import { Component, Ref, Style } from "@vistta/js";
+import { Component, Style } from "@vistta/js";
 import { style as globalStyle } from "../utils";
 
 /**
  * @typedef {JSX.EventHandlers & {
- *  ref?: Ref<HTMLDivElement> | ((element: HTMLDivElement) => void),
+ *  ref?: import("@vistta/js").Ref<HTMLDivElement> | ((element: HTMLDivElement) => void),
  *  id?: string,
  *  style?: JSX.Style,
  * }} CardProps

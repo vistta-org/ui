@@ -591,15 +591,13 @@ class Rich extends Component {
       let firstTarget = null;
       let caretOffset = null;
       if (range.collapsed && blocks.length) {
-        try {
-          const anchorBlock = blocks[0];
-          if (anchorBlock && (anchorBlock === range.startContainer || anchorBlock.contains(range.startContainer))) {
-            const offsetRange = document.createRange();
-            offsetRange.setStart(anchorBlock, 0);
-            offsetRange.setEnd(range.startContainer, range.startOffset);
-            caretOffset = offsetRange.toString().length;
-          }
-        } catch {}
+        const anchorBlock = blocks[0];
+        if (anchorBlock && (anchorBlock === range.startContainer || anchorBlock.contains(range.startContainer))) {
+          const offsetRange = document.createRange();
+          offsetRange.setStart(anchorBlock, 0);
+          offsetRange.setEnd(range.startContainer, range.startOffset);
+          caretOffset = offsetRange.toString().length;
+        }
       }
 
       const active =
@@ -1350,7 +1348,6 @@ function extractLIsFromList(selectedLIs) {
   if (!list) return null;
 
   const allItems = Array.from(list.children);
-  const firstIdx = allItems.indexOf(selectedLIs[0]);
   const lastIdx = allItems.indexOf(selectedLIs[selectedLIs.length - 1]);
 
   // Items after the selection → trailing list
