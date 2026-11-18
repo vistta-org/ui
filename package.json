@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git.vistta.org/ui.git"
+    "url": "https://git.vistta.org/vistta/ui.git"
   },
   "scripts": {
     "postinstall": ""
