@@ -39,7 +39,7 @@ import Select from "./select";
  * @typedef {BaseInputProps & Omit<FieldsetProps, "style"> & { type?: "switch" | "toggle", style?: JSX.Style | JSX.StyleObject & { variant?: "default" | "inverted" | "primary" | "primary inverted" } }} ToggleInputProps
  * @typedef {SelectProps & FieldsetProps & { type: "select" }} SelectInputProps
  * @typedef {RichProps & FieldsetProps & { type: "rich" | "richtext" }} RichInputProps
- * @typedef {ColorProps & Omit<FieldsetProps, "style"> & { type: "color" }} ColorInputProps
+ * @typedef {Omit<ColorProps, "style"> & Omit<FieldsetProps, "style"> & { type: "color", style?: JSX.Style | JSX.StyleObject & { variant?: ColorProps["style"] } }} ColorInputProps
  * @typedef {StandardInputProps | NumberInputProps | CheckInputProps | ToggleInputProps | SelectInputProps | RichInputProps | ColorInputProps} InputProps
  */
 
